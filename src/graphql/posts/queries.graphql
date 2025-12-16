@@ -1,0 +1,54 @@
+# Post Fragment
+fragment PostFields on Post {
+	id
+	slug
+	title
+	excerpt
+	date
+	featuredImage {
+		node {
+			...MediaItemFields
+		}
+	}
+}
+
+fragment PostDetailFields on Post {
+	...PostFields
+	content
+	author {
+		node {
+			name
+			avatar {
+				url
+			}
+		}
+	}
+	categories {
+		nodes {
+			id
+			name
+		}
+	}
+	tags {
+		nodes {
+			id
+			name
+		}
+	}
+}
+
+# 文章列表查询
+query PostsList($first: Int = 20) {
+	posts(first: $first) {
+		nodes {
+			...PostFields
+		}
+	}
+}
+
+# 单篇文章查询
+query GetPostBySlug($id: ID!) {
+	post(id: $id, idType: SLUG) {
+		...PostDetailFields
+	}
+}

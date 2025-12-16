@@ -1,0 +1,5 @@
+# 媒体字段 Fragment（共享）
+fragment MediaItemFields on MediaItem {
+	sourceUrl
+	altText
+}

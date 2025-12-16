@@ -1,0 +1,36 @@
+# Product Fragment（使用自动生成的 ACF fragment）
+fragment ProductFields on Product {
+	id
+	slug
+	title
+	productAcfGroup {
+		...ProductAcfFields
+	}
+	featuredImage {
+		node {
+			...MediaItemFields
+		}
+	}
+}
+
+fragment ProductDetailFields on Product {
+	...ProductFields
+	date
+	content
+}
+
+# 产品列表查询
+query ProductsList($first: Int = 20) {
+	products(first: $first) {
+		nodes {
+			...ProductFields
+		}
+	}
+}
+
+# 单个产品查询
+query ProductBySlug($slug: ID!) {
+	product(id: $slug, idType: SLUG) {
+		...ProductDetailFields
+	}
+}

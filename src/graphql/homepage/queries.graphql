@@ -1,0 +1,21 @@
+# 首页数据查询
+query HomepageData {
+	posts(first: 6) {
+		nodes {
+			...PostFields
+		}
+		pageInfo {
+			hasNextPage
+			endCursor
+		}
+	}
+	products(first: 6) {
+		nodes {
+			...ProductFields
+		}
+		pageInfo {
+			hasNextPage
+			endCursor
+		}
+	}
+}
