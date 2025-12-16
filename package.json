@@ -8,6 +8,7 @@
     "preview": "vite preview",
     "start": "node .output/server/index.mjs",
     "test": "vitest run",
+    "check": "ultracite check .",
     "lint": "biome check --write .",
     "lint:fix": "biome check --fix --unsafe .",
     "typecheck": "tsc --noEmit",

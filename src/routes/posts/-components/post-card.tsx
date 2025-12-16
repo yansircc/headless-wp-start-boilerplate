@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { Calendar } from "lucide-react";
 import type { PostCardProps } from "../-types";
 
 export function PostCard({
@@ -12,47 +11,45 @@ export function PostCard({
 	const formattedDate = date
 		? new Date(date).toLocaleDateString("zh-CN", {
 				year: "numeric",
-				month: "long",
-				day: "numeric",
+				month: "2-digit",
+				day: "2-digit",
 			})
 		: "";
 
-	const truncatedExcerpt =
-		excerpt && excerpt.length > 100 ? `${excerpt.slice(0, 100)}...` : excerpt;
-
 	return (
 		<Link
-			className="group block overflow-hidden rounded-xl border border-slate-700 bg-slate-800/50 backdrop-blur-sm transition-all duration-300 hover:border-cyan-500/50 hover:shadow-cyan-500/10 hover:shadow-lg"
+			className="group block border-gray-200 border-b pb-8 transition-opacity last:border-0 hover:opacity-60"
 			params={{ postId: slug || "" }}
 			to="/posts/$postId"
 		>
-			{!!featuredImage?.node && (
-				<div className="aspect-video overflow-hidden bg-slate-700">
-					<img
-						alt={featuredImage.node.altText || title || ""}
-						className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-						height="400"
-						src={featuredImage.node.sourceUrl || ""}
-						width="600"
-					/>
-				</div>
-			)}
-			<div className="p-5">
-				<h3 className="mb-3 line-clamp-2 font-semibold text-white text-xl transition-colors group-hover:text-cyan-400">
-					{title}
-				</h3>
-				{!!truncatedExcerpt && (
-					<p className="mb-4 line-clamp-3 text-gray-400 leading-relaxed">
-						{truncatedExcerpt}
-					</p>
-				)}
-				{!!date && (
-					<div className="flex items-center gap-2 text-gray-500 text-sm">
-						<Calendar className="h-4 w-4" />
-						<time dateTime={date}>{formattedDate}</time>
+			<article>
+				{!!featuredImage?.node && (
+					<div className="mb-4 aspect-[16/9] overflow-hidden bg-gray-100">
+						<img
+							alt={featuredImage.node.altText || title || ""}
+							className="h-full w-full object-cover"
+							height="400"
+							src={featuredImage.node.sourceUrl || ""}
+							width="600"
+						/>
 					</div>
 				)}
-			</div>
+				<div className="space-y-2">
+					{!!date && (
+						<time className="block font-light text-gray-500 text-xs uppercase tracking-wider">
+							{formattedDate}
+						</time>
+					)}
+					<h3 className="font-light text-black text-xl leading-tight">
+						{title}
+					</h3>
+					{!!excerpt && excerpt.length > 0 && (
+						<p className="line-clamp-2 font-light text-gray-600 text-sm leading-relaxed">
+							{excerpt}
+						</p>
+					)}
+				</div>
+			</article>
 		</Link>
 	);
 }
