@@ -51,7 +51,7 @@ export type ProductAcfGroup = z.infer<typeof productAcfGroupSchema>;
 
 export const productSchema = z.object({
 	id: z.string(),
-	databaseId: z.number(),
+	databaseId: z.number().optional(),
 	title: z.string().nullable().optional(),
 	slug: z.string().nullable().optional(),
 	content: z.string().nullable().optional(),
