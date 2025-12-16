@@ -1,7 +1,7 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
-	schema: "http://headless.local/graphql",
+	schema: process.env.GRAPHQL_ENDPOINT,
 	documents: ["src/**/*.{ts,tsx,js,jsx,astro,graphql,gql}"],
 	generates: {
 		"src/graphql/_generated/graphql.ts": {

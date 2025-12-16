@@ -18,9 +18,9 @@ import { existsSync } from "node:fs";
 import { spawn } from "bun";
 
 // Configuration
-const WP_URL = process.env.WP_URL || "http://headless.local";
+const WP_URL = process.env.WP_URL;
 const WP_GRAPHQL_ENDPOINT = `${WP_URL}/graphql`;
-const ACF_SYNC_KEY = process.env.ACF_SYNC_KEY || "dev-key-123";
+const ACF_SYNC_KEY = process.env.ACF_SYNC_KEY ?? "";
 const SCHEMA_FILE = "src/graphql/_generated/schema.graphql";
 
 // Colors

@@ -6,8 +6,7 @@ import {
 	ProductsListDocument,
 	type ProductsListQuery,
 } from "@/graphql/products/queries.generated";
-
-const GRAPHQL_ENDPOINT = "http://headless.local/graphql";
+import { GRAPHQL_ENDPOINT } from "@/lib/graphql/config";
 
 export const getProducts = createServerFn({
 	method: "GET",
