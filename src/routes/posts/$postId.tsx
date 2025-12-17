@@ -4,6 +4,7 @@ import {
 	buildSchemaScript,
 	buildSeoMeta,
 	generateDescription,
+	getDynamicRouteSeo,
 	seoConfig,
 } from "@/lib/seo";
 import { getPostBySlug } from "./-services";
@@ -12,21 +13,26 @@ export const Route = createFileRoute("/posts/$postId")({
 	component: RouteComponent,
 	loader: async ({ params }) => await getPostBySlug({ data: params.postId }),
 	head: ({ loaderData: post, params }) => {
+		const { title, type } = getDynamicRouteSeo("/posts/$postId", post?.title);
 		const config = {
-			title: `${post?.title ?? "Post"} | ${seoConfig.siteName}`,
+			title,
 			description: generateDescription(post?.content, post?.excerpt),
 			canonical: `/posts/${params.postId}`,
 			image: post?.featuredImage?.node?.sourceUrl ?? undefined,
 			imageAlt: post?.featuredImage?.node?.altText ?? post?.title ?? undefined,
-			type: "article" as const,
+			type,
 			publishedTime: post?.date ?? undefined,
 			author: post?.author?.node?.name ?? undefined,
 		};
 
-		const schema = buildSchemaScript({ ...config, ...seoConfig });
+		const schema = buildSchemaScript({
+			...config,
+			siteName: seoConfig.site.name,
+			siteUrl: seoConfig.site.url,
+		});
 
 		return {
-			meta: buildSeoMeta(config, seoConfig.siteUrl),
+			meta: buildSeoMeta(config, seoConfig.site.url),
 			scripts: schema ? [schema] : [],
 		};
 	},

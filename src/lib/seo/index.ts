@@ -1,6 +1,30 @@
-import type { MetaTag, SeoConfig, SiteConfig } from "./types";
+import type { MetaTag, PageSeoConfig } from "./types";
 
-function buildRobotsMeta(config: SeoConfig): MetaTag | null {
+// ============================================
+// Re-exports
+// ============================================
+
+export {
+	buildTitle,
+	getDynamicRouteSeo,
+	getRouteSeo,
+	seoConfig,
+} from "./seo.config";
+
+export type {
+	DynamicRouteConfig,
+	MetaTag,
+	PageSeoConfig,
+	RouteConfig,
+	SeoConfigSchema,
+	SiteConfig,
+} from "./types";
+
+// ============================================
+// Meta Tag Builders
+// ============================================
+
+function buildRobotsMeta(config: PageSeoConfig): MetaTag | null {
 	const robots: string[] = [];
 	if (config.noindex) {
 		robots.push("noindex");
@@ -14,7 +38,7 @@ function buildRobotsMeta(config: SeoConfig): MetaTag | null {
 	return null;
 }
 
-function buildOpenGraphMeta(config: SeoConfig, siteUrl: string): MetaTag[] {
+function buildOpenGraphMeta(config: PageSeoConfig, siteUrl: string): MetaTag[] {
 	const meta: MetaTag[] = [
 		{ property: "og:type", content: config.type ?? "website" },
 		{ property: "og:title", content: config.title },
@@ -24,7 +48,10 @@ function buildOpenGraphMeta(config: SeoConfig, siteUrl: string): MetaTag[] {
 		meta.push({ property: "og:description", content: config.description });
 	}
 	if (config.canonical) {
-		meta.push({ property: "og:url", content: `${siteUrl}${config.canonical}` });
+		meta.push({
+			property: "og:url",
+			content: `${siteUrl}${config.canonical}`,
+		});
 	}
 	if (config.image) {
 		meta.push({ property: "og:image", content: config.image });
@@ -36,7 +63,7 @@ function buildOpenGraphMeta(config: SeoConfig, siteUrl: string): MetaTag[] {
 	return meta;
 }
 
-function buildArticleMeta(config: SeoConfig): MetaTag[] {
+function buildArticleMeta(config: PageSeoConfig): MetaTag[] {
 	if (config.type !== "article") {
 		return [];
 	}
@@ -57,7 +84,7 @@ function buildArticleMeta(config: SeoConfig): MetaTag[] {
 	return meta;
 }
 
-function buildTwitterMeta(config: SeoConfig): MetaTag[] {
+function buildTwitterMeta(config: PageSeoConfig): MetaTag[] {
 	const meta: MetaTag[] = [
 		{
 			name: "twitter:card",
@@ -79,7 +106,10 @@ function buildTwitterMeta(config: SeoConfig): MetaTag[] {
 /**
  * Build SEO meta tags array from config
  */
-export function buildSeoMeta(config: SeoConfig, siteUrl: string): MetaTag[] {
+export function buildSeoMeta(
+	config: PageSeoConfig,
+	siteUrl: string
+): MetaTag[] {
 	const meta: MetaTag[] = [{ title: config.title }];
 
 	if (config.description) {
@@ -98,11 +128,20 @@ export function buildSeoMeta(config: SeoConfig, siteUrl: string): MetaTag[] {
 	return meta;
 }
 
+// ============================================
+// Schema.org JSON-LD
+// ============================================
+
+type SchemaConfig = PageSeoConfig & {
+	siteName: string;
+	siteUrl: string;
+};
+
 /**
  * Build Schema.org JSON-LD script tag
  */
 export function buildSchemaScript(
-	config: SeoConfig & SiteConfig
+	config: SchemaConfig
 ): { type: string; children: string } | null {
 	let schema: Record<string, unknown>;
 
@@ -142,6 +181,10 @@ export function buildSchemaScript(
 	};
 }
 
+// ============================================
+// Content Utilities
+// ============================================
+
 /**
  * Strip HTML tags from content
  */
@@ -174,6 +217,3 @@ export function generateDescription(
 	}
 	return "";
 }
-
-export { seoConfig } from "./config";
-export type { MetaTag, SeoConfig, SiteConfig } from "./types";

@@ -5,6 +5,7 @@ import {
 	buildSchemaScript,
 	buildSeoMeta,
 	generateDescription,
+	getDynamicRouteSeo,
 	seoConfig,
 } from "@/lib/seo";
 import { getProductBySlug } from "./-services";
@@ -14,20 +15,28 @@ export const Route = createFileRoute("/products/$productId")({
 	loader: async ({ params }) =>
 		await getProductBySlug({ data: params.productId }),
 	head: ({ loaderData: product, params }) => {
+		const { title, type } = getDynamicRouteSeo(
+			"/products/$productId",
+			product?.title
+		);
 		const config = {
-			title: `${product?.title ?? "Product"} | ${seoConfig.siteName}`,
+			title,
 			description: generateDescription(product?.content),
 			canonical: `/products/${params.productId}`,
 			image: product?.featuredImage?.node?.sourceUrl ?? undefined,
 			imageAlt:
 				product?.featuredImage?.node?.altText ?? product?.title ?? undefined,
-			type: "product" as const,
+			type,
 		};
 
-		const schema = buildSchemaScript({ ...config, ...seoConfig });
+		const schema = buildSchemaScript({
+			...config,
+			siteName: seoConfig.site.name,
+			siteUrl: seoConfig.site.url,
+		});
 
 		return {
-			meta: buildSeoMeta(config, seoConfig.siteUrl),
+			meta: buildSeoMeta(config, seoConfig.site.url),
 			scripts: schema ? [schema] : [],
 		};
 	},

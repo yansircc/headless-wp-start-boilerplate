@@ -1,22 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Container, Section } from "@/components/shared";
-import { buildSeoMeta, seoConfig } from "@/lib/seo";
+import { buildSeoMeta, getRouteSeo, seoConfig } from "@/lib/seo";
 import { PostCard } from "./-components/post-card";
 import { getPosts } from "./-services";
 
 export const Route = createFileRoute("/posts/")({
 	component: RouteComponent,
 	loader: async () => await getPosts(),
-	head: () => ({
-		meta: buildSeoMeta(
-			{
-				title: `Blog | ${seoConfig.siteName}`,
-				description: "Explore all blog posts",
-				canonical: "/posts",
-			},
-			seoConfig.siteUrl
-		),
-	}),
+	head: () => {
+		const { title, description } = getRouteSeo("/posts");
+		return {
+			meta: buildSeoMeta(
+				{
+					title,
+					description,
+					canonical: "/posts",
+				},
+				seoConfig.site.url
+			),
+		};
+	},
 });
 
 function RouteComponent() {

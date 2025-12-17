@@ -23,7 +23,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: seoConfig.siteName,
+				title: seoConfig.site.name,
 			},
 		],
 		links: [
@@ -44,7 +44,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="zh-CN">
+		<html lang={seoConfig.site.language}>
 			<head>
 				<HeadContent />
 			</head>
