@@ -55,9 +55,17 @@ bun sync
 │   │   ├── _generated/          # 自动生成（勿手动修改）
 │   │   ├── products/queries.graphql
 │   │   └── fragments/media.graphql
-│   ├── routes/                  # 文件路由
+│   ├── routes/                  # 文件路由（SEO 的 SSOT）
 │   ├── components/shared/       # 共享组件
-│   └── lib/graphql/             # GraphQL 客户端配置
+│   ├── lib/
+│   │   ├── graphql/             # GraphQL 客户端配置
+│   │   └── seo/                 # SEO 工具函数
+│   └── routeTree.gen.ts         # 自动生成的路由树
+├── scripts/
+│   └── generate-seo-files.ts    # SEO 文件生成脚本
+├── public/
+│   ├── robots.txt               # 自动生成
+│   └── sitemap.xml              # 自动生成
 └── wordpress/
     └── plugins/
         └── acf-sync-api/        # WordPress 插件（需复制到 WP）
@@ -85,10 +93,66 @@ export const priceField = textField({
 | 命令 | 说明 |
 |------|------|
 | `bun dev` | 开发服务器 (port 3008) |
-| `bun build` | 构建生产版本 |
+| `bun build` | 构建生产版本（自动生成 SEO 文件） |
 | `bun sync` | 同步（生成 fragment → 编译 ACF → 推送 → codegen） |
+| `bun seo` | 生成 robots.txt 和 sitemap.xml |
 | `bun typecheck` | 类型检查 |
 | `bun lint` | 代码检查与格式化 |
+
+## SEO
+
+项目内置完全自动化的 SEO 支持，以 `routeTree.gen.ts` 为 Single Source of Truth。
+
+### 自动生成
+
+- **robots.txt** - 自动生成，包含 sitemap 链接
+- **sitemap.xml** - 自动发现所有路由和动态内容
+
+### 工作原理
+
+```
+routeTree.gen.ts (SSOT)
+    │
+    ├── /about           → 静态页面
+    ├── /posts           → 列表页面
+    ├── /posts/$postId   → 动态内容 → GraphQL: posts
+    └── /products/$id    → 动态内容 → GraphQL: products
+```
+
+### 添加新内容类型
+
+只需创建路由文件，SEO 自动适配：
+
+```bash
+# 1. 创建路由
+touch src/routes/accessories/index.tsx
+touch src/routes/accessories/\$accessoryId.tsx
+
+# 2. 重新生成（或等待 build 自动执行）
+bun seo
+```
+
+脚本会自动：
+- 发现 `/accessories` 是列表页
+- 发现 `/accessories/$accessoryId` 需要从 GraphQL `accessories` 查询获取数据
+- 生成完整的 sitemap
+
+### 页面级 SEO
+
+每个路由使用 `head()` 配置 meta 标签：
+
+```typescript
+// src/routes/posts/$postId.tsx
+export const Route = createFileRoute("/posts/$postId")({
+  head: ({ loaderData: post }) => ({
+    meta: buildSeoMeta({
+      title: post?.title,
+      description: generateDescription(post?.content),
+      type: "article",
+    }, seoConfig.siteUrl),
+  }),
+});
+```
 
 ## 环境变量
 
@@ -98,6 +162,8 @@ export const priceField = textField({
 WP_URL=http://your-wordpress.local
 GRAPHQL_ENDPOINT=http://your-wordpress.local/graphql
 ACF_SYNC_KEY=your-api-key
+SITE_URL=https://your-domain.com
+SITE_NAME=Your Site Name
 ```
 
 ## WordPress 设置

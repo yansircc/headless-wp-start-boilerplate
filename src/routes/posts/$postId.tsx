@@ -1,10 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Container, Divider, Section } from "@/components/shared";
+import {
+	buildSchemaScript,
+	buildSeoMeta,
+	generateDescription,
+	seoConfig,
+} from "@/lib/seo";
 import { getPostBySlug } from "./-services";
 
 export const Route = createFileRoute("/posts/$postId")({
 	component: RouteComponent,
 	loader: async ({ params }) => await getPostBySlug({ data: params.postId }),
+	head: ({ loaderData: post, params }) => {
+		const config = {
+			title: `${post?.title ?? "Post"} | ${seoConfig.siteName}`,
+			description: generateDescription(post?.content, post?.excerpt),
+			canonical: `/posts/${params.postId}`,
+			image: post?.featuredImage?.node?.sourceUrl ?? undefined,
+			imageAlt: post?.featuredImage?.node?.altText ?? post?.title ?? undefined,
+			type: "article" as const,
+			publishedTime: post?.date ?? undefined,
+			author: post?.author?.node?.name ?? undefined,
+		};
+
+		const schema = buildSchemaScript({ ...config, ...seoConfig });
+
+		return {
+			meta: buildSeoMeta(config, seoConfig.siteUrl),
+			scripts: schema ? [schema] : [],
+		};
+	},
 });
 
 function RouteComponent() {

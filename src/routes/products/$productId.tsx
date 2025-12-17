@@ -1,12 +1,36 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Container, Divider, Section } from "@/components/shared";
+import {
+	buildSchemaScript,
+	buildSeoMeta,
+	generateDescription,
+	seoConfig,
+} from "@/lib/seo";
 import { getProductBySlug } from "./-services";
 
 export const Route = createFileRoute("/products/$productId")({
 	component: RouteComponent,
 	loader: async ({ params }) =>
 		await getProductBySlug({ data: params.productId }),
+	head: ({ loaderData: product, params }) => {
+		const config = {
+			title: `${product?.title ?? "Product"} | ${seoConfig.siteName}`,
+			description: generateDescription(product?.content),
+			canonical: `/products/${params.productId}`,
+			image: product?.featuredImage?.node?.sourceUrl ?? undefined,
+			imageAlt:
+				product?.featuredImage?.node?.altText ?? product?.title ?? undefined,
+			type: "product" as const,
+		};
+
+		const schema = buildSchemaScript({ ...config, ...seoConfig });
+
+		return {
+			meta: buildSeoMeta(config, seoConfig.siteUrl),
+			scripts: schema ? [schema] : [],
+		};
+	},
 });
 
 function RouteComponent() {

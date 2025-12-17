@@ -1,11 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Container, Section } from "@/components/shared";
+import { buildSeoMeta, seoConfig } from "@/lib/seo";
 import { ProductCard } from "./-components/product-card";
 import { getProducts } from "./-services";
 
 export const Route = createFileRoute("/products/")({
 	component: RouteComponent,
 	loader: async () => await getProducts(),
+	head: () => ({
+		meta: buildSeoMeta(
+			{
+				title: `Products | ${seoConfig.siteName}`,
+				description: "Explore all products",
+				canonical: "/products",
+			},
+			seoConfig.siteUrl
+		),
+	}),
 });
 
 function RouteComponent() {

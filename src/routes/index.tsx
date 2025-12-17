@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { Container, Section } from "@/components/shared";
+import { buildSeoMeta, seoConfig } from "@/lib/seo";
 import { getHomepageData } from "./-services";
 import { PostCard } from "./posts/-components/post-card";
 import { ProductCard } from "./products/-components/product-card";
@@ -8,6 +9,17 @@ import { ProductCard } from "./products/-components/product-card";
 export const Route = createFileRoute("/")({
 	component: Homepage,
 	loader: async () => await getHomepageData(),
+	head: () => ({
+		meta: buildSeoMeta(
+			{
+				title: seoConfig.siteName,
+				description: seoConfig.defaultDescription,
+				canonical: "/",
+				image: seoConfig.defaultImage,
+			},
+			seoConfig.siteUrl
+		),
+	}),
 });
 
 function Homepage() {

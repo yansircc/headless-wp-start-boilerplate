@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 3008",
-    "build": "vite build",
+    "build": "bun run seo && vite build",
     "preview": "vite preview",
     "start": "node .output/server/index.mjs",
     "test": "vitest run",
@@ -13,6 +13,7 @@
     "lint:fix": "biome check --fix --unsafe .",
     "typecheck": "tsc --noEmit",
     "sync": "bun scripts/sync.ts",
+    "seo": "bun scripts/generate-seo-files.ts",
     "prepare": "husky"
   },
   "dependencies": {
