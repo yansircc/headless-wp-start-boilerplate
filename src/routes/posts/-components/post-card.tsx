@@ -9,44 +9,45 @@ export function PostCard({
 	featuredImage,
 }: PostCardProps) {
 	const formattedDate = date
-		? new Date(date).toLocaleDateString("zh-CN", {
+		? new Date(date).toLocaleDateString("en-US", {
 				year: "numeric",
-				month: "2-digit",
-				day: "2-digit",
+				month: "long",
+				day: "numeric",
 			})
 		: "";
 
 	return (
 		<Link
-			className="group block border-gray-200 border-b pb-8 transition-opacity last:border-0 hover:opacity-60"
+			className="group block transition-all"
 			params={{ postId: slug || "" }}
 			to="/posts/$postId"
 		>
-			<article>
+			<article className="hover:-translate-y-1 flex flex-col gap-6 rounded-3xl p-4 transition-all hover:bg-white hover:shadow-xl md:flex-row">
 				{!!featuredImage?.node && (
-					<div className="mb-4 aspect-[16/9] overflow-hidden bg-gray-100">
+					<div className="h-32 shrink-0 overflow-hidden rounded-2xl bg-gray-100 md:w-48">
 						<img
 							alt={featuredImage.node.altText || title || ""}
-							className="h-full w-full object-cover"
+							className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
 							height="400"
 							src={featuredImage.node.sourceUrl || ""}
 							width="600"
 						/>
 					</div>
 				)}
-				<div className="space-y-2">
+				<div className="flex flex-col justify-center space-y-3">
 					{!!date && (
-						<time className="block font-light text-gray-500 text-xs uppercase tracking-wider">
+						<time className="block font-medium text-blue-500 text-xs uppercase tracking-widest">
 							{formattedDate}
 						</time>
 					)}
-					<h3 className="font-light text-black text-xl leading-tight">
+					<h3 className="font-bold text-black text-xl leading-snug transition-colors group-hover:text-blue-600">
 						{title}
 					</h3>
 					{!!excerpt && excerpt.length > 0 && (
-						<p className="line-clamp-2 font-light text-gray-600 text-sm leading-relaxed">
-							{excerpt}
-						</p>
+						<div
+							className="line-clamp-2 font-normal text-gray-500 text-sm leading-relaxed"
+							dangerouslySetInnerHTML={{ __html: excerpt }}
+						/>
 					)}
 				</div>
 			</article>

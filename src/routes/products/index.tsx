@@ -26,26 +26,34 @@ function RouteComponent() {
 	const products = Route.useLoaderData();
 
 	return (
-		<div className="min-h-screen bg-white">
-			<Section className="border-gray-200 border-b py-24">
-				<Container size="md">
-					<h1 className="font-light text-4xl text-black tracking-tight">
-						产品
+		<div className="min-h-screen">
+			<Section className="mb-16 border-gray-100 border-b pt-16 pb-24">
+				<Container className="text-center" size="md">
+					<div className="glass mb-6 inline-flex items-center gap-2 rounded-full px-3 py-1">
+						<span className="font-bold text-[10px] text-orange-500 uppercase tracking-widest">
+							Store
+						</span>
+					</div>
+					<h1 className="gradient-text font-bold text-5xl text-black tracking-tight">
+						Products
 					</h1>
+					<p className="mt-4 text-gray-500 text-lg">
+						Curated selection of high-quality items to meet your diverse needs.
+					</p>
 				</Container>
 			</Section>
 
-			<Section>
+			<Section className="pb-32">
 				<Container size="lg">
 					{(products?.nodes?.length ?? 0) > 0 ? (
-						<div className="grid grid-cols-1 gap-x-12 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
+						<div className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
 							{products?.nodes?.map((product) => (
 								<ProductCard key={product.id} {...product} />
 							))}
 						</div>
 					) : (
-						<div className="py-16 text-center font-light text-gray-400">
-							暂无产品
+						<div className="rounded-3xl border border-gray-200 border-dashed py-24 text-center font-normal text-gray-400">
+							No products found
 						</div>
 					)}
 				</Container>

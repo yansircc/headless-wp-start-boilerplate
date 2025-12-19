@@ -20,7 +20,7 @@ export const seoConfig: SeoConfigSchema = {
 		url: process.env.SITE_URL ?? "",
 		name: process.env.SITE_NAME ?? "",
 		tagline: "Headless WordPress Starter", // TODO: Fill in your site tagline
-		language: "zh-CN",
+		language: "en-US",
 		separator: "-",
 	},
 
@@ -42,15 +42,17 @@ export const seoConfig: SeoConfigSchema = {
 	routes: {
 		"/": {
 			title: "", // Empty = use site.name + tagline for homepage
-			description: "探索最新的文章和产品，发现更多精彩内容", // TODO: Customize
+			description:
+				"Explore the latest insights and products, discover more exciting content", // TODO: Customize
 		},
 		"/posts": {
-			title: "博客", // → "博客 - Site Name"
-			description: "浏览所有博客文章，获取最新资讯和教程", // TODO: Customize
+			title: "Articles", // → "Articles - Site Name"
+			description: "Browse all blog posts, get the latest news and tutorials", // TODO: Customize
 		},
 		"/products": {
-			title: "产品", // → "产品 - Site Name"
-			description: "探索我们的产品系列，找到适合您的选择", // TODO: Customize
+			title: "Products", // → "Products - Site Name"
+			description:
+				"Explore our product collection and find the best choice for you", // TODO: Customize
 		},
 	},
 
@@ -61,11 +63,11 @@ export const seoConfig: SeoConfigSchema = {
 	// ============================================
 	dynamicRoutes: {
 		"/posts/$postId": {
-			fallbackTitle: "文章",
+			fallbackTitle: "Article",
 			type: "article",
 		},
 		"/products/$productId": {
-			fallbackTitle: "产品",
+			fallbackTitle: "Product",
 			type: "product",
 		},
 	},
