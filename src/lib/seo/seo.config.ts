@@ -10,6 +10,7 @@
  * 3. Add new routes to the `routes` object when creating new pages
  */
 
+import { env } from "@/env";
 import type { SeoConfigSchema } from "./types";
 
 export const seoConfig: SeoConfigSchema = {
@@ -17,8 +18,8 @@ export const seoConfig: SeoConfigSchema = {
 	// Site Configuration (Required)
 	// ============================================
 	site: {
-		url: process.env.SITE_URL ?? "",
-		name: process.env.SITE_NAME ?? "",
+		url: env.SITE_URL,
+		name: env.SITE_NAME,
 		tagline: "Headless WordPress Starter", // TODO: Fill in your site tagline
 		language: "en-US",
 		separator: "-",

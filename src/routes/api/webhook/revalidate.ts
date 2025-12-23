@@ -9,6 +9,7 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createFileRoute } from "@tanstack/react-router";
+import { env } from "@/env";
 import { cache, invalidateByWebhook } from "@/lib/cache";
 
 type WebhookPayload = {
@@ -62,7 +63,7 @@ export const Route = createFileRoute("/api/webhook/revalidate")({
 	server: {
 		handlers: {
 			POST: async ({ request }) => {
-				const secret = process.env.WEBHOOK_SECRET ?? "";
+				const secret = env.WEBHOOK_SECRET;
 
 				// Get signature from header
 				const signature =
@@ -71,8 +72,8 @@ export const Route = createFileRoute("/api/webhook/revalidate")({
 				// Read body as text for signature verification
 				const bodyText = await request.text();
 
-				// Verify signature (skip if no secret configured - development mode)
-				if (secret && !verifySignature(bodyText, signature, secret)) {
+				// Verify signature
+				if (!verifySignature(bodyText, signature, secret)) {
 					console.warn("[Webhook] Invalid signature");
 					return Response.json(
 						{ success: false, error: "Invalid signature" },
