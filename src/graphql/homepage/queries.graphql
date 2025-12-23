@@ -1,6 +1,10 @@
 # 首页数据查询（支持多语言）
-query HomepageData($language: LanguageCodeFilterEnum) {
-	posts(first: 6, where: { language: $language }) {
+query HomepageData(
+	$language: LanguageCodeFilterEnum
+	$postsFirst: Int = 6
+	$productsFirst: Int = 6
+) {
+	posts(first: $postsFirst, where: { language: $language }) {
 		nodes {
 			...PostFields
 		}
@@ -9,7 +13,7 @@ query HomepageData($language: LanguageCodeFilterEnum) {
 			endCursor
 		}
 	}
-	products(first: 6) {
+	products(first: $productsFirst, where: { language: $language }) {
 		nodes {
 			...ProductFields
 		}

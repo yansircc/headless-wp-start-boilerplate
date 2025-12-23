@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { QUERY_LIMITS } from "@/graphql/constants";
 import {
 	ProductBySlugDocument,
 	ProductsListDocument,
@@ -41,7 +42,7 @@ export const getProducts = createServerFn({
 async function fetchProducts(locale?: string) {
 	const language = toLanguageFilter(locale);
 	const data = await graphqlRequest(ProductsListDocument, {
-		first: 20,
+		first: QUERY_LIMITS.list.products,
 		language,
 	});
 	return data.products;

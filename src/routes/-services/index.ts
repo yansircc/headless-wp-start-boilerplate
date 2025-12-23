@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { productSchema } from "@/acf/definitions";
+import { QUERY_LIMITS } from "@/graphql/constants";
 import { HomepageDataDocument } from "@/graphql/homepage/queries.generated";
 import { cache, cacheKeys } from "@/lib/cache";
 import { graphqlRequest } from "@/lib/graphql";
@@ -15,7 +16,11 @@ type GetHomepageDataInput = {
 
 async function fetchHomepageData(locale?: string) {
 	const language = toLanguageFilter(locale);
-	const result = await graphqlRequest(HomepageDataDocument, { language });
+	const result = await graphqlRequest(HomepageDataDocument, {
+		language,
+		postsFirst: QUERY_LIMITS.homepage.posts,
+		productsFirst: QUERY_LIMITS.homepage.products,
+	});
 
 	const products = result.products?.nodes || [];
 

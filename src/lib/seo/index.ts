@@ -232,7 +232,7 @@ export function generateDescription(
 
 type HreflangLink = {
 	rel: "alternate";
-	hreflang: string;
+	hrefLang: string;
 	href: string;
 };
 
@@ -259,7 +259,7 @@ export function buildHreflangLinks(
 
 		links.push({
 			rel: "alternate",
-			hreflang: localeStr,
+			hrefLang: localeStr,
 			href: `${siteUrl}${localizedPath}`,
 		});
 	}
@@ -267,7 +267,7 @@ export function buildHreflangLinks(
 	// Add x-default pointing to the default locale version
 	links.push({
 		rel: "alternate",
-		hreflang: "x-default",
+		hrefLang: "x-default",
 		href: `${siteUrl}${currentPath}`,
 	});
 
