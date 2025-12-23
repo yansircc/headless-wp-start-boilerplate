@@ -5,6 +5,7 @@
  * 1. Check for manual modifications to auto-generated files
  * 2. Validate SEO configuration
  * 3. Fragment usage check
+ * 4. i18n configuration sync check
  *
  * Run: bun scripts/validate.ts
  * Or: bun validate
@@ -29,6 +30,7 @@ const GENERATED_PATTERNS = [
 	"src/acf/definitions/*/_generated/**/*",
 	"src/acf/compiled/**/*",
 	"src/routeTree.gen.ts",
+	"intlayer.config.ts",
 ];
 
 const CRITICAL_GENERATED_FILES = [
@@ -121,6 +123,29 @@ function checkSeoConfig(checkOnly: boolean): {
 		return {
 			passed: false,
 			output: err.stderr || err.stdout || "SEO validation failed",
+		};
+	}
+}
+
+function checkI18nConfig(): {
+	passed: boolean;
+	output: string;
+} {
+	try {
+		const output = execSync("bun run sync:i18n:check", {
+			cwd: ROOT_DIR,
+			encoding: "utf-8",
+			stdio: ["pipe", "pipe", "pipe"],
+		});
+		return { passed: true, output };
+	} catch (error) {
+		const err = error as { stderr?: string; stdout?: string };
+		return {
+			passed: false,
+			output:
+				err.stderr ||
+				err.stdout ||
+				"i18n config out of sync. Run `bun sync` to update.",
 		};
 	}
 }
@@ -247,6 +272,21 @@ function runSeoCheck(checkOnly: boolean): boolean {
 	return false;
 }
 
+function runI18nCheck(): boolean {
+	printHeader("Check 5: i18n configuration");
+	const result = checkI18nConfig();
+
+	if (result.passed) {
+		printSuccess("i18n configuration is in sync with WordPress Polylang");
+		return true;
+	}
+
+	printError("i18n configuration out of sync");
+	console.error(`\n${result.output}`);
+	console.error("\n  To fix: Run `bun sync` to update intlayer.config.ts\n");
+	return false;
+}
+
 // ============================================
 // Main
 // ============================================
@@ -260,8 +300,9 @@ async function main() {
 	const check2 = runFilesExistCheck();
 	runFragmentUsageCheck();
 	const check4 = runSeoCheck(isCheckOnly);
+	const check5 = runI18nCheck();
 
-	const hasErrors = !(check1 && check2 && check4);
+	const hasErrors = !(check1 && check2 && check4 && check5);
 
 	printHeader("Summary");
 	if (hasErrors) {

@@ -1,1 +1,4 @@
+bun typecheck
+bun run test
+bun check
 bun validate:check
