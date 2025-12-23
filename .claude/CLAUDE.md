@@ -112,24 +112,25 @@ bun seo
 
 ## Data Fetching Pattern
 
-All data fetching uses server-side cache:
+All data fetching uses server-side cache with locale support:
 
 ```typescript
-// src/routes/products/-services/index.ts
-export const getProducts = createServerFn({ method: "GET" }).handler(async () => {
-  const cacheKey = cacheKeys.productsList();
+// src/routes/{-$locale}/products/-services/index.ts
+export const getProducts = createServerFn({ method: "GET" })
+  .inputValidator((input: { locale?: string }) => input)
+  .handler(async ({ data }) => {
+    const { locale } = data;
+    const cacheKey = cacheKeys.productsList(locale);
 
-  // Check cache first
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
 
-  // Fetch from WordPress
-  const data = await graphqlRequest(ProductsListDocument, { first: 20 });
+    const language = toLanguageFilter(locale); // "en" → LanguageCodeFilterEnum.En
+    const result = await graphqlRequest(ProductsListDocument, { first: 20, language });
 
-  // Store in cache
-  cache.set(cacheKey, data.products);
-  return data.products;
-});
+    cache.set(cacheKey, result.products);
+    return result.products;
+  });
 ```
 
 **When adding a new content type**, follow this pattern and add corresponding cache keys.
@@ -152,6 +153,39 @@ const language = toLanguageFilter(locale); // "en" → LanguageCodeFilterEnum.En
 ```
 
 **Cache keys include locale**: `posts:list:en`, `homepage:data:ja`
+
+### Adding UI Translations
+
+```bash
+# 1. Edit src/content/common.content.ts
+# 2. Add new translation key with all languages
+navigation: {
+  newItem: t({
+    en: "New Item",
+    zh: "新项目",
+    ja: "新しい項目",
+  }),
+}
+
+# 3. Use in component
+const { navigation } = useIntlayer("common");
+<span>{navigation.newItem}</span>
+```
+
+### Adding a New Language
+
+1. Add language in WordPress Polylang
+2. Run `bun sync` to update GraphQL schema
+3. Update `toLanguageFilter()` and `toLanguageCode()` in services:
+   ```typescript
+   const localeMap = {
+     en: LanguageCodeFilterEnum.En,
+     ja: LanguageCodeFilterEnum.Ja,
+     zh: LanguageCodeFilterEnum.Zh,
+     ko: LanguageCodeFilterEnum.Ko,  // Add new language
+   };
+   ```
+4. Add translations to `src/content/*.content.ts`
 
 ---
 
@@ -222,6 +256,7 @@ These files are auto-generated. Changes will be overwritten.
 ❌ src/routeTree.gen.ts
 ❌ public/robots.txt
 ❌ public/sitemap.xml
+❌ .intlayer/*
 ```
 
 ### Always Use Auto-Generated Fragments
@@ -287,8 +322,9 @@ Before committing:
 - [ ] Ran `bun lint` to fix formatting
 - [ ] Ran `bun typecheck` to verify types
 - [ ] Ran `bun run test` to verify tests pass
-- [ ] Added cache keys for new content types
-- [ ] Did NOT modify any `_generated` files
+- [ ] Added cache keys for new content types (with locale support)
+- [ ] Updated `toLanguageFilter()` if adding new languages
+- [ ] Did NOT modify any `_generated` or `.intlayer` files
 
 ---
 

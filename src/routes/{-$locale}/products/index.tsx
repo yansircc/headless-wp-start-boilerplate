@@ -12,7 +12,10 @@ import { getProducts } from "./-services";
 
 export const Route = createFileRoute("/{-$locale}/products/")({
 	component: RouteComponent,
-	loader: async () => await getProducts(),
+	loader: ({ params }) => {
+		const locale = params.locale;
+		return getProducts({ data: { locale } });
+	},
 	head: () => {
 		const { title, description } = getRouteSeo("/products");
 		return {

@@ -1,5 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import {
+	LanguageCodeEnum,
+	LanguageCodeFilterEnum,
+} from "@/graphql/_generated/graphql";
+import {
 	ProductBySlugDocument,
 	ProductsListDocument,
 } from "@/graphql/products/queries.generated";
@@ -7,42 +11,96 @@ import { cache, cacheKeys } from "@/lib/cache";
 import { graphqlRequest } from "@/lib/graphql";
 
 /**
- * 获取产品列表
+ * Convert frontend locale to GraphQL LanguageCodeFilterEnum
+ * Used for list queries
  */
-export const getProducts = createServerFn({
-	method: "GET",
-}).handler(async () => {
-	const cacheKey = cacheKeys.productsList();
+function toLanguageFilter(locale?: string): LanguageCodeFilterEnum {
+	const localeMap: Record<string, LanguageCodeFilterEnum> = {
+		en: LanguageCodeFilterEnum.En,
+		ja: LanguageCodeFilterEnum.Ja,
+		zh: LanguageCodeFilterEnum.Zh,
+	};
 
-	// Check cache first
-	const cached = cache.get<Awaited<ReturnType<typeof fetchProducts>>>(cacheKey);
-	if (cached) {
-		return cached;
+	if (!locale) {
+		return LanguageCodeFilterEnum.En;
 	}
 
-	// Fetch from WordPress
-	const data = await fetchProducts();
-
-	// Store in cache
-	cache.set(cacheKey, data);
-
-	return data;
-});
-
-async function fetchProducts() {
-	const data = await graphqlRequest(ProductsListDocument, { first: 20 });
-	return data.products;
+	return localeMap[locale.toLowerCase()] ?? LanguageCodeFilterEnum.En;
 }
 
 /**
- * 根据 slug 获取单个产品
+ * Convert frontend locale to GraphQL LanguageCodeEnum
+ * Used for translation() queries
+ */
+function toLanguageCode(locale?: string): LanguageCodeEnum {
+	const localeMap: Record<string, LanguageCodeEnum> = {
+		en: LanguageCodeEnum.En,
+		ja: LanguageCodeEnum.Ja,
+		zh: LanguageCodeEnum.Zh,
+	};
+
+	if (!locale) {
+		return LanguageCodeEnum.En;
+	}
+
+	return localeMap[locale.toLowerCase()] ?? LanguageCodeEnum.En;
+}
+
+type GetProductsInput = {
+	locale?: string;
+};
+
+/**
+ * 获取产品列表（支持多语言）
+ */
+export const getProducts = createServerFn({
+	method: "GET",
+})
+	.inputValidator((input: GetProductsInput) => input)
+	.handler(async ({ data }) => {
+		const { locale } = data;
+		const cacheKey = cacheKeys.productsList(locale);
+
+		// Check cache first
+		const cached =
+			cache.get<Awaited<ReturnType<typeof fetchProducts>>>(cacheKey);
+		if (cached) {
+			return cached;
+		}
+
+		// Fetch from WordPress
+		const result = await fetchProducts(locale);
+
+		// Store in cache
+		cache.set(cacheKey, result);
+
+		return result;
+	});
+
+async function fetchProducts(locale?: string) {
+	const language = toLanguageFilter(locale);
+	const data = await graphqlRequest(ProductsListDocument, {
+		first: 20,
+		language,
+	});
+	return data.products;
+}
+
+type GetProductBySlugInput = {
+	slug: string;
+	locale?: string;
+};
+
+/**
+ * 根据 slug 获取单个产品（指定语言版本）
  */
 export const getProductBySlug = createServerFn({
 	method: "GET",
 })
-	.inputValidator((slug: string) => slug)
-	.handler(async ({ data: slug }) => {
-		const cacheKey = cacheKeys.productBySlug(slug);
+	.inputValidator((input: GetProductBySlugInput) => input)
+	.handler(async ({ data }) => {
+		const { slug, locale } = data;
+		const cacheKey = cacheKeys.productBySlug(slug, locale);
 
 		// Check cache first
 		const cached =
@@ -52,17 +110,22 @@ export const getProductBySlug = createServerFn({
 		}
 
 		// Fetch from WordPress
-		const data = await fetchProductBySlug(slug);
+		const result = await fetchProductBySlug(slug, locale);
 
 		// Store in cache (only if found)
-		if (data) {
-			cache.set(cacheKey, data);
+		if (result) {
+			cache.set(cacheKey, result);
 		}
 
-		return data;
+		return result;
 	});
 
-async function fetchProductBySlug(slug: string) {
-	const data = await graphqlRequest(ProductBySlugDocument, { slug });
-	return data.product;
+async function fetchProductBySlug(slug: string, locale?: string) {
+	const language = toLanguageCode(locale);
+	const data = await graphqlRequest(ProductBySlugDocument, {
+		slug,
+		language,
+	});
+	// Return the translation for the specified language
+	return data.product?.translation;
 }

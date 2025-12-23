@@ -19,18 +19,20 @@ fragment ProductDetailFields on Product {
 	content
 }
 
-# 产品列表查询
-query ProductsList($first: Int = 20) {
-	products(first: $first) {
+# 产品列表查询（支持多语言）
+query ProductsList($first: Int = 20, $language: LanguageCodeFilterEnum) {
+	products(first: $first, where: { language: $language }) {
 		nodes {
 			...ProductFields
 		}
 	}
 }
 
-# 单个产品查询
-query ProductBySlug($slug: ID!) {
+# 单个产品查询（支持多语言）
+query ProductBySlug($slug: ID!, $language: LanguageCodeEnum!) {
 	product(id: $slug, idType: SLUG) {
-		...ProductDetailFields
+		translation(language: $language) {
+			...ProductDetailFields
+		}
 	}
 }

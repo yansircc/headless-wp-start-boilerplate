@@ -30,7 +30,9 @@ export const Route = createFileRoute("/{-$locale}/products/$productId")({
 		</Section>
 	),
 	loader: async ({ params }) => {
-		const product = await getProductBySlug({ data: params.productId });
+		const product = await getProductBySlug({
+			data: { slug: params.productId, locale: params.locale },
+		});
 		if (!product) {
 			throw notFound();
 		}
