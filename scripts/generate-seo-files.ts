@@ -4,11 +4,14 @@
  * This script:
  * 1. Validates that seo.config.ts has all required fields filled
  * 2. Checks that all static routes have SEO configuration
- * 3. Generates robots.txt from config
- * 4. Generates sitemap.xml from routes + CMS data
+ * 3. Generates robots.txt from config (unless --check mode)
+ * 4. Generates sitemap.xml from routes + CMS data (unless --check mode)
  *
  * Run: bun scripts/generate-seo-files.ts
  * Or: bun run seo
+ *
+ * Options:
+ *   --check  Only validate, don't generate files (for git hooks)
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -466,6 +469,8 @@ function generateSitemapXml(
 // ============================================
 
 async function main() {
+	const isCheckOnly = process.argv.includes("--check");
+
 	console.log("🔍 Validating SEO configuration...\n");
 
 	// Step 1: Discover routes
@@ -488,6 +493,11 @@ async function main() {
 	}
 
 	console.log("✅ SEO configuration is valid\n");
+
+	// In check mode, exit here without generating files
+	if (isCheckOnly) {
+		return;
+	}
 
 	// Step 4: Generate files
 	console.log("🔄 Generating SEO files...");

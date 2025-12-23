@@ -101,19 +101,7 @@ bun run deploy         # 部署
 
 ## WordPress 设置
 
-### 必需插件
-
-- [ACF PRO](https://www.advancedcustomfields.com/pro/)
-- [WPGraphQL](https://www.wpgraphql.com/)
-- [WPGraphQL for ACF](https://acf.wpgraphql.com/)
-
-### Headless Bridge 插件
-
-```bash
-unzip wordpress/plugins/headless-bridge.zip -d /path/to/wp-content/plugins/
-```
-
-在 **设置 → Headless Bridge** 配置 API Key 和 Webhook。
+详见 [wordpress/README.md](./wordpress/README.md)（插件安装、Local 本地开发、生产部署）。
 
 ---
 

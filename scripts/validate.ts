@@ -8,6 +8,9 @@
  *
  * Run: bun scripts/validate.ts
  * Or: bun validate
+ *
+ * Options:
+ *   --check  Only validate, don't generate files (for git hooks)
  */
 
 import { execSync } from "node:child_process";
@@ -101,12 +104,13 @@ function checkGeneratedFilesExist(): {
 	};
 }
 
-function checkSeoConfig(): {
+function checkSeoConfig(checkOnly: boolean): {
 	passed: boolean;
 	output: string;
 } {
 	try {
-		const output = execSync("bun run seo", {
+		const command = checkOnly ? "bun run seo --check" : "bun run seo";
+		const output = execSync(command, {
 			cwd: ROOT_DIR,
 			encoding: "utf-8",
 			stdio: ["pipe", "pipe", "pipe"],
@@ -229,9 +233,9 @@ function runFragmentUsageCheck(): void {
 	}
 }
 
-function runSeoCheck(): boolean {
+function runSeoCheck(checkOnly: boolean): boolean {
 	printHeader("Check 4: SEO configuration");
-	const result = checkSeoConfig();
+	const result = checkSeoConfig(checkOnly);
 
 	if (result.passed) {
 		printSuccess("SEO configuration is valid");
@@ -248,12 +252,14 @@ function runSeoCheck(): boolean {
 // ============================================
 
 async function main() {
+	const isCheckOnly = process.argv.includes("--check");
+
 	console.log("🔍 Running pre-build validations...\n");
 
 	const check1 = await runGeneratedFilesCheck();
 	const check2 = runFilesExistCheck();
 	runFragmentUsageCheck();
-	const check4 = runSeoCheck();
+	const check4 = runSeoCheck(isCheckOnly);
 
 	const hasErrors = !(check1 && check2 && check4);
 

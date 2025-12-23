@@ -17,7 +17,9 @@
     "typecheck": "tsc --noEmit",
     "sync": "bun scripts/sync.ts",
     "seo": "bun scripts/generate-seo-files.ts",
+    "seo:check": "bun scripts/generate-seo-files.ts --check",
     "validate": "bun scripts/validate.ts",
+    "validate:check": "bun scripts/validate.ts --check",
     "prepare": "husky"
   },
   "dependencies": {
