@@ -77,6 +77,7 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 | `bun build` | 构建（自动验证） |
 | `bun sync` | ACF 字段同步 + 类型生成 |
 | `bun seo` | SEO 验证 + 生成 sitemap |
+| `bun run test` | 运行单元测试 |
 
 ---
 
@@ -124,7 +125,7 @@ unzip wordpress/plugins/headless-bridge.zip -d /path/to/wp-content/plugins/
 
 ## Tech Stack
 
-TanStack Start (React 19) · TanStack Router · TanStack Query · Tailwind CSS v4 · Zod · GraphQL Codegen · Vite · Biome · Bun
+TanStack Start (React 19) · TanStack Router · TanStack Query · Tailwind CSS v4 · Zod · GraphQL Codegen · Vitest · Vite · Biome · Bun
 
 ## License
 
