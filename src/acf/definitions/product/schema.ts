@@ -29,6 +29,16 @@ export const productGalleryImageSchema = z.object({
 
 export type ProductGalleryImage = z.infer<typeof productGalleryImageSchema>;
 
+// GraphQL 返回的 gallery 是 { nodes: [...] } 结构
+export const productGallerySchema = z
+	.object({
+		nodes: z.array(productGalleryImageSchema),
+	})
+	.nullable()
+	.optional();
+
+export type ProductGallery = z.infer<typeof productGallerySchema>;
+
 // ============================================
 // 产品 ACF 字段组 Schema
 // ============================================
@@ -39,7 +49,7 @@ export const productAcfGroupSchema = z.object({
 	stock: z.number().nullable().optional(),
 	shortDescription: z.string().nullable().optional(),
 	isFeatured: z.boolean().nullable().optional(),
-	gallery: z.array(productGalleryImageSchema).nullable().optional(),
+	gallery: productGallerySchema, // { nodes: [...] } 结构
 	attributes: z.array(productAttributeSchema).nullable().optional(),
 });
 

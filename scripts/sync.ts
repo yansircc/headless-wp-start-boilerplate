@@ -16,12 +16,25 @@
 
 import { existsSync } from "node:fs";
 import { spawn } from "bun";
+import { z } from "zod";
 
 // Configuration
 const WP_URL = process.env.WP_URL;
 const WP_GRAPHQL_ENDPOINT = `${WP_URL}/graphql`;
 const ACF_SYNC_KEY = process.env.ACF_SYNC_KEY ?? "";
 const SCHEMA_FILE = "src/graphql/_generated/schema.graphql";
+
+// Response schemas for type-safe API calls
+const pushResponseSchema = z.object({
+	success: z.boolean(),
+	synced: z.array(z.record(z.string(), z.unknown())).optional(),
+	errors: z.array(z.string()).optional(),
+});
+
+const graphqlResponseSchema = z.object({
+	data: z.unknown(),
+	errors: z.array(z.record(z.string(), z.unknown())).optional(),
+});
 
 // Colors
 const c = {
@@ -155,7 +168,10 @@ async function pushToWordPress(): Promise<boolean> {
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}`);
 		}
-		const result = await response.json();
+
+		const json: unknown = await response.json();
+		const result = pushResponseSchema.parse(json);
+
 		if (result.success) {
 			log(`  ✓ 已推送 ${files.length} 个文件`, "green");
 			return true;
@@ -204,10 +220,17 @@ async function downloadSchema(): Promise<boolean> {
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}`);
 		}
-		const { data } = await response.json();
+
+		const json: unknown = await response.json();
+		const result = graphqlResponseSchema.parse(json);
 
 		const { buildClientSchema, printSchema } = await import("graphql");
-		const schema = buildClientSchema(data);
+
+		// The data field contains the introspection result
+		// Type assertion is safe here as we're receiving GraphQL introspection data
+		const schema = buildClientSchema(
+			result.data as import("graphql").IntrospectionQuery
+		);
 		const sdl = printSchema(schema);
 
 		const { writeFile, mkdir } = await import("node:fs/promises");

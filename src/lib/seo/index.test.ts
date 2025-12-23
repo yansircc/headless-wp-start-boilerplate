@@ -8,6 +8,35 @@ import {
 } from "./index";
 import type { PageSeoConfig } from "./types";
 
+/**
+ * JSON-LD Schema type for testing
+ */
+type JsonLdSchema = {
+	"@context"?: string;
+	"@type"?: string;
+	headline?: string;
+	name?: string;
+	description?: string;
+	image?: string;
+	datePublished?: string;
+	author?: { "@type"?: string; name?: string };
+	publisher?: { "@type"?: string; name?: string };
+	[key: string]: unknown;
+};
+
+/**
+ * Helper to parse schema from buildSchemaScript result
+ * Throws if result is null (test should fail)
+ */
+function parseSchema(
+	result: { type: string; children: string } | null
+): JsonLdSchema {
+	if (!result) {
+		throw new Error("Expected schema result to be non-null");
+	}
+	return JSON.parse(result.children) as JsonLdSchema;
+}
+
 describe("stripHtml", () => {
 	it("should remove simple HTML tags", () => {
 		expect(stripHtml("<p>Hello World</p>")).toBe("Hello World");
@@ -325,16 +354,18 @@ describe("buildSchemaScript", () => {
 		expect(result).not.toBeNull();
 		expect(result?.type).toBe("application/ld+json");
 
-		const schema = JSON.parse(result?.children);
+		const schema = parseSchema(result);
 		expect(schema["@context"]).toBe("https://schema.org");
 		expect(schema["@type"]).toBe("Article");
 		expect(schema.headline).toBe("Test Article");
 		expect(schema.description).toBe("Article description");
 		expect(schema.image).toBe("https://example.com/image.jpg");
 		expect(schema.datePublished).toBe("2024-01-01T00:00:00Z");
-		expect(schema.author["@type"]).toBe("Person");
-		expect(schema.author.name).toBe("John Doe");
-		expect(schema.publisher.name).toBe("Test Site");
+		expect(schema.author).toBeDefined();
+		expect(schema.author?.["@type"]).toBe("Person");
+		expect(schema.author?.name).toBe("John Doe");
+		expect(schema.publisher).toBeDefined();
+		expect(schema.publisher?.name).toBe("Test Site");
 	});
 
 	it("should build Product schema", () => {
@@ -350,7 +381,7 @@ describe("buildSchemaScript", () => {
 
 		expect(result).not.toBeNull();
 
-		const schema = JSON.parse(result?.children);
+		const schema = parseSchema(result);
 		expect(schema["@type"]).toBe("Product");
 		expect(schema.name).toBe("Test Product");
 		expect(schema.description).toBe("Product description");
@@ -391,7 +422,7 @@ describe("buildSchemaScript", () => {
 
 		expect(result).not.toBeNull();
 
-		const schema = JSON.parse(result?.children);
+		const schema = parseSchema(result);
 		expect(schema.headline).toBe("Minimal Article");
 		expect(schema.author).toBeUndefined();
 		expect(schema.image).toBeUndefined();
