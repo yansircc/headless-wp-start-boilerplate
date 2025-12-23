@@ -1,5 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
+import { ProductSkeleton } from "@/components/loading";
+import { ResourceNotFound } from "@/components/not-found";
 import { Container, Divider, Section } from "@/components/shared";
 import {
 	buildSchemaScript,
@@ -12,8 +14,26 @@ import { getProductBySlug } from "./-services";
 
 export const Route = createFileRoute("/products/$productId")({
 	component: RouteComponent,
-	loader: async ({ params }) =>
-		await getProductBySlug({ data: params.productId }),
+	pendingComponent: ProductSkeleton,
+	notFoundComponent: () => (
+		<Section className="pt-16">
+			<Container size="md">
+				<ResourceNotFound
+					backLabel="Back to Products"
+					backTo="/products"
+					message="This product might have been removed or is no longer available."
+					title="Product Not Found"
+				/>
+			</Container>
+		</Section>
+	),
+	loader: async ({ params }) => {
+		const product = await getProductBySlug({ data: params.productId });
+		if (!product) {
+			throw notFound();
+		}
+		return product;
+	},
 	head: ({ loaderData: product, params }) => {
 		const { title, type } = getDynamicRouteSeo(
 			"/products/$productId",
@@ -44,32 +64,6 @@ export const Route = createFileRoute("/products/$productId")({
 
 function RouteComponent() {
 	const product = Route.useLoaderData();
-
-	if (!product) {
-		return (
-			<div className="min-h-screen">
-				<Section className="pt-16">
-					<Container size="md">
-						<Link
-							className="group mb-8 inline-flex items-center gap-2 font-medium text-gray-500 text-sm transition-all hover:text-black"
-							to="/products"
-						>
-							<ArrowLeft className="group-hover:-translate-x-1 h-4 w-4 transition-transform" />
-							Back to Products
-						</Link>
-						<div className="rounded-3xl border border-gray-200 border-dashed py-24 text-center">
-							<h2 className="font-bold text-3xl text-black tracking-tight">
-								Product Not Found
-							</h2>
-							<p className="mt-4 text-gray-500">
-								Please check if the URL is correct or try searching again.
-							</p>
-						</div>
-					</Container>
-				</Section>
-			</div>
-		);
-	}
 
 	return (
 		<article className="min-h-screen">

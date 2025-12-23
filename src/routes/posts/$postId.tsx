@@ -1,5 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
+import { ArticleSkeleton } from "@/components/loading";
+import { ResourceNotFound } from "@/components/not-found";
 import { Container, Section } from "@/components/shared";
 import {
 	buildSchemaScript,
@@ -12,7 +14,26 @@ import { getPostBySlug } from "./-services";
 
 export const Route = createFileRoute("/posts/$postId")({
 	component: RouteComponent,
-	loader: async ({ params }) => await getPostBySlug({ data: params.postId }),
+	pendingComponent: ArticleSkeleton,
+	notFoundComponent: () => (
+		<Section className="pt-16">
+			<Container size="md">
+				<ResourceNotFound
+					backLabel="Back to Articles"
+					backTo="/posts"
+					message="This article might have been moved or deleted."
+					title="Post Not Found"
+				/>
+			</Container>
+		</Section>
+	),
+	loader: async ({ params }) => {
+		const post = await getPostBySlug({ data: params.postId });
+		if (!post) {
+			throw notFound();
+		}
+		return post;
+	},
 	head: ({ loaderData: post, params }) => {
 		const { title, type } = getDynamicRouteSeo("/posts/$postId", post?.title);
 		const config = {
@@ -41,31 +62,6 @@ export const Route = createFileRoute("/posts/$postId")({
 
 function RouteComponent() {
 	const post = Route.useLoaderData();
-
-	if (!post) {
-		return (
-			<div className="min-h-screen">
-				<Section className="pt-16">
-					<Container size="md">
-						<div className="rounded-3xl border border-gray-200 border-dashed py-24 text-center">
-							<h2 className="font-bold text-3xl text-black tracking-tight">
-								Post Not Found
-							</h2>
-							<p className="mt-4 text-gray-500">
-								This article might have been moved or deleted.
-							</p>
-							<Link
-								className="mt-8 inline-flex items-center gap-2 font-bold text-black hover:underline"
-								to="/posts"
-							>
-								Back to Articles
-							</Link>
-						</div>
-					</Container>
-				</Section>
-			</div>
-		);
-	}
 
 	return (
 		<article className="min-h-screen">

@@ -2,9 +2,12 @@ import type { QueryClient } from "@tanstack/react-query";
 import {
 	createRootRouteWithContext,
 	HeadContent,
+	Outlet,
 	Scripts,
 } from "@tanstack/react-router";
+import { GlobalError } from "../components/error-boundary";
 import Header from "../components/header";
+import { NotFoundPage } from "../components/not-found";
 import { seoConfig } from "../lib/seo";
 import appCss from "../styles.css?url";
 
@@ -38,9 +41,18 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 	}),
 
+	// Root-level error boundary (catches errors from all child routes)
+	errorComponent: GlobalError,
+	// Root-level 404 page
+	notFoundComponent: NotFoundPage,
+	// Main app component
+	component: RootComponent,
 	shellComponent: RootDocument,
-	notFoundComponent: () => <div>404</div>,
 });
+
+function RootComponent() {
+	return <Outlet />;
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
