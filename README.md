@@ -75,6 +75,8 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 |------|------|
 | `bun dev` | 开发服务器 |
 | `bun run build` | 构建（自动验证） |
+| `bun env:push` | 推送 .env.prod.local 到 Cloudflare |
+| `bun run deploy` | 部署到 Cloudflare Workers |
 | `bun sync` | ACF 字段同步 + 类型生成 |
 | `bun seo` | SEO 验证 + 生成 sitemap |
 | `bun run test` | 运行单元测试 |
@@ -83,14 +85,16 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 
 ## 环境配置
 
+复制 `.env.example` 到 `.env.local` 并填写。变量说明见 `src/env.ts`。
+
+---
+
+## 部署 (Cloudflare Workers)
+
 ```bash
-# .env.local
-WP_URL=http://your-wordpress.local
-GRAPHQL_ENDPOINT=http://your-wordpress.local/graphql
-ACF_SYNC_KEY=your-api-key
-WEBHOOK_SECRET=your-webhook-secret
-SITE_URL=https://your-domain.com
-SITE_NAME=Your Site Name
+npx wrangler login     # 首次登录
+bun env:push           # 推送 .env.prod.local 到 Cloudflare
+bun run deploy         # 部署
 ```
 
 ---
@@ -125,7 +129,7 @@ unzip wordpress/plugins/headless-bridge.zip -d /path/to/wp-content/plugins/
 
 ## Tech Stack
 
-TanStack Start (React 19) · TanStack Router · TanStack Query · Tailwind CSS v4 · Zod · GraphQL Codegen · Vitest · Vite · Biome · Bun
+TanStack Start (React 19) · TanStack Router · TanStack Query · Tailwind CSS v4 · Zod · GraphQL Codegen · t3-env · Vitest · Vite · Biome · Bun · Cloudflare Workers
 
 ## License
 

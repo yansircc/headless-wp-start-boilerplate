@@ -160,12 +160,32 @@ export const cacheKeys = {
 |---------|-------------|
 | `bun dev` | Start development server |
 | `bun run build` | Build for production (runs validate + seo first) |
+| `bun env:push` | Push .env.prod.local secrets to Cloudflare |
+| `bun run deploy` | Deploy to Cloudflare Workers |
 | `bun sync` | Sync ACF definitions → WordPress → Generate types |
 | `bun seo` | Validate SEO config and generate robots.txt/sitemap.xml |
 | `bun validate` | Run all pre-build validations |
 | `bun typecheck` | TypeScript type checking |
 | `bun lint` | Lint and format code |
 | `bun run test` | Run unit tests (Vitest) |
+
+---
+
+## Environment Variables
+
+Managed with **t3-env** for type safety. See `src/env.ts` for schema.
+
+- **Server-only**: `import { env } from "@/env"` → `env.GRAPHQL_ENDPOINT`
+- **Client-available**: `import.meta.env.VITE_*` (for code shared between server/client)
+
+---
+
+## Deployment
+
+```bash
+bun env:push    # Push .env.prod.local to Cloudflare
+bun run deploy  # Deploy to Cloudflare Workers
+```
 
 ---
 
