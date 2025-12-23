@@ -47,6 +47,17 @@ function verifySignature(
 	}
 }
 
+/**
+ * Verify timestamp to prevent replay attacks
+ * Allows requests within MAX_AGE_SECONDS of current time
+ */
+const MAX_AGE_SECONDS = 60;
+
+function isTimestampValid(timestamp: number): boolean {
+	const now = Math.floor(Date.now() / 1000);
+	return Math.abs(now - timestamp) <= MAX_AGE_SECONDS;
+}
+
 export const Route = createFileRoute("/api/webhook/revalidate")({
 	server: {
 		handlers: {
@@ -80,7 +91,7 @@ export const Route = createFileRoute("/api/webhook/revalidate")({
 					);
 				}
 
-				// Handle test webhook
+				// Handle test webhook (skip timestamp check for test)
 				if (payload.action === "test") {
 					console.log("[Webhook] Test webhook received");
 					return Response.json({
@@ -88,6 +99,15 @@ export const Route = createFileRoute("/api/webhook/revalidate")({
 						message: "Test webhook received",
 						cache_stats: cache.stats(),
 					});
+				}
+
+				// Verify timestamp to prevent replay attacks
+				if (!isTimestampValid(payload.timestamp)) {
+					console.warn("[Webhook] Request expired or invalid timestamp");
+					return Response.json(
+						{ success: false, error: "Request expired" },
+						{ status: 400 }
+					);
 				}
 
 				// Validate required fields
