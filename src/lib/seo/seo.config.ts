@@ -4,13 +4,16 @@
  * This file is the central configuration for all SEO-related settings.
  * It is validated at build time - missing required fields will block the build.
  *
+ * NOTE: Uses import.meta.env (not env from @/env) because this config
+ * is imported by route components which run on both server and client.
+ * VITE_ prefixed variables are available on both sides.
+ *
  * Instructions:
  * 1. Fill in all required fields before building
  * 2. Run `bun run seo` to validate and generate robots.txt/sitemap.xml
  * 3. Add new routes to the `routes` object when creating new pages
  */
 
-import { env } from "@/env";
 import type { SeoConfigSchema } from "./types";
 
 export const seoConfig: SeoConfigSchema = {
@@ -18,8 +21,8 @@ export const seoConfig: SeoConfigSchema = {
 	// Site Configuration (Required)
 	// ============================================
 	site: {
-		url: env.SITE_URL ?? "http://localhost:3000",
-		name: env.SITE_NAME ?? "Site Name",
+		url: import.meta.env.VITE_SITE_URL ?? "http://localhost:3000",
+		name: import.meta.env.VITE_SITE_NAME ?? "Site Name",
 		tagline: "Headless WordPress Starter", // TODO: Fill in your site tagline
 		language: "en-US",
 		separator: "-",

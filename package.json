@@ -9,6 +9,7 @@
     "deploy": "bun run build && wrangler deploy",
     "deploy:preview": "bun run build && wrangler deploy --env preview",
     "cf-typegen": "wrangler types",
+    "env:push": "wrangler secret bulk .env.prod.local",
     "test": "vitest run",
     "check": "ultracite check .",
     "lint": "biome check --write .",

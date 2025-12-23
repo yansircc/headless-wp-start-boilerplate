@@ -27,10 +27,6 @@ export const env = createEnv({
 		// Webhook Configuration (for cache invalidation)
 		WEBHOOK_SECRET: z.string().min(1),
 
-		// SEO Configuration
-		SITE_URL: z.string().url(),
-		SITE_NAME: z.string().min(1),
-
 		// Node environment
 		NODE_ENV: z
 			.enum(["development", "production", "test"])
@@ -44,6 +40,10 @@ export const env = createEnv({
 	clientPrefix: "VITE_",
 
 	client: {
+		// SEO Configuration (available on both client and server)
+		VITE_SITE_URL: z.string().url(),
+		VITE_SITE_NAME: z.string().min(1),
+
 		// Sentry (optional)
 		VITE_SENTRY_DSN: z.string().url().optional(),
 	},
@@ -58,11 +58,11 @@ export const env = createEnv({
 		GRAPHQL_ENDPOINT: process.env.GRAPHQL_ENDPOINT,
 		ACF_SYNC_KEY: process.env.ACF_SYNC_KEY,
 		WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
-		SITE_URL: process.env.SITE_URL,
-		SITE_NAME: process.env.SITE_NAME,
 		NODE_ENV: process.env.NODE_ENV,
 
-		// Client variables
+		// Client variables (also available on server via import.meta.env)
+		VITE_SITE_URL: import.meta.env.VITE_SITE_URL,
+		VITE_SITE_NAME: import.meta.env.VITE_SITE_NAME,
 		VITE_SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN,
 	},
 
