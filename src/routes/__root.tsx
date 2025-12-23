@@ -4,7 +4,10 @@ import {
 	HeadContent,
 	Outlet,
 	Scripts,
+	useParams,
 } from "@tanstack/react-router";
+import { configuration, type LocalesValues } from "intlayer";
+import { IntlayerProvider } from "react-intlayer";
 import { GlobalError } from "../components/error-boundary";
 import Header from "../components/header";
 import { NotFoundPage } from "../components/not-found";
@@ -14,6 +17,19 @@ import appCss from "../styles.css?url";
 type MyRouterContext = {
 	queryClient: QueryClient;
 };
+
+const { internationalization } = configuration;
+const { locales, defaultLocale } = internationalization;
+
+/**
+ * Check if a string is a valid locale
+ */
+function isValidLocale(locale: string | undefined): locale is LocalesValues {
+	if (!locale) {
+		return false;
+	}
+	return locales.some((l) => l.toString() === locale);
+}
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
 	head: () => ({
@@ -51,17 +67,33 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootComponent() {
-	return <Outlet />;
+	// Get locale from URL params (will be undefined for default locale routes)
+	const params = useParams({ strict: false });
+	const urlLocale = (params as { locale?: string }).locale;
+	const currentLocale = isValidLocale(urlLocale) ? urlLocale : defaultLocale;
+
+	return (
+		<IntlayerProvider locale={currentLocale}>
+			<Header />
+			<Outlet />
+		</IntlayerProvider>
+	);
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+	// Get locale from URL params for html lang attribute
+	const params = useParams({ strict: false });
+	const urlLocale = (params as { locale?: string }).locale;
+	const currentLocale = isValidLocale(urlLocale)
+		? urlLocale
+		: defaultLocale.toString();
+
 	return (
-		<html lang={seoConfig.site.language}>
+		<html lang={currentLocale}>
 			<head>
 				<HeadContent />
 			</head>
 			<body>
-				<Header />
 				{children}
 				<Scripts />
 			</body>

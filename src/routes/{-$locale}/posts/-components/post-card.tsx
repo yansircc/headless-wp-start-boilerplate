@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { LocalizedLink } from "@/components/localized-link";
 import type { PostCardProps } from "../-types";
 
 export function PostCard({
@@ -17,11 +17,7 @@ export function PostCard({
 		: "";
 
 	return (
-		<Link
-			className="group block transition-all"
-			params={{ postId: slug || "" }}
-			to="/posts/$postId"
-		>
+		<LocalizedLink className="group block transition-all" to={`/posts/${slug}`}>
 			<article className="hover:-translate-y-1 flex flex-col gap-6 rounded-3xl p-4 transition-all hover:bg-white hover:shadow-xl md:flex-row">
 				{!!featuredImage?.node && (
 					<div className="h-32 shrink-0 overflow-hidden rounded-2xl bg-gray-100 md:w-48">
@@ -51,6 +47,6 @@ export function PostCard({
 					)}
 				</div>
 			</article>
-		</Link>
+		</LocalizedLink>
 	);
 }

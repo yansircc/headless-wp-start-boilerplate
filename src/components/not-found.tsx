@@ -1,11 +1,14 @@
-import { Link } from "@tanstack/react-router";
 import { Home, Search } from "lucide-react";
+import { useIntlayer } from "react-intlayer";
+import { LocalizedLink } from "./localized-link";
 import { Container, Section } from "./shared";
 
 /**
  * Global 404 page component
  */
 export function NotFoundPage() {
+	const { errors } = useIntlayer("common");
+
 	return (
 		<div className="min-h-screen">
 			<Section className="pt-16">
@@ -18,26 +21,26 @@ export function NotFoundPage() {
 							</div>
 						</div>
 						<h1 className="font-bold text-4xl text-gray-900 tracking-tight">
-							Page not found
+							{errors.notFound.title}
 						</h1>
 						<p className="mx-auto mt-4 max-w-md text-gray-600">
-							The page you're looking for doesn't exist or has been moved.
+							{errors.notFound.message}
 						</p>
 						<div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-							<Link
+							<LocalizedLink
 								className="inline-flex items-center gap-2 rounded-2xl bg-black px-6 py-3 font-bold text-white transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
 								to="/"
 							>
 								<Home className="h-4 w-4" />
-								Back to Home
-							</Link>
-							<Link
+								{errors.notFound.backToHome}
+							</LocalizedLink>
+							<LocalizedLink
 								className="glass inline-flex items-center gap-2 rounded-2xl px-6 py-3 font-bold transition-all hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
 								to="/posts"
 							>
 								<Search className="h-4 w-4" />
-								Browse Articles
-							</Link>
+								{errors.notFound.browseArticles}
+							</LocalizedLink>
 						</div>
 					</div>
 				</Container>
@@ -71,12 +74,12 @@ export function ResourceNotFound({
 				{title}
 			</h2>
 			<p className="mx-auto mt-3 max-w-sm text-gray-500">{message}</p>
-			<Link
+			<LocalizedLink
 				className="mt-6 inline-flex items-center gap-2 font-bold text-black hover:underline"
 				to={backTo}
 			>
 				{backLabel}
-			</Link>
+			</LocalizedLink>
 		</div>
 	);
 }

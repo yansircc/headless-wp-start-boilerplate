@@ -1,10 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useIntlayer } from "react-intlayer";
 import { Container, Section } from "@/components/shared";
-import { buildSeoMeta, getRouteSeo, seoConfig } from "@/lib/seo";
+import {
+	buildHreflangLinks,
+	buildSeoMeta,
+	getRouteSeo,
+	seoConfig,
+} from "@/lib/seo";
 import { ProductCard } from "./-components/product-card";
 import { getProducts } from "./-services";
 
-export const Route = createFileRoute("/products/")({
+export const Route = createFileRoute("/{-$locale}/products/")({
 	component: RouteComponent,
 	loader: async () => await getProducts(),
 	head: () => {
@@ -18,12 +24,14 @@ export const Route = createFileRoute("/products/")({
 				},
 				seoConfig.site.url
 			),
+			links: buildHreflangLinks("/products", seoConfig.site.url),
 		};
 	},
 });
 
 function RouteComponent() {
 	const products = Route.useLoaderData();
+	const { sections } = useIntlayer("common");
 
 	return (
 		<div className="min-h-screen">
@@ -31,14 +39,14 @@ function RouteComponent() {
 				<Container className="text-center" size="md">
 					<div className="glass mb-6 inline-flex items-center gap-2 rounded-full px-3 py-1">
 						<span className="font-bold text-[10px] text-orange-500 uppercase tracking-widest">
-							Store
+							{sections.products.badge}
 						</span>
 					</div>
 					<h1 className="gradient-text font-bold text-5xl text-black tracking-tight">
-						Products
+						{sections.products.title}
 					</h1>
 					<p className="mt-4 text-gray-500 text-lg">
-						Curated selection of high-quality items to meet your diverse needs.
+						{sections.products.pageSubtitle}
 					</p>
 				</Container>
 			</Section>
@@ -53,7 +61,7 @@ function RouteComponent() {
 						</div>
 					) : (
 						<div className="rounded-3xl border border-gray-200 border-dashed py-24 text-center font-normal text-gray-400">
-							No products found
+							{sections.products.empty}
 						</div>
 					)}
 				</Container>

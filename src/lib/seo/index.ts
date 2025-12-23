@@ -1,3 +1,4 @@
+import { configuration } from "intlayer";
 import type { MetaTag, PageSeoConfig } from "./types";
 
 // ============================================
@@ -10,6 +11,13 @@ export {
 	getRouteSeo,
 	seoConfig,
 } from "./seo.config";
+
+// ============================================
+// i18n Configuration
+// ============================================
+
+const { internationalization } = configuration;
+const { locales, defaultLocale } = internationalization;
 
 export type {
 	DynamicRouteConfig,
@@ -216,4 +224,66 @@ export function generateDescription(
 		return truncate(stripHtml(content));
 	}
 	return "";
+}
+
+// ============================================
+// Hreflang Link Tags (i18n SEO)
+// ============================================
+
+type HreflangLink = {
+	rel: "alternate";
+	hreflang: string;
+	href: string;
+};
+
+/**
+ * Build hreflang link tags for all supported locales
+ * Used for SEO to indicate alternate language versions of a page
+ *
+ * @param currentPath - The current page path (without locale prefix, e.g., "/posts")
+ * @param siteUrl - The site base URL
+ * @returns Array of link objects for use in route head()
+ */
+export function buildHreflangLinks(
+	currentPath: string,
+	siteUrl: string
+): HreflangLink[] {
+	const links: HreflangLink[] = [];
+
+	for (const locale of locales) {
+		const localeStr = locale.toString();
+		// For default locale, use path without prefix
+		// For other locales, add locale prefix
+		const localizedPath =
+			locale === defaultLocale ? currentPath : `/${localeStr}${currentPath}`;
+
+		links.push({
+			rel: "alternate",
+			hreflang: localeStr,
+			href: `${siteUrl}${localizedPath}`,
+		});
+	}
+
+	// Add x-default pointing to the default locale version
+	links.push({
+		rel: "alternate",
+		hreflang: "x-default",
+		href: `${siteUrl}${currentPath}`,
+	});
+
+	return links;
+}
+
+/**
+ * Get all supported locales
+ */
+export function getSupportedLocales(): readonly string[] {
+	return locales.map((l) => l.toString());
+}
+
+/**
+ * Get the default locale
+ */
+export function getDefaultLocale(): string {
+	return defaultLocale.toString();
 }

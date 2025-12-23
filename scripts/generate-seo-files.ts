@@ -6,6 +6,8 @@
  * 2. Checks that all static routes have SEO configuration
  * 3. Generates robots.txt from config (unless --check mode)
  * 4. Generates sitemap.xml from routes + CMS data (unless --check mode)
+ *    - Includes all language versions of each URL
+ *    - Adds xhtml:link hreflang tags for language alternates
  *
  * Run: bun scripts/generate-seo-files.ts
  * Or: bun run seo
@@ -16,7 +18,14 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { configuration } from "intlayer";
 import { seoConfig } from "../src/lib/seo/seo.config";
+
+// Get i18n configuration
+const { internationalization } = configuration;
+const { locales, defaultLocale } = internationalization;
+const localeStrings = locales.map((l) => l.toString());
+const defaultLocaleStr = defaultLocale.toString();
 
 // ============================================
 // Configuration
@@ -427,6 +436,58 @@ function getPriority(
 	return seoConfig.sitemap.priority.content.toFixed(1);
 }
 
+/**
+ * Get localized path for a given base path and locale
+ */
+function getLocalizedPath(basePath: string, locale: string): string {
+	return locale === defaultLocaleStr ? basePath : `/${locale}${basePath}`;
+}
+
+/**
+ * Generate xhtml:link tags for all language versions of a URL
+ */
+function generateHreflangLinks(basePath: string, siteUrl: string): string {
+	const links = localeStrings.map((locale) => {
+		const localizedPath = getLocalizedPath(basePath, locale);
+		return `    <xhtml:link rel="alternate" hreflang="${locale}" href="${siteUrl}${localizedPath}"/>`;
+	});
+
+	// Add x-default
+	links.push(
+		`    <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}${basePath}"/>`
+	);
+
+	return links.join("\n");
+}
+
+type UrlEntryOptions = {
+	basePath: string;
+	siteUrl: string;
+	changefreq: string;
+	priority: string;
+	lastmod?: string;
+};
+
+/**
+ * Generate URL entries for all locales of a given path
+ */
+function generateLocalizedUrls(options: UrlEntryOptions): string[] {
+	const { basePath, siteUrl, changefreq, priority, lastmod } = options;
+	const hreflangLinks = generateHreflangLinks(basePath, siteUrl);
+
+	return localeStrings.map((locale) => {
+		const localizedPath = getLocalizedPath(basePath, locale);
+		const lastmodTag = lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : "";
+		return `
+  <url>
+    <loc>${siteUrl}${localizedPath}</loc>${lastmodTag}
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+${hreflangLinks}
+  </url>`;
+	});
+}
+
 function generateSitemapXml(
 	data: SitemapData,
 	staticPages: string[],
@@ -435,32 +496,40 @@ function generateSitemapXml(
 	const urls: string[] = [];
 	const siteUrl = seoConfig.site.url;
 
-	// Static pages
+	// Static pages - generate URLs for all locales
 	for (const path of staticPages) {
-		urls.push(`
-  <url>
-    <loc>${siteUrl}${path}</loc>
-    <changefreq>${getChangefreq(path, contentTypes, false)}</changefreq>
-    <priority>${getPriority(path, contentTypes, false)}</priority>
-  </url>`);
+		urls.push(
+			...generateLocalizedUrls({
+				basePath: path,
+				siteUrl,
+				changefreq: getChangefreq(path, contentTypes, false),
+				priority: getPriority(path, contentTypes, false),
+			})
+		);
 	}
 
-	// Dynamic content
+	// Dynamic content - generate URLs for all locales
 	for (const type of contentTypes) {
 		const nodes = data[type.graphqlName]?.nodes ?? [];
+		const changefreq = getChangefreq("", contentTypes, true);
+		const priority = getPriority("", contentTypes, true);
+
 		for (const node of nodes) {
-			urls.push(`
-  <url>
-    <loc>${siteUrl}${type.basePath}/${node.slug}</loc>
-    <lastmod>${node.modified}</lastmod>
-    <changefreq>${getChangefreq("", contentTypes, true)}</changefreq>
-    <priority>${getPriority("", contentTypes, true)}</priority>
-  </url>`);
+			urls.push(
+				...generateLocalizedUrls({
+					basePath: `${type.basePath}/${node.slug}`,
+					siteUrl,
+					changefreq,
+					priority,
+					lastmod: node.modified,
+				})
+			);
 		}
 	}
 
 	return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join("")}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls.join("")}
 </urlset>`;
 }
 
@@ -519,15 +588,17 @@ async function main() {
 	writeFileSync(join(PUBLIC_DIR, "sitemap.xml"), sitemapXml);
 
 	// Log stats
+	const localeCount = localeStrings.length;
+	const staticUrlCount = staticPages.length * localeCount;
 	const dynamicStats = contentTypes
 		.map((type) => {
 			const count = data[type.graphqlName]?.nodes?.length ?? 0;
-			return `${count} ${type.graphqlName}`;
+			return `${count * localeCount} ${type.graphqlName}`;
 		})
 		.join(", ");
 	const statsMsg = dynamicStats
-		? `${staticPages.length} static, ${dynamicStats}`
-		: `${staticPages.length} static pages`;
+		? `${staticUrlCount} static (${staticPages.length} × ${localeCount} locales), ${dynamicStats}`
+		: `${staticUrlCount} static URLs (${localeCount} locales)`;
 	console.log(`✅ Generated sitemap.xml (${statsMsg})`);
 
 	console.log("\n🎉 SEO files generated successfully!");

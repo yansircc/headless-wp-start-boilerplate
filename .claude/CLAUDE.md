@@ -37,6 +37,8 @@ This document serves as the authoritative guide for AI developers working on thi
 | `src/routes/**/-services/` | Data fetching with cache |
 | `src/lib/cache/index.ts` | Cache keys and invalidation logic |
 | `src/lib/seo/seo.config.ts` | SEO configuration (SSOT) |
+| `intlayer.config.ts` | i18n languages (EN/ZH/JA/...) |
+| `src/content/*.content.ts` | UI translations (Intlayer) |
 
 ---
 
@@ -134,6 +136,25 @@ export const getProducts = createServerFn({ method: "GET" }).handler(async () =>
 
 ---
 
+## i18n (Multi-language)
+
+- **URL routing**: `/` (EN default), `/zh/`, `/ja/`
+- **Frontend translations**: `useIntlayer("common")` from `src/content/*.content.ts`
+- **WordPress content**: Polylang + WPGraphQL Polylang plugin
+- **Data fetching**: Pass `locale` from route params to services
+
+```typescript
+// Route loader gets locale from URL params
+loader: ({ params }) => getPosts({ data: { locale: params.locale } })
+
+// Service converts locale to GraphQL language filter
+const language = toLanguageFilter(locale); // "en" → LanguageCodeFilterEnum.En
+```
+
+**Cache keys include locale**: `posts:list:en`, `homepage:data:ja`
+
+---
+
 ## Cache Invalidation
 
 WordPress sends webhooks to `/api/webhook/revalidate` when content changes.
@@ -142,11 +163,10 @@ Cache keys are defined in `src/lib/cache/index.ts`:
 
 ```typescript
 export const cacheKeys = {
-  productsList: () => "products:list",
-  productBySlug: (slug: string) => `products:slug:${slug}`,
-  postsList: () => "posts:list",
-  postBySlug: (slug: string) => `posts:slug:${slug}`,
-  homepage: () => "homepage:data",
+  productsList: (locale?) => locale ? `products:list:${locale}` : "products:list",
+  postsList: (locale?) => locale ? `posts:list:${locale}` : "posts:list",
+  postBySlug: (slug, locale?) => locale ? `posts:slug:${slug}:${locale}` : `posts:slug:${slug}`,
+  homepage: (locale?) => locale ? `homepage:data:${locale}` : "homepage:data",
 };
 ```
 

@@ -1,9 +1,11 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { ArticleSkeleton } from "@/components/loading";
+import { LocalizedLink } from "@/components/localized-link";
 import { ResourceNotFound } from "@/components/not-found";
 import { Container, Section } from "@/components/shared";
 import {
+	buildHreflangLinks,
 	buildSchemaScript,
 	buildSeoMeta,
 	generateDescription,
@@ -12,7 +14,7 @@ import {
 } from "@/lib/seo";
 import { getPostBySlug } from "./-services";
 
-export const Route = createFileRoute("/posts/$postId")({
+export const Route = createFileRoute("/{-$locale}/posts/$postId")({
 	component: RouteComponent,
 	pendingComponent: ArticleSkeleton,
 	notFoundComponent: () => (
@@ -28,7 +30,9 @@ export const Route = createFileRoute("/posts/$postId")({
 		</Section>
 	),
 	loader: async ({ params }) => {
-		const post = await getPostBySlug({ data: params.postId });
+		const post = await getPostBySlug({
+			data: { slug: params.postId, locale: params.locale },
+		});
 		if (!post) {
 			throw notFound();
 		}
@@ -36,10 +40,11 @@ export const Route = createFileRoute("/posts/$postId")({
 	},
 	head: ({ loaderData: post, params }) => {
 		const { title, type } = getDynamicRouteSeo("/posts/$postId", post?.title);
+		const canonical = `/posts/${params.postId}`;
 		const config = {
 			title,
 			description: generateDescription(post?.content, post?.excerpt),
-			canonical: `/posts/${params.postId}`,
+			canonical,
 			image: post?.featuredImage?.node?.sourceUrl ?? undefined,
 			imageAlt: post?.featuredImage?.node?.altText ?? post?.title ?? undefined,
 			type,
@@ -55,6 +60,7 @@ export const Route = createFileRoute("/posts/$postId")({
 
 		return {
 			meta: buildSeoMeta(config, seoConfig.site.url),
+			links: buildHreflangLinks(canonical, seoConfig.site.url),
 			scripts: schema ? [schema] : [],
 		};
 	},
@@ -69,13 +75,13 @@ function RouteComponent() {
 			<Section className="border-gray-50 border-b pt-16 pb-24">
 				<Container size="md">
 					<div className="space-y-10">
-						<Link
+						<LocalizedLink
 							className="group inline-flex items-center gap-2 font-medium text-gray-500 text-sm transition-all hover:text-black"
 							to="/posts"
 						>
 							<ArrowLeft className="group-hover:-translate-x-1 h-4 w-4 transition-transform" />
 							Back to Articles
-						</Link>
+						</LocalizedLink>
 
 						<div className="space-y-6">
 							<div className="flex flex-wrap items-center gap-3">

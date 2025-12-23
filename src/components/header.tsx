@@ -1,8 +1,11 @@
-import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useIntlayer } from "react-intlayer";
+import { LocaleSwitcher } from "./locale-switcher";
+import { LocalizedLink } from "./localized-link";
 
 export default function Header() {
+	const { navigation } = useIntlayer("common");
 	const [isOpen, setIsOpen] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
 
@@ -24,18 +27,19 @@ export default function Header() {
 			>
 				<div className="mx-auto flex items-center justify-between px-8">
 					{/* Logo */}
-					<Link className="group flex items-center gap-2" to="/">
+					<LocalizedLink className="group flex items-center gap-2" to="/">
 						<span className="gradient-text font-bold text-2xl tracking-tighter">
 							TanStack
 						</span>
 						<span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-black transition-transform group-hover:scale-150" />
-					</Link>
+					</LocalizedLink>
 
 					{/* Desktop Navigation */}
 					<nav className="hidden items-center gap-1 md:flex">
-						<NavItem to="/">Home</NavItem>
-						<NavItem to="/posts">Posts</NavItem>
-						<NavItem to="/products">Products</NavItem>
+						<NavItem to="/">{navigation.home}</NavItem>
+						<NavItem to="/posts">{navigation.posts}</NavItem>
+						<NavItem to="/products">{navigation.products}</NavItem>
+						<LocaleSwitcher />
 					</nav>
 
 					{/* Mobile Menu Button */}
@@ -59,14 +63,17 @@ export default function Header() {
 				>
 					<nav className="glass mx-4 flex flex-col rounded-2xl p-4 shadow-xl">
 						<MobileNavItem onClick={() => setIsOpen(false)} to="/">
-							Home
+							{navigation.home}
 						</MobileNavItem>
 						<MobileNavItem onClick={() => setIsOpen(false)} to="/posts">
-							Posts
+							{navigation.posts}
 						</MobileNavItem>
 						<MobileNavItem onClick={() => setIsOpen(false)} to="/products">
-							Products
+							{navigation.products}
 						</MobileNavItem>
+						<div className="mt-2 border-gray-200 border-t pt-2">
+							<LocaleSwitcher />
+						</div>
 					</nav>
 				</div>
 			</header>
@@ -79,23 +86,12 @@ export default function Header() {
 
 function NavItem({ to, children }: { to: string; children: React.ReactNode }) {
 	return (
-		<Link
-			activeProps={{
-				className:
-					"relative px-4 py-2 font-medium text-black text-sm transition-all",
-			}}
+		<LocalizedLink
 			className="relative px-4 py-2 font-normal text-gray-500 text-sm transition-all hover:text-black"
 			to={to}
 		>
-			{({ isActive }) => (
-				<>
-					{children}
-					{!!isActive && (
-						<span className="absolute right-4 bottom-0 left-4 h-0.5 rounded-full bg-black" />
-					)}
-				</>
-			)}
-		</Link>
+			{children}
+		</LocalizedLink>
 	);
 }
 
@@ -109,15 +105,12 @@ function MobileNavItem({
 	onClick: () => void;
 }) {
 	return (
-		<Link
-			activeProps={{
-				className: "px-4 py-3 font-medium text-black bg-gray-50 rounded-xl",
-			}}
+		<LocalizedLink
 			className="rounded-xl px-4 py-3 font-normal text-gray-600 transition-all hover:bg-gray-50"
 			onClick={onClick}
 			to={to}
 		>
 			{children}
-		</Link>
+		</LocalizedLink>
 	);
 }

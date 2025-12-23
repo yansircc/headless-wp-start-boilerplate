@@ -37,18 +37,21 @@ fragment PostDetailFields on Post {
 	}
 }
 
-# 文章列表查询
-query PostsList($first: Int = 20) {
-	posts(first: $first) {
+# 文章列表查询（支持多语言）
+query PostsList($first: Int = 20, $language: LanguageCodeFilterEnum) {
+	posts(first: $first, where: { language: $language }) {
 		nodes {
 			...PostFields
 		}
 	}
 }
 
-# 单篇文章查询
-query GetPostBySlug($id: ID!) {
+# 单篇文章查询（支持多语言）
+# 使用 translation 获取指定语言版本
+query GetPostBySlug($id: ID!, $language: LanguageCodeEnum!) {
 	post(id: $id, idType: SLUG) {
-		...PostDetailFields
+		translation(language: $language) {
+			...PostDetailFields
+		}
 	}
 }

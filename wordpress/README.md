@@ -23,6 +23,35 @@
 | [ACF PRO](https://www.advancedcustomfields.com/pro/) | 自定义字段 |
 | [WPGraphQL](https://www.wpgraphql.com/) | GraphQL API |
 | [WPGraphQL for ACF](https://acf.wpgraphql.com/) | ACF 字段暴露到 GraphQL |
+| [Polylang](https://polylang.pro/) | 多语言内容管理 |
+| [WPGraphQL Polylang](https://github.com/valu-digital/wp-graphql-polylang) | Polylang GraphQL 支持 |
+| [Polylang Slug](https://github.com/grappler/polylang-slug) | 不同语言共享相同 slug |
+
+---
+
+## 多语言设置 (Polylang)
+
+### 1. 添加语言
+
+**Languages → Languages** 添加需要的语言（如 EN、ZH、JA）。
+
+### 2. 启用自定义文章类型
+
+**Languages → Settings → Custom post types and Taxonomies**：
+- 勾选 `Product` 等自定义文章类型
+- 保存后运行 `bun sync` 更新 GraphQL schema
+
+### 3. URL 设置
+
+**Languages → Settings → URL modifications**：
+- 选择 **The language is set from the directory name**
+- 默认语言隐藏 URL 前缀（EN 为 `/`，其他为 `/zh/`、`/ja/`）
+
+### 4. 创建多语言内容
+
+1. 创建默认语言（EN）的文章
+2. 点击文章列表中的 `+` 图标创建其他语言版本
+3. Polylang Slug 插件会让所有语言版本共享相同 slug
 
 ---
 

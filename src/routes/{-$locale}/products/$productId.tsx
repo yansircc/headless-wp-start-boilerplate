@@ -1,9 +1,11 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { ProductSkeleton } from "@/components/loading";
+import { LocalizedLink } from "@/components/localized-link";
 import { ResourceNotFound } from "@/components/not-found";
 import { Container, Divider, Section } from "@/components/shared";
 import {
+	buildHreflangLinks,
 	buildSchemaScript,
 	buildSeoMeta,
 	generateDescription,
@@ -12,7 +14,7 @@ import {
 } from "@/lib/seo";
 import { getProductBySlug } from "./-services";
 
-export const Route = createFileRoute("/products/$productId")({
+export const Route = createFileRoute("/{-$locale}/products/$productId")({
 	component: RouteComponent,
 	pendingComponent: ProductSkeleton,
 	notFoundComponent: () => (
@@ -39,10 +41,11 @@ export const Route = createFileRoute("/products/$productId")({
 			"/products/$productId",
 			product?.title
 		);
+		const canonical = `/products/${params.productId}`;
 		const config = {
 			title,
 			description: generateDescription(product?.content),
-			canonical: `/products/${params.productId}`,
+			canonical,
 			image: product?.featuredImage?.node?.sourceUrl ?? undefined,
 			imageAlt:
 				product?.featuredImage?.node?.altText ?? product?.title ?? undefined,
@@ -57,6 +60,7 @@ export const Route = createFileRoute("/products/$productId")({
 
 		return {
 			meta: buildSeoMeta(config, seoConfig.site.url),
+			links: buildHreflangLinks(canonical, seoConfig.site.url),
 			scripts: schema ? [schema] : [],
 		};
 	},
@@ -70,13 +74,13 @@ function RouteComponent() {
 			{/* Back Button */}
 			<Section className="pt-16 pb-8">
 				<Container size="lg">
-					<Link
+					<LocalizedLink
 						className="group inline-flex items-center gap-2 font-medium text-gray-500 text-sm transition-all hover:text-black"
 						to="/products"
 					>
 						<ArrowLeft className="group-hover:-translate-x-1 h-4 w-4 transition-transform" />
 						Back to Products
-					</Link>
+					</LocalizedLink>
 				</Container>
 			</Section>
 

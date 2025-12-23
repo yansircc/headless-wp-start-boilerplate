@@ -1,12 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useIntlayer } from "react-intlayer";
 import { Container, Section } from "@/components/shared";
-import { buildSeoMeta, getRouteSeo, seoConfig } from "@/lib/seo";
+import {
+	buildHreflangLinks,
+	buildSeoMeta,
+	getRouteSeo,
+	seoConfig,
+} from "@/lib/seo";
 import { PostCard } from "./-components/post-card";
 import { getPosts } from "./-services";
 
-export const Route = createFileRoute("/posts/")({
+export const Route = createFileRoute("/{-$locale}/posts/")({
 	component: RouteComponent,
-	loader: async () => await getPosts(),
+	loader: ({ params }) => {
+		const locale = params.locale;
+		return getPosts({ data: { locale } });
+	},
 	head: () => {
 		const { title, description } = getRouteSeo("/posts");
 		return {
@@ -18,12 +27,14 @@ export const Route = createFileRoute("/posts/")({
 				},
 				seoConfig.site.url
 			),
+			links: buildHreflangLinks("/posts", seoConfig.site.url),
 		};
 	},
 });
 
 function RouteComponent() {
 	const posts = Route.useLoaderData();
+	const { sections } = useIntlayer("common");
 
 	return (
 		<div className="min-h-screen">
@@ -31,14 +42,14 @@ function RouteComponent() {
 				<Container className="text-center" size="md">
 					<div className="glass mb-6 inline-flex items-center gap-2 rounded-full px-3 py-1">
 						<span className="font-bold text-[10px] text-blue-500 uppercase tracking-widest">
-							Insights
+							{sections.articles.badge}
 						</span>
 					</div>
 					<h1 className="gradient-text font-bold text-5xl text-black tracking-tight">
-						Articles
+						{sections.articles.title}
 					</h1>
 					<p className="mt-4 text-gray-500 text-lg">
-						Discover ideas and insights, explore our latest published articles.
+						{sections.articles.pageSubtitle}
 					</p>
 				</Container>
 			</Section>
@@ -53,7 +64,7 @@ function RouteComponent() {
 						</div>
 					) : (
 						<div className="rounded-3xl border border-gray-200 border-dashed py-24 text-center font-normal text-gray-400">
-							No articles found
+							{sections.articles.empty}
 						</div>
 					)}
 				</Container>

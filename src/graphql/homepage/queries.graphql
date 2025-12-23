@@ -1,6 +1,6 @@
-# 首页数据查询
-query HomepageData {
-	posts(first: 6) {
+# 首页数据查询（支持多语言）
+query HomepageData($language: LanguageCodeFilterEnum) {
+	posts(first: 6, where: { language: $language }) {
 		nodes {
 			...PostFields
 		}

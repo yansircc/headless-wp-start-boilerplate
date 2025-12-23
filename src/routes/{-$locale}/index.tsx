@@ -1,14 +1,24 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
+import { useIntlayer } from "react-intlayer";
+import { LocalizedLink } from "@/components/localized-link";
 import { Container, Section } from "@/components/shared";
-import { buildSeoMeta, getRouteSeo, seoConfig } from "@/lib/seo";
-import { getHomepageData } from "./-services";
+import {
+	buildHreflangLinks,
+	buildSeoMeta,
+	getRouteSeo,
+	seoConfig,
+} from "@/lib/seo";
+import { getHomepageData } from "../-services";
 import { PostCard } from "./posts/-components/post-card";
 import { ProductCard } from "./products/-components/product-card";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/{-$locale}/")({
 	component: Homepage,
-	loader: async () => await getHomepageData(),
+	loader: ({ params }) => {
+		const locale = params.locale;
+		return getHomepageData({ data: { locale } });
+	},
 	head: () => {
 		const { title, description } = getRouteSeo("/");
 		return {
@@ -21,21 +31,23 @@ export const Route = createFileRoute("/")({
 				},
 				seoConfig.site.url
 			),
+			links: buildHreflangLinks("/", seoConfig.site.url),
 		};
 	},
 });
 
 function Homepage() {
 	const data = Route.useLoaderData();
+	const { homepage, sections, actions, errors } = useIntlayer("common");
 
 	if (!data) {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-white">
 				<div className="text-center">
 					<h2 className="mb-2 font-semibold text-2xl text-black">
-						Load Failed
+						{errors.loadFailed}
 					</h2>
-					<p className="text-gray-500">Please refresh the page to try again</p>
+					<p className="text-gray-500">{errors.tryAgain}</p>
 				</div>
 			</div>
 		);
@@ -57,29 +69,28 @@ function Homepage() {
 							<span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500" />
 						</span>
 						<span className="font-medium text-gray-600 text-xs uppercase tracking-widest">
-							New Experience
+							{homepage.badge}
 						</span>
 					</div>
 					<h1 className="gradient-text mb-6 font-bold text-6xl text-black leading-[1.1] tracking-tight md:text-8xl">
-						Modern <br /> Headless CMS.
+						{homepage.title}
 					</h1>
 					<p className="mx-auto max-w-2xl font-normal text-gray-500 text-lg leading-relaxed md:text-xl">
-						Explore the latest insights and products delivered through a
-						cutting-edge headless WordPress architecture.
+						{homepage.subtitle}
 					</p>
 					<div className="mt-10 flex flex-wrap justify-center gap-4">
-						<Link
+						<LocalizedLink
 							className="rounded-2xl bg-black px-8 py-4 font-medium text-white transition-all hover:scale-105 hover:shadow-xl active:scale-95"
 							to="/posts"
 						>
-							Read Posts
-						</Link>
-						<Link
+							{actions.readPosts}
+						</LocalizedLink>
+						<LocalizedLink
 							className="glass rounded-2xl px-8 py-4 font-medium transition-all hover:scale-105 hover:shadow-xl active:scale-95"
 							to="/products"
 						>
-							View Products
-						</Link>
+							{actions.viewProducts}
+						</LocalizedLink>
 					</div>
 				</Container>
 			</Section>
@@ -93,20 +104,20 @@ function Homepage() {
 							<div className="mb-12 flex items-end justify-between">
 								<div>
 									<h2 className="mb-2 font-bold text-3xl text-black tracking-tight">
-										Articles
+										{sections.articles.title}
 									</h2>
 									<p className="text-gray-500 text-sm">
-										Latest news and deep insights
+										{sections.articles.subtitle}
 									</p>
 								</div>
 								{!!data?.postsHasMore && (
-									<Link
+									<LocalizedLink
 										className="group flex items-center gap-2 font-medium text-black text-sm transition-all hover:gap-3"
 										to="/posts"
 									>
-										View All
+										{actions.viewAll}
 										<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-									</Link>
+									</LocalizedLink>
 								)}
 							</div>
 
@@ -118,7 +129,7 @@ function Homepage() {
 								</div>
 							) : (
 								<div className="rounded-3xl border border-gray-200 border-dashed py-16 text-center font-normal text-gray-400">
-									No articles found
+									{sections.articles.empty}
 								</div>
 							)}
 						</section>
@@ -128,20 +139,20 @@ function Homepage() {
 							<div className="mb-12 flex items-end justify-between">
 								<div>
 									<h2 className="mb-2 font-bold text-3xl text-black tracking-tight">
-										Products
+										{sections.products.title}
 									</h2>
 									<p className="text-gray-500 text-sm">
-										Curated selection of quality items
+										{sections.products.subtitle}
 									</p>
 								</div>
 								{!!data?.productsHasMore && (
-									<Link
+									<LocalizedLink
 										className="group flex items-center gap-2 font-medium text-black text-sm transition-all hover:gap-3"
 										to="/products"
 									>
-										View All
+										{actions.viewAll}
 										<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-									</Link>
+									</LocalizedLink>
 								)}
 							</div>
 
@@ -153,7 +164,7 @@ function Homepage() {
 								</div>
 							) : (
 								<div className="rounded-3xl border border-gray-200 border-dashed py-16 text-center font-normal text-gray-400">
-									No products found
+									{sections.products.empty}
 								</div>
 							)}
 						</section>

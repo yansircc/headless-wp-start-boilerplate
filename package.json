@@ -32,9 +32,11 @@
     "@tanstack/router-plugin": "^1.132.0",
     "graphql": "^16.12.0",
     "graphql-request": "5",
+    "intlayer": "^7.5.6",
     "lucide-react": "^0.544.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-intlayer": "^7.5.6",
     "tailwindcss": "^4.0.6",
     "vite-tsconfig-paths": "^5.1.4",
     "zod": "^4.0.14"
@@ -66,6 +68,7 @@
     "typescript": "^5.7.2",
     "ultracite": "6.4.1",
     "vite": "^7.1.7",
+    "vite-intlayer": "^7.5.6",
     "vitest": "^3.0.5",
     "wrangler": "^4.56.0"
   },

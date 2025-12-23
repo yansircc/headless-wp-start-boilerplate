@@ -2,6 +2,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { intLayerMiddlewarePlugin, intlayer } from "vite-intlayer";
 import viteTsConfigPaths from "vite-tsconfig-paths";
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -21,6 +22,10 @@ const config = defineConfig({
 		viteTsConfigPaths({
 			projects: ["./tsconfig.json"],
 		}),
+		// Intlayer i18n plugins
+		intlayer(),
+		// Middleware for SSR locale detection (URL-based, cookie management)
+		intLayerMiddlewarePlugin(),
 		tailwindcss(),
 		tanstackStart(),
 		viteReact(),

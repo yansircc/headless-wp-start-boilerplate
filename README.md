@@ -7,6 +7,7 @@
 - **AI 可理解** - 项目包含完整的 AI 开发指南，Claude Code 能自主完成常见开发任务
 - **类型安全** - ACF 字段定义自动生成 GraphQL Fragment + TypeScript 类型
 - **缓存 + Webhook** - 服务端缓存 + WordPress 内容变更自动失效
+- **i18n 就绪** - Intlayer + Polylang，URL 路由模式 (`/`, `/zh/`, `/ja/`)，SEO 友好
 
 ## 快速开始
 
@@ -117,7 +118,7 @@ bun run deploy         # 部署
 
 ## Tech Stack
 
-TanStack Start (React 19) · TanStack Router · TanStack Query · Tailwind CSS v4 · Zod · GraphQL Codegen · t3-env · Vitest · Vite · Biome · Bun · Cloudflare Workers
+TanStack Start (React 19) · TanStack Router · TanStack Query · Tailwind CSS v4 · Intlayer · Polylang · Zod · GraphQL Codegen · t3-env · Vitest · Vite · Biome · Bun · Cloudflare Workers
 
 ## License
 

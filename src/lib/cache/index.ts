@@ -82,24 +82,33 @@ export const cache = new MemoryCache();
 
 /**
  * Cache key generators
+ * All keys include locale for multi-language support
  */
 export const cacheKeys = {
-	// Products
-	productsList: () => "products:list",
-	productBySlug: (slug: string) => `products:slug:${slug}`,
-	productById: (id: number) => `products:id:${id}`,
+	// Products (not yet multi-language in Polylang)
+	productsList: (locale?: string) =>
+		locale ? `products:list:${locale}` : "products:list",
+	productBySlug: (slug: string, locale?: string) =>
+		locale ? `products:slug:${slug}:${locale}` : `products:slug:${slug}`,
+	productById: (id: number, locale?: string) =>
+		locale ? `products:id:${id}:${locale}` : `products:id:${id}`,
 
-	// Posts
-	postsList: () => "posts:list",
-	postBySlug: (slug: string) => `posts:slug:${slug}`,
-	postById: (id: number) => `posts:id:${id}`,
+	// Posts (multi-language enabled)
+	postsList: (locale?: string) =>
+		locale ? `posts:list:${locale}` : "posts:list",
+	postBySlug: (slug: string, locale?: string) =>
+		locale ? `posts:slug:${slug}:${locale}` : `posts:slug:${slug}`,
+	postById: (id: number, locale?: string) =>
+		locale ? `posts:id:${id}:${locale}` : `posts:id:${id}`,
 
 	// Homepage
-	homepage: () => "homepage:data",
+	homepage: (locale?: string) =>
+		locale ? `homepage:data:${locale}` : "homepage:data",
 };
 
 /**
  * Invalidate cache based on webhook payload
+ * Clears cache for all language versions since webhook doesn't include locale
  */
 export function invalidateByWebhook(payload: {
 	action: string;
@@ -110,34 +119,46 @@ export function invalidateByWebhook(payload: {
 	const { post_type, post_id, slug } = payload;
 	const invalidated: string[] = [];
 
+	// Get all current cache keys to find matching patterns
+	const { keys: allKeys } = cache.stats();
+
 	// Collect keys to invalidate based on post_type
 	if (post_type === "product") {
+		// Invalidate all product keys matching slug/id pattern across all locales
 		if (slug) {
-			invalidated.push(cacheKeys.productBySlug(slug));
+			const pattern = `products:slug:${slug}`;
+			invalidated.push(...allKeys.filter((k) => k.startsWith(pattern)));
 		}
 		if (post_id) {
-			invalidated.push(cacheKeys.productById(post_id));
+			const pattern = `products:id:${post_id}`;
+			invalidated.push(...allKeys.filter((k) => k.startsWith(pattern)));
 		}
-		invalidated.push(cacheKeys.productsList());
+		// Invalidate all product list caches
+		invalidated.push(...allKeys.filter((k) => k.startsWith("products:list")));
 	}
 
 	if (post_type === "post") {
+		// Invalidate all post keys matching slug/id pattern across all locales
 		if (slug) {
-			invalidated.push(cacheKeys.postBySlug(slug));
+			const pattern = `posts:slug:${slug}`;
+			invalidated.push(...allKeys.filter((k) => k.startsWith(pattern)));
 		}
 		if (post_id) {
-			invalidated.push(cacheKeys.postById(post_id));
+			const pattern = `posts:id:${post_id}`;
+			invalidated.push(...allKeys.filter((k) => k.startsWith(pattern)));
 		}
-		invalidated.push(cacheKeys.postsList());
+		// Invalidate all post list caches
+		invalidated.push(...allKeys.filter((k) => k.startsWith("posts:list")));
 	}
 
-	// Homepage might show latest posts/products
-	invalidated.push(cacheKeys.homepage());
+	// Homepage caches for all locales
+	invalidated.push(...allKeys.filter((k) => k.startsWith("homepage:data")));
 
-	// Delete all targeted keys
-	for (const key of invalidated) {
+	// Delete all targeted keys (deduplicated)
+	const uniqueKeys = [...new Set(invalidated)];
+	for (const key of uniqueKeys) {
 		cache.delete(key);
 	}
 
-	return { invalidated, count: invalidated.length };
+	return { invalidated: uniqueKeys, count: uniqueKeys.length };
 }

@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { LocalizedLink } from "@/components/localized-link";
 import type { ProductCardProps } from "../-types";
 
 export function ProductCard({
@@ -8,10 +8,9 @@ export function ProductCard({
 	featuredImage,
 }: ProductCardProps) {
 	return (
-		<Link
+		<LocalizedLink
 			className="group block transition-all"
-			params={{ productId: slug || "" }}
-			to="/products/$productId"
+			to={`/products/${slug}`}
 		>
 			<article className="hover:-translate-y-2 h-full overflow-hidden rounded-3xl border border-gray-100 bg-white transition-all hover:shadow-2xl">
 				{!!featuredImage?.node && (
@@ -55,6 +54,6 @@ export function ProductCard({
 					</div>
 				</div>
 			</article>
-		</Link>
+		</LocalizedLink>
 	);
 }

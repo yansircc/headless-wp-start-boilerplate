@@ -9,38 +9,43 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProductsIndexRouteImport } from './routes/products/index'
-import { Route as PostsIndexRouteImport } from './routes/posts/index'
-import { Route as ProductsProductIdRouteImport } from './routes/products/$productId'
-import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
+import { Route as Char123LocaleChar125IndexRouteImport } from './routes/{-$locale}/index'
+import { Route as Char123LocaleChar125ProductsIndexRouteImport } from './routes/{-$locale}/products/index'
+import { Route as Char123LocaleChar125PostsIndexRouteImport } from './routes/{-$locale}/posts/index'
+import { Route as Char123LocaleChar125ProductsProductIdRouteImport } from './routes/{-$locale}/products/$productId'
+import { Route as Char123LocaleChar125PostsPostIdRouteImport } from './routes/{-$locale}/posts/$postId'
 import { Route as ApiWebhookRevalidateRouteImport } from './routes/api/webhook/revalidate'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductsIndexRoute = ProductsIndexRouteImport.update({
-  id: '/products/',
-  path: '/products/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PostsIndexRoute = PostsIndexRouteImport.update({
-  id: '/posts/',
-  path: '/posts/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
-  id: '/products/$productId',
-  path: '/products/$productId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PostsPostIdRoute = PostsPostIdRouteImport.update({
-  id: '/posts/$postId',
-  path: '/posts/$postId',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const Char123LocaleChar125IndexRoute =
+  Char123LocaleChar125IndexRouteImport.update({
+    id: '/{-$locale}/',
+    path: '/{-$locale}/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char123LocaleChar125ProductsIndexRoute =
+  Char123LocaleChar125ProductsIndexRouteImport.update({
+    id: '/{-$locale}/products/',
+    path: '/{-$locale}/products/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char123LocaleChar125PostsIndexRoute =
+  Char123LocaleChar125PostsIndexRouteImport.update({
+    id: '/{-$locale}/posts/',
+    path: '/{-$locale}/posts/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char123LocaleChar125ProductsProductIdRoute =
+  Char123LocaleChar125ProductsProductIdRouteImport.update({
+    id: '/{-$locale}/products/$productId',
+    path: '/{-$locale}/products/$productId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char123LocaleChar125PostsPostIdRoute =
+  Char123LocaleChar125PostsPostIdRouteImport.update({
+    id: '/{-$locale}/posts/$postId',
+    path: '/{-$locale}/posts/$postId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiWebhookRevalidateRoute = ApiWebhookRevalidateRouteImport.update({
   id: '/api/webhook/revalidate',
   path: '/api/webhook/revalidate',
@@ -48,101 +53,101 @@ const ApiWebhookRevalidateRoute = ApiWebhookRevalidateRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/products/$productId': typeof ProductsProductIdRoute
-  '/posts': typeof PostsIndexRoute
-  '/products': typeof ProductsIndexRoute
+  '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
+  '/{-$locale}/posts/$postId': typeof Char123LocaleChar125PostsPostIdRoute
+  '/{-$locale}/products/$productId': typeof Char123LocaleChar125ProductsProductIdRoute
+  '/{-$locale}/posts': typeof Char123LocaleChar125PostsIndexRoute
+  '/{-$locale}/products': typeof Char123LocaleChar125ProductsIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/products/$productId': typeof ProductsProductIdRoute
-  '/posts': typeof PostsIndexRoute
-  '/products': typeof ProductsIndexRoute
+  '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
+  '/{-$locale}/posts/$postId': typeof Char123LocaleChar125PostsPostIdRoute
+  '/{-$locale}/products/$productId': typeof Char123LocaleChar125ProductsProductIdRoute
+  '/{-$locale}/posts': typeof Char123LocaleChar125PostsIndexRoute
+  '/{-$locale}/products': typeof Char123LocaleChar125ProductsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/posts/$postId': typeof PostsPostIdRoute
-  '/products/$productId': typeof ProductsProductIdRoute
-  '/posts/': typeof PostsIndexRoute
-  '/products/': typeof ProductsIndexRoute
+  '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
+  '/{-$locale}/posts/$postId': typeof Char123LocaleChar125PostsPostIdRoute
+  '/{-$locale}/products/$productId': typeof Char123LocaleChar125ProductsProductIdRoute
+  '/{-$locale}/posts/': typeof Char123LocaleChar125PostsIndexRoute
+  '/{-$locale}/products/': typeof Char123LocaleChar125ProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/posts/$postId'
-    | '/products/$productId'
-    | '/posts'
-    | '/products'
+    | '/{-$locale}'
     | '/api/webhook/revalidate'
+    | '/{-$locale}/posts/$postId'
+    | '/{-$locale}/products/$productId'
+    | '/{-$locale}/posts'
+    | '/{-$locale}/products'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
-    | '/posts/$postId'
-    | '/products/$productId'
-    | '/posts'
-    | '/products'
+    | '/{-$locale}'
     | '/api/webhook/revalidate'
+    | '/{-$locale}/posts/$postId'
+    | '/{-$locale}/products/$productId'
+    | '/{-$locale}/posts'
+    | '/{-$locale}/products'
   id:
     | '__root__'
-    | '/'
-    | '/posts/$postId'
-    | '/products/$productId'
-    | '/posts/'
-    | '/products/'
+    | '/{-$locale}/'
     | '/api/webhook/revalidate'
+    | '/{-$locale}/posts/$postId'
+    | '/{-$locale}/products/$productId'
+    | '/{-$locale}/posts/'
+    | '/{-$locale}/products/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  PostsPostIdRoute: typeof PostsPostIdRoute
-  ProductsProductIdRoute: typeof ProductsProductIdRoute
-  PostsIndexRoute: typeof PostsIndexRoute
-  ProductsIndexRoute: typeof ProductsIndexRoute
+  Char123LocaleChar125IndexRoute: typeof Char123LocaleChar125IndexRoute
   ApiWebhookRevalidateRoute: typeof ApiWebhookRevalidateRoute
+  Char123LocaleChar125PostsPostIdRoute: typeof Char123LocaleChar125PostsPostIdRoute
+  Char123LocaleChar125ProductsProductIdRoute: typeof Char123LocaleChar125ProductsProductIdRoute
+  Char123LocaleChar125PostsIndexRoute: typeof Char123LocaleChar125PostsIndexRoute
+  Char123LocaleChar125ProductsIndexRoute: typeof Char123LocaleChar125ProductsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/{-$locale}/': {
+      id: '/{-$locale}/'
+      path: '/{-$locale}'
+      fullPath: '/{-$locale}'
+      preLoaderRoute: typeof Char123LocaleChar125IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/products/': {
-      id: '/products/'
-      path: '/products'
-      fullPath: '/products'
-      preLoaderRoute: typeof ProductsIndexRouteImport
+    '/{-$locale}/products/': {
+      id: '/{-$locale}/products/'
+      path: '/{-$locale}/products'
+      fullPath: '/{-$locale}/products'
+      preLoaderRoute: typeof Char123LocaleChar125ProductsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts/': {
-      id: '/posts/'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsIndexRouteImport
+    '/{-$locale}/posts/': {
+      id: '/{-$locale}/posts/'
+      path: '/{-$locale}/posts'
+      fullPath: '/{-$locale}/posts'
+      preLoaderRoute: typeof Char123LocaleChar125PostsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/products/$productId': {
-      id: '/products/$productId'
-      path: '/products/$productId'
-      fullPath: '/products/$productId'
-      preLoaderRoute: typeof ProductsProductIdRouteImport
+    '/{-$locale}/products/$productId': {
+      id: '/{-$locale}/products/$productId'
+      path: '/{-$locale}/products/$productId'
+      fullPath: '/{-$locale}/products/$productId'
+      preLoaderRoute: typeof Char123LocaleChar125ProductsProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/posts/$postId': {
-      id: '/posts/$postId'
-      path: '/posts/$postId'
-      fullPath: '/posts/$postId'
-      preLoaderRoute: typeof PostsPostIdRouteImport
+    '/{-$locale}/posts/$postId': {
+      id: '/{-$locale}/posts/$postId'
+      path: '/{-$locale}/posts/$postId'
+      fullPath: '/{-$locale}/posts/$postId'
+      preLoaderRoute: typeof Char123LocaleChar125PostsPostIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/webhook/revalidate': {
@@ -156,12 +161,14 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  PostsPostIdRoute: PostsPostIdRoute,
-  ProductsProductIdRoute: ProductsProductIdRoute,
-  PostsIndexRoute: PostsIndexRoute,
-  ProductsIndexRoute: ProductsIndexRoute,
+  Char123LocaleChar125IndexRoute: Char123LocaleChar125IndexRoute,
   ApiWebhookRevalidateRoute: ApiWebhookRevalidateRoute,
+  Char123LocaleChar125PostsPostIdRoute: Char123LocaleChar125PostsPostIdRoute,
+  Char123LocaleChar125ProductsProductIdRoute:
+    Char123LocaleChar125ProductsProductIdRoute,
+  Char123LocaleChar125PostsIndexRoute: Char123LocaleChar125PostsIndexRoute,
+  Char123LocaleChar125ProductsIndexRoute:
+    Char123LocaleChar125ProductsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
