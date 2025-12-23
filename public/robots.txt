@@ -5,4 +5,4 @@ Allow: /
 Disallow: /api
 Disallow: /admin
 
-Sitemap: http:localhost:3000/sitemap.xml
+Sitemap: http://localhost:3008/sitemap.xml

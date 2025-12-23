@@ -41,7 +41,7 @@ bun dev
 
 ### 验证机制
 
-`bun build` 会自动验证 AI 的修改是否符合规则：
+`bun run build` 会自动验证 AI 的修改是否符合规则：
 
 ```
 ✅ No manual modifications to generated files
@@ -74,7 +74,7 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 | 命令 | 说明 |
 |------|------|
 | `bun dev` | 开发服务器 |
-| `bun build` | 构建（自动验证） |
+| `bun run build` | 构建（自动验证） |
 | `bun sync` | ACF 字段同步 + 类型生成 |
 | `bun seo` | SEO 验证 + 生成 sitemap |
 | `bun run test` | 运行单元测试 |

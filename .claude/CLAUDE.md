@@ -159,7 +159,7 @@ export const cacheKeys = {
 | Command | Description |
 |---------|-------------|
 | `bun dev` | Start development server |
-| `bun build` | Build for production (runs validate + seo first) |
+| `bun run build` | Build for production (runs validate + seo first) |
 | `bun sync` | Sync ACF definitions → WordPress → Generate types |
 | `bun seo` | Validate SEO config and generate robots.txt/sitemap.xml |
 | `bun validate` | Run all pre-build validations |

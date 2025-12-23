@@ -132,6 +132,11 @@ function discoverRoutes(): {
 		const seenContentTypes = new Set<string>();
 
 		for (const path of allPaths) {
+			// Skip API routes - they don't need SEO configuration
+			if (path.startsWith("/api")) {
+				continue;
+			}
+
 			if (path.includes("$")) {
 				// Dynamic route: /posts/$postId
 				dynamicRoutes.push(path);
