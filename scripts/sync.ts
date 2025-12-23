@@ -12,6 +12,7 @@
  *   3. 推送到 WordPress
  *   4. 下载最新 GraphQL Schema
  *   5. 运行 codegen 生成类型
+ *   6. 同步 i18n 配置 (从 GraphQL LanguageCodeEnum → intlayer.config.ts)
  */
 
 import { existsSync } from "node:fs";
@@ -62,7 +63,7 @@ async function run(cmd: string, args: string[]): Promise<boolean> {
 
 // Step 1: Generate GraphQL Fragment + Zod Schema
 async function generateCode(): Promise<boolean> {
-	step(1, 5, "生成 GraphQL Fragment + Zod Schema...");
+	step(1, 6, "生成 GraphQL Fragment + Zod Schema...");
 
 	const { productFieldGroup, toGraphQLFragment, toZodSchemaCode } =
 		await import("../src/acf/definitions/index.ts");
@@ -87,7 +88,7 @@ async function generateCode(): Promise<boolean> {
 
 // Step 2: Compile ACF definitions
 async function compileAcf(): Promise<boolean> {
-	step(2, 5, "编译 ACF 定义...");
+	step(2, 6, "编译 ACF 定义...");
 
 	const { toAcfJson, productFieldGroup } = await import(
 		"../src/acf/definitions/index.ts"
@@ -126,7 +127,7 @@ async function compileAcf(): Promise<boolean> {
 
 // Step 3: Push to WordPress
 async function pushToWordPress(): Promise<boolean> {
-	step(3, 5, "推送到 WordPress...");
+	step(3, 6, "推送到 WordPress...");
 
 	const { readdir, readFile } = await import("node:fs/promises");
 	const { join } = await import("node:path");
@@ -186,7 +187,7 @@ async function pushToWordPress(): Promise<boolean> {
 
 // Step 4: Download GraphQL Schema
 async function downloadSchema(): Promise<boolean> {
-	step(4, 5, "下载 GraphQL Schema...");
+	step(4, 6, "下载 GraphQL Schema...");
 
 	const introspectionQuery = `
     query IntrospectionQuery {
@@ -252,7 +253,7 @@ async function downloadSchema(): Promise<boolean> {
 
 // Step 5: Run codegen
 async function runCodegen(): Promise<boolean> {
-	step(5, 5, "生成 TypeScript 类型...");
+	step(5, 6, "生成 TypeScript 类型...");
 	const success = await run("bun", [
 		"graphql-codegen",
 		"--config",
@@ -267,6 +268,12 @@ ${c.yellow}提示：Codegen 失败通常是因为 .graphql 文件与 Schema 不�
 `);
 	}
 	return success;
+}
+
+// Step 6: Sync i18n configuration
+async function syncI18n(): Promise<boolean> {
+	step(6, 6, "同步 i18n 配置...");
+	return await run("bun", ["scripts/sync-i18n.ts"]);
 }
 
 // Main
@@ -291,6 +298,10 @@ async function main() {
 	}
 	if (!(await runCodegen())) {
 		log("\n❌ Codegen 失败", "red");
+		process.exit(1);
+	}
+	if (!(await syncI18n())) {
+		log("\n❌ i18n 同步失败", "red");
 		process.exit(1);
 	}
 

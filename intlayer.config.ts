@@ -1,21 +1,20 @@
+/**
+ * Intlayer Configuration
+ *
+ * AUTO-GENERATED from WordPress Polylang via GraphQL schema.
+ * DO NOT EDIT MANUALLY - run `bun sync` to update.
+ *
+ * SSOT: WordPress Polylang → GraphQL LanguageCodeEnum → This file
+ */
+
 import { type IntlayerConfig, Locales } from "intlayer";
 
 const config: IntlayerConfig = {
 	internationalization: {
-		locales: [
-			Locales.ENGLISH, // 默认语言
-			Locales.CHINESE,
-			Locales.JAPANESE,
-			Locales.KOREAN,
-			Locales.FRENCH,
-			Locales.GERMAN,
-			Locales.SPANISH,
-			// 可按需添加更多语言
-		],
+		locales: [Locales.ENGLISH, Locales.JAPANESE, Locales.CHINESE],
 		defaultLocale: Locales.ENGLISH,
 	},
 	content: {
-		// 翻译内容目录
 		contentDir: ["./src/content"],
 	},
 };

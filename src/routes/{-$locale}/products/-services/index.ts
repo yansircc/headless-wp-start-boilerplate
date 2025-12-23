@@ -1,50 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import {
-	LanguageCodeEnum,
-	LanguageCodeFilterEnum,
-} from "@/graphql/_generated/graphql";
-import {
 	ProductBySlugDocument,
 	ProductsListDocument,
 } from "@/graphql/products/queries.generated";
 import { cache, cacheKeys } from "@/lib/cache";
 import { graphqlRequest } from "@/lib/graphql";
-
-/**
- * Convert frontend locale to GraphQL LanguageCodeFilterEnum
- * Used for list queries
- */
-function toLanguageFilter(locale?: string): LanguageCodeFilterEnum {
-	const localeMap: Record<string, LanguageCodeFilterEnum> = {
-		en: LanguageCodeFilterEnum.En,
-		ja: LanguageCodeFilterEnum.Ja,
-		zh: LanguageCodeFilterEnum.Zh,
-	};
-
-	if (!locale) {
-		return LanguageCodeFilterEnum.En;
-	}
-
-	return localeMap[locale.toLowerCase()] ?? LanguageCodeFilterEnum.En;
-}
-
-/**
- * Convert frontend locale to GraphQL LanguageCodeEnum
- * Used for translation() queries
- */
-function toLanguageCode(locale?: string): LanguageCodeEnum {
-	const localeMap: Record<string, LanguageCodeEnum> = {
-		en: LanguageCodeEnum.En,
-		ja: LanguageCodeEnum.Ja,
-		zh: LanguageCodeEnum.Zh,
-	};
-
-	if (!locale) {
-		return LanguageCodeEnum.En;
-	}
-
-	return localeMap[locale.toLowerCase()] ?? LanguageCodeEnum.En;
-}
+import { toLanguageCode, toLanguageFilter } from "@/lib/i18n/language";
 
 type GetProductsInput = {
 	locale?: string;

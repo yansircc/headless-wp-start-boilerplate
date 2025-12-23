@@ -16,6 +16,8 @@
     "lint:fix": "biome check --fix --unsafe .",
     "typecheck": "tsc --noEmit",
     "sync": "bun scripts/sync.ts",
+    "sync:i18n": "bun scripts/sync-i18n.ts",
+    "sync:i18n:check": "bun scripts/sync-i18n.ts --check",
     "seo": "bun scripts/generate-seo-files.ts",
     "seo:check": "bun scripts/generate-seo-files.ts --check",
     "validate": "bun scripts/validate.ts",

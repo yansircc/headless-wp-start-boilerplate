@@ -26,6 +26,26 @@ This document serves as the authoritative guide for AI developers working on thi
 │  routes/**/*.tsx          ◄──── invalidate ──── WordPress          │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                     i18n SSOT (Single Source of Truth)              │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  WordPress Polylang (SSOT)                                          │
+│        │                                                            │
+│        │ bun sync                                                   │
+│        ▼                                                            │
+│  GraphQL LanguageCodeEnum  ──────────────────────────────────────►  │
+│        │                                                            │
+│        ├──► intlayer.config.ts (auto-generated)                     │
+│        │                                                            │
+│        └──► src/lib/i18n/language.ts (derived from enum)           │
+│                    │                                                │
+│                    └──► toLanguageFilter(), toLanguageCode()        │
+│                              │                                      │
+│                              └──► All service files import from here│
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Key Files
@@ -37,7 +57,8 @@ This document serves as the authoritative guide for AI developers working on thi
 | `src/routes/**/-services/` | Data fetching with cache |
 | `src/lib/cache/index.ts` | Cache keys and invalidation logic |
 | `src/lib/seo/seo.config.ts` | SEO configuration (SSOT) |
-| `intlayer.config.ts` | i18n languages (EN/ZH/JA/...) |
+| `src/lib/i18n/language.ts` | Language utilities (derived from GraphQL) |
+| `intlayer.config.ts` | i18n config (AUTO-GENERATED from WordPress Polylang) |
 | `src/content/*.content.ts` | UI translations (Intlayer) |
 
 ---
@@ -139,26 +160,32 @@ export const getProducts = createServerFn({ method: "GET" })
 
 ## i18n (Multi-language)
 
-- **URL routing**: `/` (EN default), `/zh/`, `/ja/`
-- **Frontend translations**: `useIntlayer("common")` from `src/content/*.content.ts`
-- **WordPress content**: Polylang + WPGraphQL Polylang plugin
-- **Data fetching**: Pass `locale` from route params to services
+> 详细架构说明见 [wordpress/I18N.md](../wordpress/I18N.md)
+
+**SSOT**: WordPress Polylang → GraphQL `LanguageCodeEnum` → `intlayer.config.ts` + `src/lib/i18n/language.ts`
+
+### 快速参考
 
 ```typescript
-// Route loader gets locale from URL params
-loader: ({ params }) => getPosts({ data: { locale: params.locale } })
+// 服务层使用共享模块
+import { toLanguageFilter, toLanguageCode } from "@/lib/i18n/language";
 
-// Service converts locale to GraphQL language filter
 const language = toLanguageFilter(locale); // "en" → LanguageCodeFilterEnum.En
 ```
 
-**Cache keys include locale**: `posts:list:en`, `homepage:data:ja`
-
-### Adding UI Translations
+### 添加新语言
 
 ```bash
-# 1. Edit src/content/common.content.ts
-# 2. Add new translation key with all languages
+# 1. WordPress Polylang 添加语言
+# 2. 运行同步（自动更新所有配置）
+bun sync
+# 3. 添加 UI 翻译到 src/content/*.content.ts
+```
+
+### 添加 UI 翻译
+
+```typescript
+// src/content/common.content.ts
 navigation: {
   newItem: t({
     en: "New Item",
@@ -166,26 +193,7 @@ navigation: {
     ja: "新しい項目",
   }),
 }
-
-# 3. Use in component
-const { navigation } = useIntlayer("common");
-<span>{navigation.newItem}</span>
 ```
-
-### Adding a New Language
-
-1. Add language in WordPress Polylang
-2. Run `bun sync` to update GraphQL schema
-3. Update `toLanguageFilter()` and `toLanguageCode()` in services:
-   ```typescript
-   const localeMap = {
-     en: LanguageCodeFilterEnum.En,
-     ja: LanguageCodeFilterEnum.Ja,
-     zh: LanguageCodeFilterEnum.Zh,
-     ko: LanguageCodeFilterEnum.Ko,  // Add new language
-   };
-   ```
-4. Add translations to `src/content/*.content.ts`
 
 ---
 
@@ -216,7 +224,9 @@ export const cacheKeys = {
 | `bun run build` | Build for production (runs validate + seo first) |
 | `bun env:push` | Push .env.prod.local secrets to Cloudflare |
 | `bun run deploy` | Deploy to Cloudflare Workers |
-| `bun sync` | Sync ACF definitions → WordPress → Generate types |
+| `bun sync` | Full sync: ACF → WordPress → GraphQL types → i18n config |
+| `bun sync:i18n` | Sync only i18n config from GraphQL LanguageCodeEnum |
+| `bun sync:i18n:check` | Check if i18n config is up-to-date (CI) |
 | `bun seo` | Validate SEO config and generate robots.txt/sitemap.xml |
 | `bun validate` | Run all pre-build validations |
 | `bun typecheck` | TypeScript type checking |
@@ -257,6 +267,7 @@ These files are auto-generated. Changes will be overwritten.
 ❌ public/robots.txt
 ❌ public/sitemap.xml
 ❌ .intlayer/*
+❌ intlayer.config.ts (auto-generated from WordPress Polylang)
 ```
 
 ### Always Use Auto-Generated Fragments
@@ -317,14 +328,13 @@ Key rules:
 
 Before committing:
 
-- [ ] Ran `bun sync` after ACF changes
+- [ ] Ran `bun sync` after ACF changes or WordPress language changes
 - [ ] Ran `bun seo` after adding routes
 - [ ] Ran `bun lint` to fix formatting
 - [ ] Ran `bun typecheck` to verify types
 - [ ] Ran `bun run test` to verify tests pass
 - [ ] Added cache keys for new content types (with locale support)
-- [ ] Updated `toLanguageFilter()` if adding new languages
-- [ ] Did NOT modify any `_generated` or `.intlayer` files
+- [ ] Did NOT modify any `_generated`, `.intlayer`, or `intlayer.config.ts` files
 
 ---
 

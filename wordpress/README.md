@@ -31,9 +31,13 @@
 
 ## 多语言设置 (Polylang)
 
+> 详细的 i18n 架构和 SSOT 说明见 [I18N.md](./I18N.md)
+
 ### 1. 添加语言
 
 **Languages → Languages** 添加需要的语言（如 EN、ZH、JA）。
+
+添加后运行 `bun sync`，前端会自动同步语言配置。
 
 ### 2. 启用自定义文章类型
 

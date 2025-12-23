@@ -1,32 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { productSchema } from "@/acf/definitions";
-import { LanguageCodeFilterEnum } from "@/graphql/_generated/graphql";
 import { HomepageDataDocument } from "@/graphql/homepage/queries.generated";
 import { cache, cacheKeys } from "@/lib/cache";
 import { graphqlRequest } from "@/lib/graphql";
+import { toLanguageFilter } from "@/lib/i18n/language";
 
 // Homepage 产品列表 schema
 const homepageProductsSchema = z.array(productSchema);
-
-/**
- * Convert frontend locale to GraphQL LanguageCodeFilterEnum
- * Returns default language (EN) for undefined locale
- */
-function toLanguageFilter(locale?: string): LanguageCodeFilterEnum {
-	const localeMap: Record<string, LanguageCodeFilterEnum> = {
-		en: LanguageCodeFilterEnum.En,
-		ja: LanguageCodeFilterEnum.Ja,
-		zh: LanguageCodeFilterEnum.Zh,
-	};
-
-	// Default to English if no locale or unknown locale
-	if (!locale) {
-		return LanguageCodeFilterEnum.En;
-	}
-
-	return localeMap[locale.toLowerCase()] ?? LanguageCodeFilterEnum.En;
-}
 
 type GetHomepageDataInput = {
 	locale?: string;
