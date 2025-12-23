@@ -18,8 +18,8 @@ export const seoConfig: SeoConfigSchema = {
 	// Site Configuration (Required)
 	// ============================================
 	site: {
-		url: env.SITE_URL,
-		name: env.SITE_NAME,
+		url: env.SITE_URL ?? "http://localhost:3000",
+		name: env.SITE_NAME ?? "Site Name",
 		tagline: "Headless WordPress Starter", // TODO: Fill in your site tagline
 		language: "en-US",
 		separator: "-",

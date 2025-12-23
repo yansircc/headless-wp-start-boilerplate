@@ -74,7 +74,10 @@ export const env = createEnv({
 
 	/**
 	 * Skip validation in certain environments.
-	 * Useful for build-time scripts that don't need all variables.
+	 * - Test environment: vitest sets NODE_ENV=test
+	 * - Explicit skip: set SKIP_ENV_VALIDATION=true
 	 */
-	skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
+	skipValidation:
+		process.env.SKIP_ENV_VALIDATION === "true" ||
+		process.env.NODE_ENV === "test",
 });

@@ -74,7 +74,7 @@ describe("productAcfGroupSchema", () => {
 			stock: 10,
 			shortDescription: "Short desc",
 			isFeatured: true,
-			gallery: [{ id: "img-1" }],
+			gallery: { nodes: [{ id: "img-1" }] }, // GraphQL returns { nodes: [...] }
 			attributes: [{ attributeName: "Size", attributeValue: "Large" }],
 		});
 		expect(result.success).toBe(true);
@@ -98,12 +98,14 @@ describe("productAcfGroupSchema", () => {
 		expect(result.success).toBe(true);
 	});
 
-	it("should validate nested gallery array", () => {
+	it("should validate nested gallery with nodes structure", () => {
 		const result = productAcfGroupSchema.safeParse({
-			gallery: [
-				{ id: "img-1", sourceUrl: "https://example.com/1.jpg" },
-				{ id: "img-2", sourceUrl: "https://example.com/2.jpg" },
-			],
+			gallery: {
+				nodes: [
+					{ id: "img-1", sourceUrl: "https://example.com/1.jpg" },
+					{ id: "img-2", sourceUrl: "https://example.com/2.jpg" },
+				],
+			},
 		});
 		expect(result.success).toBe(true);
 	});
