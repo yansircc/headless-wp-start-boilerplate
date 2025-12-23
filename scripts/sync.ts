@@ -143,11 +143,11 @@ async function pushToWordPress(): Promise<boolean> {
 	}
 
 	try {
-		const response = await fetch(`${WP_URL}/wp-json/acf-sync/v1/push`, {
+		const response = await fetch(`${WP_URL}/wp-json/headless-bridge/v1/push`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"X-ACF-Sync-Key": ACF_SYNC_KEY,
+				"X-Headless-Bridge-Key": ACF_SYNC_KEY,
 			},
 			body: JSON.stringify({ files }),
 		});

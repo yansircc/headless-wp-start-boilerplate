@@ -14,6 +14,7 @@ import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as PostsIndexRouteImport } from './routes/posts/index'
 import { Route as ProductsProductIdRouteImport } from './routes/products/$productId'
 import { Route as PostsPostIdRouteImport } from './routes/posts/$postId'
+import { Route as ApiWebhookRevalidateRouteImport } from './routes/api/webhook/revalidate'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const PostsPostIdRoute = PostsPostIdRouteImport.update({
   path: '/posts/$postId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWebhookRevalidateRoute = ApiWebhookRevalidateRouteImport.update({
+  id: '/api/webhook/revalidate',
+  path: '/api/webhook/revalidate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/products/$productId': typeof ProductsProductIdRoute
   '/posts': typeof PostsIndexRoute
   '/products': typeof ProductsIndexRoute
+  '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/products/$productId': typeof ProductsProductIdRoute
   '/posts': typeof PostsIndexRoute
   '/products': typeof ProductsIndexRoute
+  '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,6 +70,7 @@ export interface FileRoutesById {
   '/products/$productId': typeof ProductsProductIdRoute
   '/posts/': typeof PostsIndexRoute
   '/products/': typeof ProductsIndexRoute
+  '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,8 +80,15 @@ export interface FileRouteTypes {
     | '/products/$productId'
     | '/posts'
     | '/products'
+    | '/api/webhook/revalidate'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/posts/$postId' | '/products/$productId' | '/posts' | '/products'
+  to:
+    | '/'
+    | '/posts/$postId'
+    | '/products/$productId'
+    | '/posts'
+    | '/products'
+    | '/api/webhook/revalidate'
   id:
     | '__root__'
     | '/'
@@ -80,6 +96,7 @@ export interface FileRouteTypes {
     | '/products/$productId'
     | '/posts/'
     | '/products/'
+    | '/api/webhook/revalidate'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -88,6 +105,7 @@ export interface RootRouteChildren {
   ProductsProductIdRoute: typeof ProductsProductIdRoute
   PostsIndexRoute: typeof PostsIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
+  ApiWebhookRevalidateRoute: typeof ApiWebhookRevalidateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -127,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsPostIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/webhook/revalidate': {
+      id: '/api/webhook/revalidate'
+      path: '/api/webhook/revalidate'
+      fullPath: '/api/webhook/revalidate'
+      preLoaderRoute: typeof ApiWebhookRevalidateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -136,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsProductIdRoute: ProductsProductIdRoute,
   PostsIndexRoute: PostsIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
+  ApiWebhookRevalidateRoute: ApiWebhookRevalidateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

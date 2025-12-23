@@ -219,9 +219,15 @@ export const seoConfig = {
 ## 环境变量
 
 ```bash
+# WordPress
 WP_URL=http://your-wordpress.local
 GRAPHQL_ENDPOINT=http://your-wordpress.local/graphql
 ACF_SYNC_KEY=your-api-key
+
+# Webhook (缓存失效)
+WEBHOOK_SECRET=your-webhook-secret
+
+# SEO
 SITE_URL=https://your-domain.com
 SITE_NAME=Your Site Name
 ```
@@ -234,18 +240,35 @@ SITE_NAME=Your Site Name
 - [WPGraphQL](https://www.wpgraphql.com/)
 - [WPGraphQL for ACF](https://acf.wpgraphql.com/)
 
-### ACF Sync API 插件
+### Headless Bridge 插件
+
+Headless Bridge 插件提供两个功能：
+1. **ACF Sync** - 从前端同步 ACF 配置到 WordPress
+2. **Webhook** - 内容变更时通知前端清除缓存
 
 ```bash
-# 将插件复制到 WordPress
-cp -r wordpress/plugins/acf-sync-api /path/to/wordpress/wp-content/plugins/
+# 解压插件到 WordPress
+unzip wordpress/plugins/headless-bridge.zip -d /path/to/wordpress/wp-content/plugins/
 ```
 
-在 `wp-config.php` 中配置 API Key：
+在 WordPress 后台 **设置 → Headless Bridge** 中配置：
+- **API Key** - 用于 ACF 同步认证
+- **Webhook URL** - 前端接收端点，如 `https://your-frontend.com/api/webhook/revalidate`
+- **Webhook Secret** - 用于验证 webhook 签名
 
-```php
-define('ACF_SYNC_API_KEY', 'your-api-key');
+## 缓存机制
+
+项目使用服务端内存缓存，结合 WordPress Webhook 实现按需失效：
+
 ```
+请求 → 检查缓存 → 命中返回 / 未命中则请求 WordPress 并缓存
+                          ↑
+    WordPress 内容变更 → Webhook → 清除对应缓存
+```
+
+- 缓存 TTL：1 小时
+- 失效粒度：按 post_type + slug/id 精确失效
+- 健康检查：`GET /api/webhook/revalidate`
 
 ## AI 开发
 
