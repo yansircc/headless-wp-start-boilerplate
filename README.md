@@ -76,11 +76,8 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 |------|------|
 | `bun dev` | 开发服务器 |
 | `bun run build` | 构建（自动检查） |
-| `bun run deploy` | 智能部署：KV 有数据则跳过 snapshot |
-| `bun run deploy:force` | 强制刷新 KV + 构建 + 部署 |
+| `bun run deploy` | 构建 + 部署到 Cloudflare Workers |
 | `bun sync` | ACF 字段同步 + 类型生成 |
-| `bun snapshot` | 预填充本地 KV 缓存（开发环境） |
-| `bun snapshot:prod` | 预填充生产 KV 缓存 |
 | `bun checkall` | 运行所有预构建检查 |
 | `bun run test` | 运行单元测试 |
 
@@ -97,9 +94,10 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 ```bash
 npx wrangler login     # 首次登录
 bun env:push           # 推送 .env.prod.local 到 Cloudflare
-bun run deploy         # 智能部署（KV 有数据则跳过 snapshot）
-bun run deploy:force   # 强制刷新 KV 后部署
+bun run deploy         # 构建 + 部署
 ```
+
+首次部署后，在 WordPress 后台 **Settings → Headless Bridge** 点击 **Trigger Full Sync** 初始化 KV 缓存。
 
 ---
 
@@ -118,9 +116,17 @@ KV-first 架构确保 WordPress 宕机时用户仍可正常访问：
 ```
 
 - **内存缓存**: 每个 Worker isolate，最快
-- **Cloudflare KV**: 构建时通过 `bun snapshot` 预填充
+- **Cloudflare KV**: 通过 Webhook 自动同步，无需手动维护
 - **WordPress**: 后台异步刷新，stale-while-revalidate
-- **Webhook**: 内容变更时精确失效 (`/api/webhook/revalidate`)
+- **Webhook**: 内容变更时自动同步到 KV (`/api/webhook/revalidate`)
+
+### KV 同步方式
+
+| 方式 | 触发时机 | 说明 |
+|------|----------|------|
+| **Webhook** | 内容变更时 | WordPress 插件自动发送，前端写入 KV |
+| **Full Sync** | 手动触发 | WordPress 后台按钮 或 `POST /api/kv/sync` |
+| **On-demand** | 用户访问时 | KV 未命中时从 WordPress 获取并缓存到内存 |
 
 ---
 

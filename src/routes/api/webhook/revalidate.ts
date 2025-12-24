@@ -1,11 +1,10 @@
 /**
- * Webhook Endpoint for Cache Invalidation
+ * Webhook Endpoint for Cache Revalidation
  *
- * Receives webhook notifications from WordPress (Headless Bridge plugin)
- * and invalidates the memory cache entries.
- *
- * Note: KV is managed directly by WordPress via Cloudflare API.
- * This endpoint only handles memory cache invalidation.
+ * Receives webhook from WordPress (Headless Bridge plugin) when content changes.
+ * 1. Invalidates memory cache
+ * 2. Fetches fresh data from WordPress
+ * 3. Writes to Cloudflare KV
  *
  * POST /api/webhook/revalidate
  */
@@ -15,6 +14,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { env } from "@/env";
 import { cache, invalidateByWebhook } from "@/lib/cache";
 import { isKVAvailable } from "@/lib/kv";
+import { syncToKV } from "@/lib/kv-sync";
 
 type WebhookPayload = {
 	action:
@@ -28,6 +28,7 @@ type WebhookPayload = {
 	post_type: string;
 	post_id: number;
 	slug: string;
+	locale: string;
 	timestamp: number;
 };
 
@@ -54,7 +55,6 @@ function verifySignature(
 
 /**
  * Verify timestamp to prevent replay attacks
- * Allows requests within MAX_AGE_SECONDS of current time
  */
 const MAX_AGE_SECONDS = 60;
 
@@ -96,7 +96,7 @@ export const Route = createFileRoute("/api/webhook/revalidate")({
 					);
 				}
 
-				// Handle test webhook (skip timestamp check for test)
+				// Handle test webhook (skip timestamp check)
 				if (payload.action === "test") {
 					console.log("[Webhook] Test webhook received");
 					return Response.json({
@@ -107,7 +107,7 @@ export const Route = createFileRoute("/api/webhook/revalidate")({
 					});
 				}
 
-				// Verify timestamp to prevent replay attacks
+				// Verify timestamp
 				if (!isTimestampValid(payload.timestamp)) {
 					console.warn("[Webhook] Request expired or invalid timestamp");
 					return Response.json(
@@ -117,22 +117,33 @@ export const Route = createFileRoute("/api/webhook/revalidate")({
 				}
 
 				// Validate required fields
-				if (!payload.post_type) {
+				if (!(payload.post_type && payload.slug)) {
 					return Response.json(
-						{ success: false, error: "Missing post_type" },
+						{ success: false, error: "Missing required fields" },
 						{ status: 400 }
 					);
 				}
 
-				// Invalidate memory cache
-				const result = invalidateByWebhook(payload);
+				console.log(
+					`[Webhook] ${payload.action} ${payload.post_type}:${payload.slug} [${payload.locale}]`
+				);
+
+				// 1. Invalidate memory cache
+				const memoryResult = invalidateByWebhook(payload);
+
+				// 2. Sync to KV (fetch fresh data and write)
+				const kvResult = await syncToKV(payload);
 
 				return Response.json({
-					success: true,
+					success: kvResult.success,
 					action: payload.action,
 					post_type: payload.post_type,
-					post_id: payload.post_id,
-					invalidated: result.count,
+					slug: payload.slug,
+					locale: payload.locale,
+					memory_invalidated: memoryResult.count,
+					kv_updated: kvResult.keysUpdated.length,
+					kv_deleted: kvResult.keysDeleted.length,
+					errors: kvResult.errors.length > 0 ? kvResult.errors : undefined,
 				});
 			},
 

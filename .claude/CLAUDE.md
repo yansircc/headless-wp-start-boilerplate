@@ -34,10 +34,28 @@ This document serves as the authoritative guide for AI developers working on thi
 │  Request → Memory Cache (1ms) → Cloudflare KV (50ms) → WordPress   │
 │                                                                     │
 │  • Memory cache: fastest, per-isolate                               │
-│  • KV: pre-populated via `bun snapshot`, survives WordPress outage │
+│  • KV: populated via webhook, survives WordPress outage             │
 │  • WordPress: background revalidation, stale-while-revalidate      │
 │                                                                     │
-│  When WordPress is down, users see cached data with "stale" banner │
+│  When WordPress is down, users see cached data from KV              │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                     KV Sync Architecture                            │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  WordPress 内容变更                                                  │
+│         ↓                                                           │
+│  WordPress 插件发送 Webhook                                          │
+│  (action, post_type, slug, locale)                                  │
+│         ↓                                                           │
+│  Cloudflare Worker (前端 webhook handler)                            │
+│    1. 清除内存缓存                                                   │
+│    2. 用前端 GraphQL 查询获取数据                                     │
+│    3. 通过 Worker Binding 直接写入 KV  ← 无需 API Token！             │
+│         ↓                                                           │
+│  用户请求: Memory → KV → WordPress                                   │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 
@@ -70,11 +88,13 @@ This document serves as the authoritative guide for AI developers working on thi
 | `src/graphql/_generated/` | Auto-generated types (DO NOT EDIT) |
 | `src/routes/**/-services/` | Data fetching with KV-first pattern |
 | `src/lib/cache/index.ts` | Cache keys and invalidation logic |
-| `src/lib/kv/index.ts` | Cloudflare KV access via `cloudflare:workers` |
+| `src/lib/kv/index.ts` | Cloudflare KV read/write via Worker Binding |
 | `src/lib/kv-first/index.ts` | KV-first fetch with stale-while-revalidate |
+| `src/lib/kv-sync/index.ts` | KV sync logic (webhook → KV) |
 | `src/lib/seo/seo.config.ts` | SEO configuration (SSOT) |
 | `src/lib/i18n/language.ts` | Language utilities (derived from GraphQL) |
-| `scripts/snapshot.ts` | KV snapshot script for build-time data population |
+| `src/routes/api/webhook/revalidate.ts` | Webhook handler (invalidate + sync KV) |
+| `src/routes/api/kv/sync.ts` | Full KV sync endpoint |
 | `scripts/checkall.ts` | Pre-build validation checks |
 
 ---
@@ -136,11 +156,14 @@ vim src/routes/accessories/-services/index.ts
 #    - accessoryBySlug: (slug) => `accessories:slug:${slug}`
 #    - Update invalidateByWebhook() to handle "accessories" post_type
 
-# 6. Create routes
+# 6. Update kv-sync to handle new content type
+vim src/lib/kv-sync/index.ts
+
+# 7. Create routes
 touch src/routes/accessories/index.tsx
 touch src/routes/accessories/\$accessoryId.tsx
 
-# 7. Sync and validate
+# 8. Sync and validate
 bun sync
 bun seo
 ```
@@ -213,13 +236,23 @@ navigation: {
 
 ---
 
-## Cache & KV Fallback
+## Cache & KV Sync
 
 The project uses a KV-first architecture for resilience:
 
 1. **Memory cache**: Per-isolate, fastest (~1ms)
-2. **Cloudflare KV**: Pre-populated via `bun snapshot`, survives WordPress outages
+2. **Cloudflare KV**: Populated via webhook, survives WordPress outages
 3. **WordPress GraphQL**: Background revalidation with stale-while-revalidate
+
+### How KV is Populated
+
+| Method | Trigger | Description |
+|--------|---------|-------------|
+| **Webhook** | Content changes | WordPress plugin sends webhook → Frontend writes to KV |
+| **Full Sync** | Manual | WordPress admin button or `POST /api/kv/sync` |
+| **On-demand** | User visit | KV miss → fetch from WordPress → cache in memory |
+
+### Cache Keys
 
 Cache keys are defined in `src/lib/cache/index.ts`:
 
@@ -232,7 +265,38 @@ export const cacheKeys = {
 };
 ```
 
-**When adding a new content type**, add its cache keys and update `invalidateByWebhook()`.
+**When adding a new content type**, add its cache keys, update `invalidateByWebhook()`, and update `src/lib/kv-sync/index.ts`.
+
+---
+
+## API Endpoints
+
+### Webhook (Content Changes)
+```
+POST /api/webhook/revalidate
+Header: X-Headless-Bridge-Signature: <HMAC-SHA256>
+Body: { action, post_type, post_id, slug, locale, timestamp }
+
+Response: {
+  success: true,
+  memory_invalidated: 3,
+  kv_updated: 3,
+  kv_deleted: 0
+}
+```
+
+### Full Sync
+```
+POST /api/kv/sync
+Header: Authorization: Bearer <WEBHOOK_SECRET>
+
+Response: {
+  success: true,
+  synced: ["homepage:data:en", "posts:list:en", ...],
+  total: 9,
+  locales: ["en", "zh", "ja"]
+}
+```
 
 ---
 
@@ -242,10 +306,9 @@ export const cacheKeys = {
 |---------|-------------|
 | `bun dev` | Start development server |
 | `bun run build` | Build for production (runs checkall first) |
-| `bun run deploy` | Snapshot KV + build + deploy to Cloudflare Workers |
+| `bun run deploy` | Build + deploy to Cloudflare Workers |
 | `bun env:push` | Push .env.prod.local secrets to Cloudflare |
 | `bun sync` | Full sync: ACF → WordPress → GraphQL types → i18n config |
-| `bun snapshot` | Populate Cloudflare KV with WordPress data |
 | `bun checkall` | Run all pre-build checks |
 | `bun seo` | Validate SEO config and generate robots.txt/sitemap.xml |
 | `bun typecheck` | TypeScript type checking |
@@ -270,6 +333,8 @@ bun env:push    # Push .env.prod.local to Cloudflare
 bun run deploy  # Deploy to Cloudflare Workers
 ```
 
+After first deploy, click **Trigger Full Sync** in WordPress admin to populate KV.
+
 ---
 
 ## Critical Rules
@@ -282,12 +347,13 @@ These files are auto-generated. Changes will be overwritten.
 ❌ src/graphql/_generated/*
 ❌ src/acf/definitions/*/_generated/*
 ❌ src/acf/compiled/*
-❌ src/routeTree.gen.ts
 ❌ public/robots.txt
 ❌ public/sitemap.xml
 ❌ .intlayer/*
 ❌ intlayer.config.ts (auto-generated from WordPress Polylang)
 ```
+
+Note: `src/routeTree.gen.ts` is auto-generated by TanStack Router but IS committed (updated when routes change).
 
 ### Always Use Auto-Generated Fragments
 
@@ -351,6 +417,7 @@ Before committing:
 - [ ] Ran `bun seo` after adding routes
 - [ ] Ran `bun checkall` to verify all checks pass
 - [ ] Added cache keys for new content types (with locale support)
+- [ ] Updated `src/lib/kv-sync/index.ts` for new content types
 - [ ] Did NOT modify any `_generated`, `.intlayer`, or `intlayer.config.ts` files
 
 ---

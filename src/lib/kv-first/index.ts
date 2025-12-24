@@ -6,8 +6,7 @@
  * 2. KV → return if hit (store in memory for next request)
  * 3. WordPress → return (store in memory cache only)
  *
- * KV is populated by WordPress directly via Cloudflare API.
- * This module is read-only for KV.
+ * KV is populated by the webhook handler when WordPress content changes.
  */
 
 import { cache } from "@/lib/cache";
@@ -88,7 +87,7 @@ export async function kvFirstFetch<T>(
 	// 3. Fallback: Fetch from WordPress (blocking)
 	const freshData = await fetchWithTimeout(fetchFn, fetchTimeout);
 
-	// Store in memory cache only (KV is managed by WordPress)
+	// Store in memory cache only (KV is updated via webhook)
 	cache.set(cacheKey, freshData);
 
 	return {

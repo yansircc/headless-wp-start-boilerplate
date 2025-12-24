@@ -15,6 +15,7 @@ import { Route as Char123LocaleChar125PostsIndexRouteImport } from './routes/{-$
 import { Route as Char123LocaleChar125ProductsProductIdRouteImport } from './routes/{-$locale}/products/$productId'
 import { Route as Char123LocaleChar125PostsPostIdRouteImport } from './routes/{-$locale}/posts/$postId'
 import { Route as ApiWebhookRevalidateRouteImport } from './routes/api/webhook/revalidate'
+import { Route as ApiKvSyncRouteImport } from './routes/api/kv/sync'
 
 const Char123LocaleChar125IndexRoute =
   Char123LocaleChar125IndexRouteImport.update({
@@ -51,9 +52,15 @@ const ApiWebhookRevalidateRoute = ApiWebhookRevalidateRouteImport.update({
   path: '/api/webhook/revalidate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiKvSyncRoute = ApiKvSyncRouteImport.update({
+  id: '/api/kv/sync',
+  path: '/api/kv/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
+  '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
   '/{-$locale}/posts/$postId': typeof Char123LocaleChar125PostsPostIdRoute
   '/{-$locale}/products/$productId': typeof Char123LocaleChar125ProductsProductIdRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
+  '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
   '/{-$locale}/posts/$postId': typeof Char123LocaleChar125PostsPostIdRoute
   '/{-$locale}/products/$productId': typeof Char123LocaleChar125ProductsProductIdRoute
@@ -71,6 +79,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
+  '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
   '/{-$locale}/posts/$postId': typeof Char123LocaleChar125PostsPostIdRoute
   '/{-$locale}/products/$productId': typeof Char123LocaleChar125ProductsProductIdRoute
@@ -81,6 +90,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/{-$locale}'
+    | '/api/kv/sync'
     | '/api/webhook/revalidate'
     | '/{-$locale}/posts/$postId'
     | '/{-$locale}/products/$productId'
@@ -89,6 +99,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/{-$locale}'
+    | '/api/kv/sync'
     | '/api/webhook/revalidate'
     | '/{-$locale}/posts/$postId'
     | '/{-$locale}/products/$productId'
@@ -97,6 +108,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/{-$locale}/'
+    | '/api/kv/sync'
     | '/api/webhook/revalidate'
     | '/{-$locale}/posts/$postId'
     | '/{-$locale}/products/$productId'
@@ -106,6 +118,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   Char123LocaleChar125IndexRoute: typeof Char123LocaleChar125IndexRoute
+  ApiKvSyncRoute: typeof ApiKvSyncRoute
   ApiWebhookRevalidateRoute: typeof ApiWebhookRevalidateRoute
   Char123LocaleChar125PostsPostIdRoute: typeof Char123LocaleChar125PostsPostIdRoute
   Char123LocaleChar125ProductsProductIdRoute: typeof Char123LocaleChar125ProductsProductIdRoute
@@ -157,11 +170,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhookRevalidateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/kv/sync': {
+      id: '/api/kv/sync'
+      path: '/api/kv/sync'
+      fullPath: '/api/kv/sync'
+      preLoaderRoute: typeof ApiKvSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   Char123LocaleChar125IndexRoute: Char123LocaleChar125IndexRoute,
+  ApiKvSyncRoute: ApiKvSyncRoute,
   ApiWebhookRevalidateRoute: ApiWebhookRevalidateRoute,
   Char123LocaleChar125PostsPostIdRoute: Char123LocaleChar125PostsPostIdRoute,
   Char123LocaleChar125ProductsProductIdRoute:

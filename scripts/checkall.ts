@@ -20,11 +20,13 @@ const ROOT_DIR = join(import.meta.dir, "..");
 // Configuration
 // ============================================
 
+// Files that should only be modified by `bun sync`, not manually
+// Note: routeTree.gen.ts is NOT included because it's auto-generated
+// by TanStack Router when routes are added/modified (legitimate changes)
 const GENERATED_PATTERNS = [
 	"src/graphql/_generated/**/*",
 	"src/acf/definitions/*/_generated/**/*",
 	"src/acf/compiled/**/*",
-	"src/routeTree.gen.ts",
 	"intlayer.config.ts",
 ];
 

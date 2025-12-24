@@ -63,15 +63,64 @@
 
 项目自带的插件，用于 ACF 同步和 Webhook 通知。
 
+### 安装
+
 ```bash
-# 安装到 WordPress
-cp -r wordpress/plugins/headless-bridge /path/to/wp-content/plugins/
+# 从 zip 安装
+# WordPress 后台 → Plugins → Add New → Upload Plugin
+# 选择 wordpress/plugins/headless-bridge.zip
+
+# 或手动复制
+unzip wordpress/plugins/headless-bridge.zip -d /path/to/wp-content/plugins/
 ```
 
+### 配置
+
 在 **设置 → Headless Bridge** 配置：
-- **API Key**: 与 `.env.local` 的 `ACF_SYNC_KEY` 一致
-- **Webhook URL**: `https://your-frontend/api/webhook/revalidate`
-- **Webhook Secret**: 与 `.env.local` 的 `WEBHOOK_SECRET` 一致
+
+| 设置 | 说明 | 对应环境变量 |
+|------|------|-------------|
+| **API Key** | ACF 同步认证 | `ACF_SYNC_KEY` |
+| **Webhook URL** | 前端 webhook 地址 | - |
+| **Webhook Secret** | HMAC 签名密钥 | `WEBHOOK_SECRET` |
+| **Post Types** | 额外的文章类型 | - |
+
+### 功能
+
+#### 1. ACF 同步 API
+
+前端可以通过 REST API 推送/拉取 ACF 配置：
+
+```
+POST /wp-json/headless-bridge/v1/push   # 推送 ACF 配置
+GET  /wp-json/headless-bridge/v1/pull   # 拉取 ACF 配置
+GET  /wp-json/headless-bridge/v1/status # 检查状态
+```
+
+#### 2. Content Webhook
+
+当内容变更时自动通知前端：
+
+- **触发时机**: 发布、更新、删除、移入/移出回收站
+- **Payload**: `{ action, post_type, post_id, slug, locale, timestamp }`
+- **签名**: HMAC-SHA256，header `X-Headless-Bridge-Signature`
+
+前端收到 webhook 后会：
+1. 清除内存缓存
+2. 从 WordPress 获取最新数据
+3. 写入 Cloudflare KV
+
+#### 3. Full KV Sync
+
+手动触发全量同步到 KV 缓存：
+
+- 点击 **Trigger Full Sync** 按钮
+- 同步所有语言的首页、文章列表、产品列表
+
+**使用场景**：
+- 首次部署后初始化 KV
+- KV 数据异常需要重建
+- 添加新语言后
 
 ---
 
@@ -83,3 +132,11 @@ WordPress 需要部署到公网（Cloudflare Workers 无法访问本地）。
 - [Cloudways](https://www.cloudways.com/) - 托管 VPS
 - [SpinupWP](https://spinupwp.com/) - 自管服务器
 - [WordPress.com Business](https://wordpress.com/pricing/) - 支持插件
+
+### 部署检查清单
+
+- [ ] 安装所有必需插件
+- [ ] 配置 Polylang 语言
+- [ ] 安装并配置 Headless Bridge 插件
+- [ ] 测试 Webhook 连通性（点击 Test Webhook）
+- [ ] 触发 Full Sync 初始化 KV
