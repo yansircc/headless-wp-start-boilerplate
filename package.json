@@ -74,10 +74,10 @@
     "wrangler": "^4.56.0"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
+    "src/**/*.{ts,tsx,js,jsx}": [
       "biome check --write"
     ],
-    "*.{json,md}": [
+    "src/**/*.{json,md}": [
       "biome format --write"
     ]
   }
