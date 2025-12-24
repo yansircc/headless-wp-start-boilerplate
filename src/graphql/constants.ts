@@ -15,6 +15,15 @@ export const QUERY_LIMITS = {
 	list: {
 		posts: 20,
 		products: 20,
+		categories: 100,
+		tags: 100,
+		productCategories: 100,
+	},
+	/** Taxonomy archive page limits */
+	taxonomy: {
+		postsPerCategory: 20,
+		postsPerTag: 20,
+		productsPerCategory: 20,
 	},
 } as const;
 

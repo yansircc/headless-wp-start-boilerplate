@@ -3,6 +3,10 @@ import { ArrowRight } from "lucide-react";
 import { useIntlayer } from "react-intlayer";
 import { LocalizedLink } from "@/components/localized-link";
 import { Container, Section } from "@/components/shared";
+import type {
+	PostFieldsFragment,
+	ProductFieldsFragment,
+} from "@/graphql/types";
 import {
 	buildHreflangLinks,
 	buildSeoMeta,
@@ -123,7 +127,7 @@ function Homepage() {
 
 							{(data?.posts?.length ?? 0) > 0 ? (
 								<div className="grid gap-12">
-									{data.posts.map((post) => (
+									{data.posts.map((post: PostFieldsFragment) => (
 										<PostCard key={post.id} {...post} />
 									))}
 								</div>
@@ -158,7 +162,7 @@ function Homepage() {
 
 							{(data?.products?.length ?? 0) > 0 ? (
 								<div className="grid gap-12">
-									{data.products.map((product) => (
+									{data.products.map((product: ProductFieldsFragment) => (
 										<ProductCard key={product.id} {...product} />
 									))}
 								</div>

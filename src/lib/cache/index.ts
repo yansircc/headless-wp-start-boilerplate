@@ -87,33 +87,144 @@ export const cache = new MemoryCache();
 const DEFAULT_LOCALE = "en";
 
 /**
- * Cache key generators
- * All keys include locale for multi-language support
- * When locale is undefined, uses DEFAULT_LOCALE to ensure key consistency
+ * Generic cache key generators
+ * Use these for any content type without hardcoding
  */
 export const cacheKeys = {
+	// ============================================
+	// Generic methods (use for any content type)
+	// ============================================
+
+	/**
+	 * Generic list key: `{contentType}:list:{locale}`
+	 * @example cacheKeys.list("products", "en") → "products:list:en"
+	 * @example cacheKeys.list("events", "zh") → "events:list:zh"
+	 */
+	list: (contentType: string, locale?: string) =>
+		`${contentType}:list:${locale ?? DEFAULT_LOCALE}`,
+
+	/**
+	 * Generic bySlug key: `{contentType}:slug:{slug}:{locale}`
+	 * @example cacheKeys.bySlug("products", "my-product", "en") → "products:slug:my-product:en"
+	 */
+	bySlug: (contentType: string, slug: string, locale?: string) =>
+		`${contentType}:slug:${slug}:${locale ?? DEFAULT_LOCALE}`,
+
+	/**
+	 * Generic byId key: `{contentType}:id:{id}:{locale}`
+	 * @example cacheKeys.byId("products", 123, "en") → "products:id:123:en"
+	 */
+	byId: (contentType: string, id: number, locale?: string) =>
+		`${contentType}:id:${id}:${locale ?? DEFAULT_LOCALE}`,
+
+	/**
+	 * Generic taxonomy relation key: `{contentType}:{taxonomyType}:{taxonomySlug}:{locale}`
+	 * @example cacheKeys.byTaxonomy("posts", "category", "news", "en") → "posts:category:news:en"
+	 * @example cacheKeys.byTaxonomy("products", "category", "electronics", "zh") → "products:category:electronics:zh"
+	 */
+	byTaxonomy: (
+		contentType: string,
+		taxonomyType: string,
+		taxonomySlug: string,
+		locale?: string
+	) =>
+		`${contentType}:${taxonomyType}:${taxonomySlug}:${locale ?? DEFAULT_LOCALE}`,
+
+	/**
+	 * Generic page/singleton key: `{name}:data:{locale}`
+	 * @example cacheKeys.page("homepage", "en") → "homepage:data:en"
+	 */
+	page: (name: string, locale?: string) =>
+		`${name}:data:${locale ?? DEFAULT_LOCALE}`,
+
+	// ============================================
+	// Backward-compatible shortcuts
+	// ============================================
+
 	// Products
-	productsList: (locale?: string) =>
-		`products:list:${locale ?? DEFAULT_LOCALE}`,
+	productsList: (locale?: string) => cacheKeys.list("products", locale),
 	productBySlug: (slug: string, locale?: string) =>
-		`products:slug:${slug}:${locale ?? DEFAULT_LOCALE}`,
+		cacheKeys.bySlug("products", slug, locale),
 	productById: (id: number, locale?: string) =>
-		`products:id:${id}:${locale ?? DEFAULT_LOCALE}`,
+		cacheKeys.byId("products", id, locale),
 
 	// Posts
-	postsList: (locale?: string) => `posts:list:${locale ?? DEFAULT_LOCALE}`,
+	postsList: (locale?: string) => cacheKeys.list("posts", locale),
 	postBySlug: (slug: string, locale?: string) =>
-		`posts:slug:${slug}:${locale ?? DEFAULT_LOCALE}`,
+		cacheKeys.bySlug("posts", slug, locale),
 	postById: (id: number, locale?: string) =>
-		`posts:id:${id}:${locale ?? DEFAULT_LOCALE}`,
+		cacheKeys.byId("posts", id, locale),
 
 	// Homepage
-	homepage: (locale?: string) => `homepage:data:${locale ?? DEFAULT_LOCALE}`,
+	homepage: (locale?: string) => cacheKeys.page("homepage", locale),
+
+	// Post Categories
+	categoriesList: (locale?: string) => cacheKeys.list("categories", locale),
+	categoryBySlug: (slug: string, locale?: string) =>
+		cacheKeys.bySlug("categories", slug, locale),
+	postsByCategory: (categorySlug: string, locale?: string) =>
+		cacheKeys.byTaxonomy("posts", "category", categorySlug, locale),
+
+	// Post Tags
+	tagsList: (locale?: string) => cacheKeys.list("tags", locale),
+	tagBySlug: (slug: string, locale?: string) =>
+		cacheKeys.bySlug("tags", slug, locale),
+	postsByTag: (tagSlug: string, locale?: string) =>
+		cacheKeys.byTaxonomy("posts", "tag", tagSlug, locale),
+
+	// Product Categories
+	productCategoriesList: (locale?: string) =>
+		cacheKeys.list("product-categories", locale),
+	productCategoryBySlug: (slug: string, locale?: string) =>
+		cacheKeys.bySlug("product-categories", slug, locale),
+	productsByCategory: (categorySlug: string, locale?: string) =>
+		cacheKeys.byTaxonomy("products", "category", categorySlug, locale),
 };
 
 /**
+ * Map WordPress post_type to cache key prefix
+ * Handles singular → plural and special naming conventions
+ */
+const postTypeToCachePrefix: Record<string, string> = {
+	// Post types (singular → plural)
+	product: "products",
+	post: "posts",
+	page: "pages",
+	// WordPress built-in taxonomies
+	category: "categories",
+	post_tag: "tags",
+	// Custom taxonomies (keep as-is if already hyphenated)
+	"product-category": "product-categories",
+};
+
+/**
+ * Map taxonomy post_type to the content type it affects
+ * When a taxonomy changes, we need to invalidate related content
+ */
+const taxonomyToContentType: Record<
+	string,
+	{ contentType: string; taxonomyKey: string }
+> = {
+	category: { contentType: "posts", taxonomyKey: "category" },
+	post_tag: { contentType: "posts", taxonomyKey: "tag" },
+	"product-category": { contentType: "products", taxonomyKey: "category" },
+};
+
+/**
+ * Get cache prefix for a post_type
+ * Falls back to pluralizing by adding 's' if not in mapping
+ */
+function getCachePrefix(postType: string): string {
+	if (postTypeToCachePrefix[postType]) {
+		return postTypeToCachePrefix[postType];
+	}
+	// Default: add 's' for pluralization (e.g., "event" → "events")
+	return `${postType}s`;
+}
+
+/**
  * Invalidate cache based on webhook payload
- * Clears cache for all language versions since webhook doesn't include locale
+ * Supports any post_type dynamically without hardcoding
  */
 export function invalidateByWebhook(payload: {
 	action: string;
@@ -127,36 +238,50 @@ export function invalidateByWebhook(payload: {
 	// Get all current cache keys to find matching patterns
 	const { keys: allKeys } = cache.stats();
 
-	// Collect keys to invalidate based on post_type
-	if (post_type === "product") {
-		// Invalidate all product keys matching slug/id pattern across all locales
+	const cachePrefix = getCachePrefix(post_type);
+
+	// Check if this is a taxonomy
+	const taxonomyInfo = taxonomyToContentType[post_type];
+
+	if (taxonomyInfo) {
+		// Handle taxonomy invalidation
+		const { contentType, taxonomyKey } = taxonomyInfo;
+
+		// Invalidate taxonomy item by slug
 		if (slug) {
-			const pattern = `products:slug:${slug}`;
-			invalidated.push(...allKeys.filter((k) => k.startsWith(pattern)));
+			invalidated.push(
+				...allKeys.filter((k) => k.startsWith(`${cachePrefix}:slug:${slug}`))
+			);
+		}
+
+		// Invalidate taxonomy list
+		invalidated.push(
+			...allKeys.filter((k) => k.startsWith(`${cachePrefix}:list`))
+		);
+
+		// Invalidate related content (e.g., posts by category)
+		invalidated.push(
+			...allKeys.filter((k) => k.startsWith(`${contentType}:${taxonomyKey}`))
+		);
+	} else {
+		// Handle regular post type invalidation
+		if (slug) {
+			invalidated.push(
+				...allKeys.filter((k) => k.startsWith(`${cachePrefix}:slug:${slug}`))
+			);
 		}
 		if (post_id) {
-			const pattern = `products:id:${post_id}`;
-			invalidated.push(...allKeys.filter((k) => k.startsWith(pattern)));
+			invalidated.push(
+				...allKeys.filter((k) => k.startsWith(`${cachePrefix}:id:${post_id}`))
+			);
 		}
-		// Invalidate all product list caches
-		invalidated.push(...allKeys.filter((k) => k.startsWith("products:list")));
+		// Invalidate list cache
+		invalidated.push(
+			...allKeys.filter((k) => k.startsWith(`${cachePrefix}:list`))
+		);
 	}
 
-	if (post_type === "post") {
-		// Invalidate all post keys matching slug/id pattern across all locales
-		if (slug) {
-			const pattern = `posts:slug:${slug}`;
-			invalidated.push(...allKeys.filter((k) => k.startsWith(pattern)));
-		}
-		if (post_id) {
-			const pattern = `posts:id:${post_id}`;
-			invalidated.push(...allKeys.filter((k) => k.startsWith(pattern)));
-		}
-		// Invalidate all post list caches
-		invalidated.push(...allKeys.filter((k) => k.startsWith("posts:list")));
-	}
-
-	// Homepage caches for all locales
+	// Always invalidate homepage (contains mixed content)
 	invalidated.push(...allKeys.filter((k) => k.startsWith("homepage:data")));
 
 	// Delete all targeted keys (deduplicated)
@@ -166,4 +291,32 @@ export function invalidateByWebhook(payload: {
 	}
 
 	return { invalidated: uniqueKeys, count: uniqueKeys.length };
+}
+
+/**
+ * Register a new post type for cache invalidation
+ * Use this when adding a new custom post type
+ * @example registerPostType("event", "events")
+ */
+export function registerPostType(postType: string, cachePrefix: string): void {
+	postTypeToCachePrefix[postType] = cachePrefix;
+}
+
+/**
+ * Register a new taxonomy for cache invalidation
+ * Use this when adding a new custom taxonomy
+ * @example registerTaxonomy("event-category", { contentType: "events", taxonomyKey: "category" })
+ */
+export function registerTaxonomy(
+	taxonomyPostType: string,
+	config: { contentType: string; taxonomyKey: string; cachePrefix?: string }
+): void {
+	taxonomyToContentType[taxonomyPostType] = {
+		contentType: config.contentType,
+		taxonomyKey: config.taxonomyKey,
+	};
+	// Also register the cache prefix
+	if (config.cachePrefix) {
+		postTypeToCachePrefix[taxonomyPostType] = config.cachePrefix;
+	}
 }

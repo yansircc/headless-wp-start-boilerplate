@@ -16,6 +16,11 @@ import { Route as Char123LocaleChar125ProductsProductIdRouteImport } from './rou
 import { Route as Char123LocaleChar125PostsPostIdRouteImport } from './routes/{-$locale}/posts/$postId'
 import { Route as ApiWebhookRevalidateRouteImport } from './routes/api/webhook/revalidate'
 import { Route as ApiKvSyncRouteImport } from './routes/api/kv/sync'
+import { Route as Char123LocaleChar125ProductsCategoriesIndexRouteImport } from './routes/{-$locale}/products/categories/index'
+import { Route as Char123LocaleChar125PostsCategoriesIndexRouteImport } from './routes/{-$locale}/posts/categories/index'
+import { Route as Char123LocaleChar125ProductsCategoriesCategorySlugRouteImport } from './routes/{-$locale}/products/categories/$categorySlug'
+import { Route as Char123LocaleChar125PostsTagsTagSlugRouteImport } from './routes/{-$locale}/posts/tags/$tagSlug'
+import { Route as Char123LocaleChar125PostsCategoriesCategorySlugRouteImport } from './routes/{-$locale}/posts/categories/$categorySlug'
 
 const Char123LocaleChar125IndexRoute =
   Char123LocaleChar125IndexRouteImport.update({
@@ -57,6 +62,36 @@ const ApiKvSyncRoute = ApiKvSyncRouteImport.update({
   path: '/api/kv/sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char123LocaleChar125ProductsCategoriesIndexRoute =
+  Char123LocaleChar125ProductsCategoriesIndexRouteImport.update({
+    id: '/{-$locale}/products/categories/',
+    path: '/{-$locale}/products/categories/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char123LocaleChar125PostsCategoriesIndexRoute =
+  Char123LocaleChar125PostsCategoriesIndexRouteImport.update({
+    id: '/{-$locale}/posts/categories/',
+    path: '/{-$locale}/posts/categories/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char123LocaleChar125ProductsCategoriesCategorySlugRoute =
+  Char123LocaleChar125ProductsCategoriesCategorySlugRouteImport.update({
+    id: '/{-$locale}/products/categories/$categorySlug',
+    path: '/{-$locale}/products/categories/$categorySlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char123LocaleChar125PostsTagsTagSlugRoute =
+  Char123LocaleChar125PostsTagsTagSlugRouteImport.update({
+    id: '/{-$locale}/posts/tags/$tagSlug',
+    path: '/{-$locale}/posts/tags/$tagSlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char123LocaleChar125PostsCategoriesCategorySlugRoute =
+  Char123LocaleChar125PostsCategoriesCategorySlugRouteImport.update({
+    id: '/{-$locale}/posts/categories/$categorySlug',
+    path: '/{-$locale}/posts/categories/$categorySlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
@@ -66,6 +101,11 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/products/$productId': typeof Char123LocaleChar125ProductsProductIdRoute
   '/{-$locale}/posts': typeof Char123LocaleChar125PostsIndexRoute
   '/{-$locale}/products': typeof Char123LocaleChar125ProductsIndexRoute
+  '/{-$locale}/posts/categories/$categorySlug': typeof Char123LocaleChar125PostsCategoriesCategorySlugRoute
+  '/{-$locale}/posts/tags/$tagSlug': typeof Char123LocaleChar125PostsTagsTagSlugRoute
+  '/{-$locale}/products/categories/$categorySlug': typeof Char123LocaleChar125ProductsCategoriesCategorySlugRoute
+  '/{-$locale}/posts/categories': typeof Char123LocaleChar125PostsCategoriesIndexRoute
+  '/{-$locale}/products/categories': typeof Char123LocaleChar125ProductsCategoriesIndexRoute
 }
 export interface FileRoutesByTo {
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
@@ -75,6 +115,11 @@ export interface FileRoutesByTo {
   '/{-$locale}/products/$productId': typeof Char123LocaleChar125ProductsProductIdRoute
   '/{-$locale}/posts': typeof Char123LocaleChar125PostsIndexRoute
   '/{-$locale}/products': typeof Char123LocaleChar125ProductsIndexRoute
+  '/{-$locale}/posts/categories/$categorySlug': typeof Char123LocaleChar125PostsCategoriesCategorySlugRoute
+  '/{-$locale}/posts/tags/$tagSlug': typeof Char123LocaleChar125PostsTagsTagSlugRoute
+  '/{-$locale}/products/categories/$categorySlug': typeof Char123LocaleChar125ProductsCategoriesCategorySlugRoute
+  '/{-$locale}/posts/categories': typeof Char123LocaleChar125PostsCategoriesIndexRoute
+  '/{-$locale}/products/categories': typeof Char123LocaleChar125ProductsCategoriesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,6 +130,11 @@ export interface FileRoutesById {
   '/{-$locale}/products/$productId': typeof Char123LocaleChar125ProductsProductIdRoute
   '/{-$locale}/posts/': typeof Char123LocaleChar125PostsIndexRoute
   '/{-$locale}/products/': typeof Char123LocaleChar125ProductsIndexRoute
+  '/{-$locale}/posts/categories/$categorySlug': typeof Char123LocaleChar125PostsCategoriesCategorySlugRoute
+  '/{-$locale}/posts/tags/$tagSlug': typeof Char123LocaleChar125PostsTagsTagSlugRoute
+  '/{-$locale}/products/categories/$categorySlug': typeof Char123LocaleChar125ProductsCategoriesCategorySlugRoute
+  '/{-$locale}/posts/categories/': typeof Char123LocaleChar125PostsCategoriesIndexRoute
+  '/{-$locale}/products/categories/': typeof Char123LocaleChar125ProductsCategoriesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -96,6 +146,11 @@ export interface FileRouteTypes {
     | '/{-$locale}/products/$productId'
     | '/{-$locale}/posts'
     | '/{-$locale}/products'
+    | '/{-$locale}/posts/categories/$categorySlug'
+    | '/{-$locale}/posts/tags/$tagSlug'
+    | '/{-$locale}/products/categories/$categorySlug'
+    | '/{-$locale}/posts/categories'
+    | '/{-$locale}/products/categories'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/{-$locale}'
@@ -105,6 +160,11 @@ export interface FileRouteTypes {
     | '/{-$locale}/products/$productId'
     | '/{-$locale}/posts'
     | '/{-$locale}/products'
+    | '/{-$locale}/posts/categories/$categorySlug'
+    | '/{-$locale}/posts/tags/$tagSlug'
+    | '/{-$locale}/products/categories/$categorySlug'
+    | '/{-$locale}/posts/categories'
+    | '/{-$locale}/products/categories'
   id:
     | '__root__'
     | '/{-$locale}/'
@@ -114,6 +174,11 @@ export interface FileRouteTypes {
     | '/{-$locale}/products/$productId'
     | '/{-$locale}/posts/'
     | '/{-$locale}/products/'
+    | '/{-$locale}/posts/categories/$categorySlug'
+    | '/{-$locale}/posts/tags/$tagSlug'
+    | '/{-$locale}/products/categories/$categorySlug'
+    | '/{-$locale}/posts/categories/'
+    | '/{-$locale}/products/categories/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -124,6 +189,11 @@ export interface RootRouteChildren {
   Char123LocaleChar125ProductsProductIdRoute: typeof Char123LocaleChar125ProductsProductIdRoute
   Char123LocaleChar125PostsIndexRoute: typeof Char123LocaleChar125PostsIndexRoute
   Char123LocaleChar125ProductsIndexRoute: typeof Char123LocaleChar125ProductsIndexRoute
+  Char123LocaleChar125PostsCategoriesCategorySlugRoute: typeof Char123LocaleChar125PostsCategoriesCategorySlugRoute
+  Char123LocaleChar125PostsTagsTagSlugRoute: typeof Char123LocaleChar125PostsTagsTagSlugRoute
+  Char123LocaleChar125ProductsCategoriesCategorySlugRoute: typeof Char123LocaleChar125ProductsCategoriesCategorySlugRoute
+  Char123LocaleChar125PostsCategoriesIndexRoute: typeof Char123LocaleChar125PostsCategoriesIndexRoute
+  Char123LocaleChar125ProductsCategoriesIndexRoute: typeof Char123LocaleChar125ProductsCategoriesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -177,6 +247,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiKvSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/{-$locale}/products/categories/': {
+      id: '/{-$locale}/products/categories/'
+      path: '/{-$locale}/products/categories'
+      fullPath: '/{-$locale}/products/categories'
+      preLoaderRoute: typeof Char123LocaleChar125ProductsCategoriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/{-$locale}/posts/categories/': {
+      id: '/{-$locale}/posts/categories/'
+      path: '/{-$locale}/posts/categories'
+      fullPath: '/{-$locale}/posts/categories'
+      preLoaderRoute: typeof Char123LocaleChar125PostsCategoriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/{-$locale}/products/categories/$categorySlug': {
+      id: '/{-$locale}/products/categories/$categorySlug'
+      path: '/{-$locale}/products/categories/$categorySlug'
+      fullPath: '/{-$locale}/products/categories/$categorySlug'
+      preLoaderRoute: typeof Char123LocaleChar125ProductsCategoriesCategorySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/{-$locale}/posts/tags/$tagSlug': {
+      id: '/{-$locale}/posts/tags/$tagSlug'
+      path: '/{-$locale}/posts/tags/$tagSlug'
+      fullPath: '/{-$locale}/posts/tags/$tagSlug'
+      preLoaderRoute: typeof Char123LocaleChar125PostsTagsTagSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/{-$locale}/posts/categories/$categorySlug': {
+      id: '/{-$locale}/posts/categories/$categorySlug'
+      path: '/{-$locale}/posts/categories/$categorySlug'
+      fullPath: '/{-$locale}/posts/categories/$categorySlug'
+      preLoaderRoute: typeof Char123LocaleChar125PostsCategoriesCategorySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -190,6 +295,16 @@ const rootRouteChildren: RootRouteChildren = {
   Char123LocaleChar125PostsIndexRoute: Char123LocaleChar125PostsIndexRoute,
   Char123LocaleChar125ProductsIndexRoute:
     Char123LocaleChar125ProductsIndexRoute,
+  Char123LocaleChar125PostsCategoriesCategorySlugRoute:
+    Char123LocaleChar125PostsCategoriesCategorySlugRoute,
+  Char123LocaleChar125PostsTagsTagSlugRoute:
+    Char123LocaleChar125PostsTagsTagSlugRoute,
+  Char123LocaleChar125ProductsCategoriesCategorySlugRoute:
+    Char123LocaleChar125ProductsCategoriesCategorySlugRoute,
+  Char123LocaleChar125PostsCategoriesIndexRoute:
+    Char123LocaleChar125PostsCategoriesIndexRoute,
+  Char123LocaleChar125ProductsCategoriesIndexRoute:
+    Char123LocaleChar125ProductsCategoriesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

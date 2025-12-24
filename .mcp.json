@@ -2,7 +2,12 @@
   "mcpServers": {
     "lean-spec": {
       "command": "npx",
-      "args": ["-y", "@leanspec/mcp", "--project", "${workspaceFolder}"]
+      "args": [
+        "-y",
+        "@leanspec/mcp",
+        "--project",
+        "/Users/yansir/code/52/headless-wp-start-boilerplate"
+      ]
     }
   }
 }

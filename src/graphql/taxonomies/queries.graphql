@@ -1,0 +1,209 @@
+# ============================================
+# Category Fragments (WordPress built-in)
+# ============================================
+fragment CategoryFields on Category {
+	id
+	databaseId
+	slug
+	name
+	description
+	count
+}
+
+fragment CategoryDetailFields on Category {
+	...CategoryFields
+	parent {
+		node {
+			id
+			slug
+			name
+		}
+	}
+	children(first: 100) {
+		nodes {
+			...CategoryFields
+		}
+	}
+}
+
+# ============================================
+# Tag Fragments (WordPress built-in)
+# ============================================
+fragment TagFields on Tag {
+	id
+	databaseId
+	slug
+	name
+	description
+	count
+}
+
+# ============================================
+# ProductCategory Fragments (ACF Custom Taxonomy)
+# ============================================
+fragment ProductCategoryFields on ProductCategory {
+	id
+	databaseId
+	slug
+	name
+	description
+	count
+}
+
+fragment ProductCategoryDetailFields on ProductCategory {
+	...ProductCategoryFields
+	parent {
+		node {
+			id
+			slug
+			name
+		}
+	}
+	children(first: 100) {
+		nodes {
+			...ProductCategoryFields
+		}
+	}
+}
+
+# ============================================
+# Category List Queries
+# ============================================
+
+# Post Categories List
+query CategoriesList($first: Int = 100, $language: LanguageCodeFilterEnum) {
+	categories(first: $first, where: { language: $language, hideEmpty: true }) {
+		nodes {
+			...CategoryFields
+		}
+	}
+}
+
+# Single Category by Slug (with translation)
+query CategoryBySlug($slug: ID!, $language: LanguageCodeEnum!) {
+	category(id: $slug, idType: SLUG) {
+		translation(language: $language) {
+			...CategoryDetailFields
+		}
+	}
+}
+
+# ============================================
+# Tag List Queries
+# ============================================
+
+# Tags List
+query TagsList($first: Int = 100, $language: LanguageCodeFilterEnum) {
+	tags(first: $first, where: { language: $language, hideEmpty: true }) {
+		nodes {
+			...TagFields
+		}
+	}
+}
+
+# Single Tag by Slug (with translation)
+query TagBySlug($slug: ID!, $language: LanguageCodeEnum!) {
+	tag(id: $slug, idType: SLUG) {
+		translation(language: $language) {
+			...TagFields
+		}
+	}
+}
+
+# ============================================
+# ProductCategory List Queries
+# ============================================
+
+# Product Categories List
+query ProductCategoriesList(
+	$first: Int = 100
+	$language: LanguageCodeFilterEnum
+) {
+	productCategories(
+		first: $first
+		where: { language: $language, hideEmpty: true }
+	) {
+		nodes {
+			...ProductCategoryFields
+		}
+	}
+}
+
+# Single Product Category by Slug (with translation)
+query ProductCategoryBySlug($slug: ID!, $language: LanguageCodeEnum!) {
+	productCategory(id: $slug, idType: SLUG) {
+		translation(language: $language) {
+			...ProductCategoryDetailFields
+		}
+	}
+}
+
+# ============================================
+# Posts by Taxonomy Queries
+# ============================================
+
+# Posts by Category Slug
+query PostsByCategory(
+	$categorySlug: String!
+	$first: Int = 20
+	$language: LanguageCodeFilterEnum
+) {
+	posts(
+		first: $first
+		where: { categoryName: $categorySlug, language: $language }
+	) {
+		nodes {
+			...PostFields
+		}
+		pageInfo {
+			hasNextPage
+			endCursor
+		}
+	}
+}
+
+# Posts by Tag Slug
+query PostsByTag(
+	$tagSlug: String!
+	$first: Int = 20
+	$language: LanguageCodeFilterEnum
+) {
+	posts(first: $first, where: { tag: $tagSlug, language: $language }) {
+		nodes {
+			...PostFields
+		}
+		pageInfo {
+			hasNextPage
+			endCursor
+		}
+	}
+}
+
+# ============================================
+# Products by Taxonomy Query
+# ============================================
+
+# Products by ProductCategory Slug
+# Uses productCategory -> products connection instead of taxQuery
+query ProductsByCategory(
+	$categorySlug: ID!
+	$first: Int = 20
+	$language: LanguageCodeEnum!
+) {
+	productCategory(id: $categorySlug, idType: SLUG) {
+		translation(language: $language) {
+			id
+			name
+			slug
+			products(first: $first) {
+				nodes {
+					...ProductFields
+				}
+				pageInfo {
+					hasNextPage
+					endCursor
+				}
+			}
+		}
+	}
+}

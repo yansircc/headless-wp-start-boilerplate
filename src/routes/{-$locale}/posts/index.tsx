@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useIntlayer } from "react-intlayer";
 import { Container, Section } from "@/components/shared";
+import type { PostFieldsFragment } from "@/graphql/types";
 import {
 	buildHreflangLinks,
 	buildSeoMeta,
@@ -58,7 +59,7 @@ function RouteComponent() {
 				<Container size="md">
 					{(posts?.nodes?.length ?? 0) > 0 ? (
 						<div className="grid gap-12">
-							{posts?.nodes?.map((post) => (
+							{posts?.nodes?.map((post: PostFieldsFragment) => (
 								<PostCard key={post.id} {...post} />
 							))}
 						</div>

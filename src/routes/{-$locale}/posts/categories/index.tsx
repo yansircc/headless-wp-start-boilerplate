@@ -1,40 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useIntlayer } from "react-intlayer";
 import { Container, Section } from "@/components/shared";
-import type { ProductFieldsFragment } from "@/graphql/types";
+import type { CategoryFieldsFragment } from "@/graphql/types";
 import {
 	buildHreflangLinks,
 	buildSeoMeta,
 	getRouteSeo,
 	seoConfig,
 } from "@/lib/seo";
-import { ProductCard } from "./-components/product-card";
-import { getProducts } from "./-services";
+import { CategoryCard } from "./-components/category-card";
+import { getCategories } from "./-services";
 
-export const Route = createFileRoute("/{-$locale}/products/")({
+export const Route = createFileRoute("/{-$locale}/posts/categories/")({
 	component: RouteComponent,
 	loader: ({ params }) => {
 		const locale = params.locale;
-		return getProducts({ data: { locale } });
+		return getCategories({ data: { locale } });
 	},
 	head: () => {
-		const { title, description } = getRouteSeo("/products");
+		const { title, description } = getRouteSeo("/posts/categories");
 		return {
 			meta: buildSeoMeta(
 				{
 					title,
 					description,
-					canonical: "/products",
+					canonical: "/posts/categories",
 				},
 				seoConfig.site.url
 			),
-			links: buildHreflangLinks("/products", seoConfig.site.url),
+			links: buildHreflangLinks("/posts/categories", seoConfig.site.url),
 		};
 	},
 });
 
 function RouteComponent() {
-	const products = Route.useLoaderData();
+	const categories = Route.useLoaderData();
 	const { sections } = useIntlayer("common");
 
 	return (
@@ -42,30 +42,30 @@ function RouteComponent() {
 			<Section className="mb-16 border-gray-100 border-b pt-16 pb-24">
 				<Container className="text-center" size="md">
 					<div className="glass mb-6 inline-flex items-center gap-2 rounded-full px-3 py-1">
-						<span className="font-bold text-[10px] text-orange-500 uppercase tracking-widest">
-							{sections.products.badge}
+						<span className="font-bold text-[10px] text-blue-500 uppercase tracking-widest">
+							{sections.categories?.badge ?? "Browse"}
 						</span>
 					</div>
 					<h1 className="gradient-text font-bold text-5xl text-black tracking-tight">
-						{sections.products.title}
+						{sections.categories?.title ?? "Categories"}
 					</h1>
 					<p className="mt-4 text-gray-500 text-lg">
-						{sections.products.pageSubtitle}
+						{sections.categories?.subtitle ?? "Browse articles by category"}
 					</p>
 				</Container>
 			</Section>
 
 			<Section className="pb-32">
 				<Container size="lg">
-					{(products?.nodes?.length ?? 0) > 0 ? (
-						<div className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-							{products?.nodes?.map((product: ProductFieldsFragment) => (
-								<ProductCard key={product.id} {...product} />
+					{(categories?.nodes?.length ?? 0) > 0 ? (
+						<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+							{categories?.nodes?.map((category: CategoryFieldsFragment) => (
+								<CategoryCard key={category.id} {...category} />
 							))}
 						</div>
 					) : (
 						<div className="rounded-3xl border border-gray-200 border-dashed py-24 text-center font-normal text-gray-400">
-							{sections.products.empty}
+							{sections.categories?.empty ?? "No categories found"}
 						</div>
 					)}
 				</Container>

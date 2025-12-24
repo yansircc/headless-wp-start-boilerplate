@@ -131,69 +131,94 @@ vim src/lib/seo/seo.config.ts
 # 4. Fill in title and description
 ```
 
-### Creating a New Content Type
+### Creating a New Content Type (Generic Pattern)
+
+For any new content type (e.g., `{type}` = "event", "accessory", etc.):
 
 ```bash
-# For a new content type like "accessories":
+# 1. ACF Definitions (auto-discovered by bun sync)
+mkdir -p src/acf/definitions/{type}
+# Create: fields.ts, index.ts, schema.ts (copy from product/)
 
-# 1. Create ACF definition structure
-mkdir -p src/acf/definitions/accessories
-# Create fields.ts, index.ts, schema.ts (copy from product/)
+# 2. Post Type Definition
+vim src/acf/post-types/{type}.ts
 
-# 2. Create post type definition
-vim src/acf/post-types/accessories.ts
+# 3. GraphQL Queries
+mkdir -p src/graphql/{type}s
+vim src/graphql/{type}s/queries.graphql
+# Naming convention:
+#   - Fragment: {Type}Fields
+#   - List query: {Type}sList
+#   - Single query: {Type}BySlug
 
-# 3. Create GraphQL queries
-mkdir -p src/graphql/accessories
-vim src/graphql/accessories/queries.graphql
+# 4. Service Layer (use generic cache keys)
+mkdir -p src/routes/{-$locale}/{type}s/-services
+vim src/routes/{-$locale}/{type}s/-services/index.ts
 
-# 4. Create service with cache
-mkdir -p src/routes/accessories/-services
-vim src/routes/accessories/-services/index.ts
+# 5. Routes
+touch src/routes/{-$locale}/{type}s/index.tsx
+touch src/routes/{-$locale}/{type}s/\${type}Slug.tsx
 
-# 5. Add cache keys to src/lib/cache/index.ts
-#    - accessoriesList: () => "accessories:list"
-#    - accessoryBySlug: (slug) => `accessories:slug:${slug}`
-#    - Update invalidateByWebhook() to handle "accessories" post_type
+# 6. (Optional) Register KV sync for new type
+# See "Registering New Types for KV Sync" below
 
-# 6. Update kv-sync to handle new content type
-vim src/lib/kv-sync/index.ts
-
-# 7. Create routes
-touch src/routes/accessories/index.tsx
-touch src/routes/accessories/\$accessoryId.tsx
-
-# 8. Sync and validate
+# 7. Sync and validate
 bun sync
 bun seo
 ```
+
+**Key Points:**
+- ACF definitions are auto-discovered - no need to modify sync script
+- Use generic cache keys: `cacheKeys.list("{type}s", locale)`
+- Cache invalidation works automatically for new types
 
 ---
 
 ## Data Fetching Pattern
 
-All data fetching uses server-side cache with locale support:
+All data fetching uses server-side cache with locale support. Use **generic cache keys** for any content type:
 
 ```typescript
-// src/routes/{-$locale}/products/-services/index.ts
-export const getProducts = createServerFn({ method: "GET" })
+// src/routes/{-$locale}/{type}s/-services/index.ts
+// Generic pattern - works for any content type
+
+export const getItems = createServerFn({ method: "GET" })
   .inputValidator((input: { locale?: string }) => input)
   .handler(async ({ data }) => {
     const { locale } = data;
-    const cacheKey = cacheKeys.productsList(locale);
+    // Use generic cache key method
+    const cacheKey = cacheKeys.list("{type}s", locale);
 
     const cached = cache.get(cacheKey);
     if (cached) return cached;
 
-    const language = toLanguageFilter(locale); // "en" → LanguageCodeFilterEnum.En
-    const result = await graphqlRequest(ProductsListDocument, { first: 20, language });
+    const language = toLanguageFilter(locale);
+    const result = await graphqlRequest({Type}sListDocument, { first: 20, language });
 
-    cache.set(cacheKey, result.products);
-    return result.products;
+    cache.set(cacheKey, result.{type}s);
+    return result.{type}s;
+  });
+
+export const getItemBySlug = createServerFn({ method: "GET" })
+  .inputValidator((input: { slug: string; locale?: string }) => input)
+  .handler(async ({ data }) => {
+    const { slug, locale } = data;
+    // Use generic cache key method
+    const cacheKey = cacheKeys.bySlug("{type}s", slug, locale);
+
+    const cached = cache.get(cacheKey);
+    if (cached) return cached;
+
+    const language = toLanguageCode(locale);
+    const result = await graphqlRequest({Type}BySlugDocument, { slug, language });
+
+    const item = result.{type}?.translation;
+    if (item) cache.set(cacheKey, item);
+    return item;
   });
 ```
 
-**When adding a new content type**, follow this pattern and add corresponding cache keys.
+**Key Point:** Use `cacheKeys.list()` and `cacheKeys.bySlug()` - no need to add new shortcuts.
 
 ---
 
@@ -254,20 +279,68 @@ The project uses a KV-first architecture for resilience:
 
 The system is **self-healing**: even if Full Sync is forgotten or webhook fails, user visits will auto-backfill KV.
 
-### Cache Keys
+### Cache Keys (Generic Pattern)
 
-Cache keys are defined in `src/lib/cache/index.ts`:
+Cache keys are defined in `src/lib/cache/index.ts`. Use **generic methods** for new content types:
 
 ```typescript
-// Keys always include locale (defaults to "en")
-export const cacheKeys = {
-  productsList: (locale?) => `products:list:${locale ?? "en"}`,
-  postBySlug: (slug, locale?) => `posts:slug:${slug}:${locale ?? "en"}`,
-  homepage: (locale?) => `homepage:data:${locale ?? "en"}`,
-};
+// Generic methods - use for any content type
+cacheKeys.list("events", locale)                    // → "events:list:en"
+cacheKeys.bySlug("events", "conf-2024", locale)     // → "events:slug:conf-2024:en"
+cacheKeys.byId("events", 123, locale)               // → "events:id:123:en"
+cacheKeys.byTaxonomy("events", "category", "tech")  // → "events:category:tech:en"
+cacheKeys.page("about", locale)                     // → "about:data:en"
+
+// Backward-compatible shortcuts (internally use generic methods)
+cacheKeys.productsList(locale)      // → cacheKeys.list("products", locale)
+cacheKeys.postBySlug(slug, locale)  // → cacheKeys.bySlug("posts", slug, locale)
 ```
 
-**When adding a new content type**, add its cache keys, update `invalidateByWebhook()`, and update `src/lib/kv-sync/index.ts`.
+**Cache invalidation** handles any `post_type` automatically:
+- Known types: `product` → `products:*`, `post` → `posts:*`
+- Unknown types: auto-pluralized (e.g., `event` → `events:*`)
+
+For custom pluralization or taxonomies:
+```typescript
+import { registerPostType, registerTaxonomy } from "@/lib/cache";
+
+registerPostType("accessory", "accessories");  // accessory → accessories:*
+registerTaxonomy("event-category", {
+  contentType: "events",
+  taxonomyKey: "category"
+});
+```
+
+### Registering New Types for KV Sync
+
+KV sync uses a **registry pattern**. Built-in types (post, product, category, tag, product-category) are pre-registered. For new types:
+
+```typescript
+// src/lib/kv-sync/index.ts
+import { registerPostTypeSync, registerTaxonomySync } from "@/lib/kv-sync";
+
+// Register a new post type
+registerPostTypeSync("event", {
+  bySlugDocument: EventBySlugDocument,
+  listDocument: EventsListDocument,
+  buildBySlugVars: (slug, language) => ({ slug, language }),
+  buildListVars: (language) => ({ first: 20, language }),
+  extractSingle: (data) => data.event?.translation ?? null,
+  extractList: (data) => data.events,
+  getCacheKey: (slug, locale) => cacheKeys.bySlug("events", slug, locale),
+  getListCacheKey: (locale) => cacheKeys.list("events", locale),
+});
+
+// Register a new taxonomy
+registerTaxonomySync("event-category", {
+  bySlugDocument: EventCategoryBySlugDocument,
+  listDocument: EventCategoriesListDocument,
+  contentByTaxonomyDocument: EventsByCategoryDocument,  // optional
+  // ... similar config
+});
+```
+
+**Note:** If you don't register a type, KV sync will log a warning but won't fail. The homepage will still be updated.
 
 ---
 
@@ -418,8 +491,8 @@ Before committing:
 - [ ] Ran `bun sync` after ACF changes or WordPress language changes
 - [ ] Ran `bun seo` after adding routes
 - [ ] Ran `bun checkall` to verify all checks pass
-- [ ] Added cache keys for new content types (with locale support)
-- [ ] Updated `src/lib/kv-sync/index.ts` for new content types
+- [ ] Used generic cache keys (`cacheKeys.list()`, `cacheKeys.bySlug()`) for new content types
+- [ ] (Optional) Registered KV sync handlers if real-time sync needed for new types
 - [ ] Did NOT modify any `_generated`, `.intlayer`, or `intlayer.config.ts` files
 
 ---

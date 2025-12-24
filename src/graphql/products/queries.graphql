@@ -11,6 +11,13 @@ fragment ProductFields on Product {
 			...MediaItemFields
 		}
 	}
+	productCategories(first: 10) {
+		nodes {
+			id
+			slug
+			name
+		}
+	}
 }
 
 fragment ProductDetailFields on Product {

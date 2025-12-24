@@ -4,6 +4,7 @@ import { ArticleSkeleton } from "@/components/loading";
 import { LocalizedLink } from "@/components/localized-link";
 import { ResourceNotFound } from "@/components/not-found";
 import { Container, Section } from "@/components/shared";
+import type { PostCategory, PostTag } from "@/graphql/types";
 import {
 	buildHreflangLinks,
 	buildSchemaScript,
@@ -85,7 +86,7 @@ function RouteComponent() {
 
 						<div className="space-y-6">
 							<div className="flex flex-wrap items-center gap-3">
-								{post.categories?.nodes?.map((category) => (
+								{post.categories?.nodes?.map((category: PostCategory) => (
 									<span
 										className="rounded-full bg-blue-50 px-3 py-1 font-bold text-[10px] text-blue-600 uppercase tracking-widest"
 										key={category.id}
@@ -182,7 +183,7 @@ function RouteComponent() {
 				<Section className="border-gray-50 border-t pb-32">
 					<Container size="md">
 						<div className="flex flex-wrap gap-3">
-							{post.tags.nodes.map((tag) => (
+							{post.tags.nodes.map((tag: PostTag) => (
 								<span
 									className="cursor-default rounded-2xl bg-gray-50 px-4 py-2 font-medium text-gray-500 text-sm transition-colors hover:bg-gray-100"
 									key={tag.id}

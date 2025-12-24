@@ -53,10 +53,19 @@ export const seoConfig: SeoConfigSchema = {
 			title: "Articles", // → "Articles - Site Name"
 			description: "Browse all blog posts, get the latest news and tutorials", // TODO: Customize
 		},
+		"/posts/categories": {
+			title: "Categories",
+			description:
+				"Browse all article categories and discover content organized by topic",
+		},
 		"/products": {
 			title: "Products", // → "Products - Site Name"
 			description:
 				"Explore our product collection and find the best choice for you", // TODO: Customize
+		},
+		"/products/categories": {
+			title: "Product Categories",
+			description: "Explore our products organized by category",
 		},
 	},
 
@@ -70,8 +79,20 @@ export const seoConfig: SeoConfigSchema = {
 			fallbackTitle: "Article",
 			type: "article",
 		},
+		"/posts/categories/$categorySlug": {
+			fallbackTitle: "Category",
+			type: "article",
+		},
+		"/posts/tags/$tagSlug": {
+			fallbackTitle: "Tag",
+			type: "article",
+		},
 		"/products/$productId": {
 			fallbackTitle: "Product",
+			type: "product",
+		},
+		"/products/categories/$categorySlug": {
+			fallbackTitle: "Product Category",
 			type: "product",
 		},
 	},
