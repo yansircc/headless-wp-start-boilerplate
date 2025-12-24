@@ -24,8 +24,9 @@
 | [WPGraphQL](https://www.wpgraphql.com/) | GraphQL API |
 | [WPGraphQL for ACF](https://acf.wpgraphql.com/) | ACF 字段暴露到 GraphQL |
 | [Polylang](https://polylang.pro/) | 多语言内容管理 |
-| [WPGraphQL Polylang](https://github.com/valu-digital/wp-graphql-polylang) | Polylang GraphQL 支持 |
-| [Polylang Slug](https://github.com/grappler/polylang-slug) | 不同语言共享相同 slug |
+| **Headless Bridge** (本项目自带) | Polylang GraphQL 支持 + 不同语言共享相同 slug |
+
+> **注意**: Headless Bridge 已内置 WPGraphQL Polylang 和 Polylang Slug 的功能，无需单独安装这两个插件。
 
 ---
 
