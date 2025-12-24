@@ -1,16 +1,18 @@
 /**
  * KV-First Fetch
  *
- * Simple read-through cache pattern:
+ * Read-through cache with self-healing:
  * 1. Memory cache → return immediately if hit
  * 2. KV → return if hit (store in memory for next request)
- * 3. WordPress → return (store in memory cache only)
+ * 3. WordPress → return (store in both memory and KV for resilience)
  *
- * KV is populated by the webhook handler when WordPress content changes.
+ * KV is populated by:
+ * - Webhook handler (when WordPress content changes)
+ * - On-demand backfill (when KV miss but WordPress available)
  */
 
 import { cache } from "@/lib/cache";
-import { isKVAvailable, kvGetWithMetadata } from "@/lib/kv";
+import { isKVAvailable, kvGetWithMetadata, kvPut } from "@/lib/kv";
 
 /**
  * Options for kvFirstFetch
@@ -87,8 +89,16 @@ export async function kvFirstFetch<T>(
 	// 3. Fallback: Fetch from WordPress (blocking)
 	const freshData = await fetchWithTimeout(fetchFn, fetchTimeout);
 
-	// Store in memory cache only (KV is updated via webhook)
+	// Store in memory cache
 	cache.set(cacheKey, freshData);
+
+	// Backfill KV for resilience (non-blocking, fire and forget)
+	// This ensures KV has data even if webhook was missed
+	if (isKVAvailable()) {
+		kvPut(cacheKey, freshData).catch(() => {
+			// Silently ignore KV write failures - not critical
+		});
+	}
 
 	return {
 		data: freshData,
