@@ -135,38 +135,46 @@ describe("MemoryCache", () => {
 
 describe("cacheKeys", () => {
 	describe("products", () => {
-		it("should generate products list key", () => {
-			expect(cacheKeys.productsList()).toBe("products:list");
+		it("should generate products list key with default locale", () => {
+			expect(cacheKeys.productsList()).toBe("products:list:en");
 		});
 
-		it("should generate product by slug key", () => {
+		it("should generate products list key with specified locale", () => {
+			expect(cacheKeys.productsList("zh")).toBe("products:list:zh");
+		});
+
+		it("should generate product by slug key with default locale", () => {
 			expect(cacheKeys.productBySlug("my-product")).toBe(
-				"products:slug:my-product"
+				"products:slug:my-product:en"
 			);
 		});
 
-		it("should generate product by id key", () => {
-			expect(cacheKeys.productById(123)).toBe("products:id:123");
+		it("should generate product by id key with default locale", () => {
+			expect(cacheKeys.productById(123)).toBe("products:id:123:en");
 		});
 	});
 
 	describe("posts", () => {
-		it("should generate posts list key", () => {
-			expect(cacheKeys.postsList()).toBe("posts:list");
+		it("should generate posts list key with default locale", () => {
+			expect(cacheKeys.postsList()).toBe("posts:list:en");
 		});
 
-		it("should generate post by slug key", () => {
-			expect(cacheKeys.postBySlug("my-post")).toBe("posts:slug:my-post");
+		it("should generate post by slug key with default locale", () => {
+			expect(cacheKeys.postBySlug("my-post")).toBe("posts:slug:my-post:en");
 		});
 
-		it("should generate post by id key", () => {
-			expect(cacheKeys.postById(456)).toBe("posts:id:456");
+		it("should generate post by id key with default locale", () => {
+			expect(cacheKeys.postById(456)).toBe("posts:id:456:en");
 		});
 	});
 
 	describe("homepage", () => {
-		it("should generate homepage key", () => {
-			expect(cacheKeys.homepage()).toBe("homepage:data");
+		it("should generate homepage key with default locale", () => {
+			expect(cacheKeys.homepage()).toBe("homepage:data:en");
+		});
+
+		it("should generate homepage key with specified locale", () => {
+			expect(cacheKeys.homepage("ja")).toBe("homepage:data:ja");
 		});
 	});
 });
@@ -174,7 +182,7 @@ describe("cacheKeys", () => {
 describe("invalidateByWebhook", () => {
 	beforeEach(() => {
 		cache.clear();
-		// Pre-populate cache with test data
+		// Pre-populate cache with test data (keys now include locale)
 		cache.set(cacheKeys.productsList(), []);
 		cache.set(cacheKeys.productBySlug("test-product"), {});
 		cache.set(cacheKeys.productById(1), {});
@@ -192,10 +200,10 @@ describe("invalidateByWebhook", () => {
 			slug: "test-product",
 		});
 
-		expect(result.invalidated).toContain("products:slug:test-product");
-		expect(result.invalidated).toContain("products:id:1");
-		expect(result.invalidated).toContain("products:list");
-		expect(result.invalidated).toContain("homepage:data");
+		expect(result.invalidated).toContain("products:slug:test-product:en");
+		expect(result.invalidated).toContain("products:id:1:en");
+		expect(result.invalidated).toContain("products:list:en");
+		expect(result.invalidated).toContain("homepage:data:en");
 		expect(result.count).toBe(4);
 
 		// Verify cache entries are deleted
@@ -212,10 +220,10 @@ describe("invalidateByWebhook", () => {
 			slug: "test-post",
 		});
 
-		expect(result.invalidated).toContain("posts:slug:test-post");
-		expect(result.invalidated).toContain("posts:id:2");
-		expect(result.invalidated).toContain("posts:list");
-		expect(result.invalidated).toContain("homepage:data");
+		expect(result.invalidated).toContain("posts:slug:test-post:en");
+		expect(result.invalidated).toContain("posts:id:2:en");
+		expect(result.invalidated).toContain("posts:list:en");
+		expect(result.invalidated).toContain("homepage:data:en");
 		expect(result.count).toBe(4);
 	});
 
@@ -227,7 +235,7 @@ describe("invalidateByWebhook", () => {
 			slug: "some-page",
 		});
 
-		expect(result.invalidated).toContain("homepage:data");
+		expect(result.invalidated).toContain("homepage:data:en");
 		expect(cache.get(cacheKeys.homepage())).toBeNull();
 	});
 
@@ -240,7 +248,7 @@ describe("invalidateByWebhook", () => {
 		});
 
 		// Should still invalidate by id and list
-		expect(result.invalidated).toContain("products:id:1");
-		expect(result.invalidated).toContain("products:list");
+		expect(result.invalidated).toContain("products:id:1:en");
+		expect(result.invalidated).toContain("products:list:en");
 	});
 });

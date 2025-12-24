@@ -14,6 +14,9 @@ export function GlobalError({ error, reset }: ErrorComponentProps) {
 		router.invalidate();
 	};
 
+	// Only show error details in development mode
+	const showErrorDetails = import.meta.env.DEV && error;
+
 	return (
 		<div className="min-h-screen">
 			<Section className="pt-16">
@@ -29,7 +32,7 @@ export function GlobalError({ error, reset }: ErrorComponentProps) {
 							An unexpected error occurred. Please try again or contact support
 							if the problem persists.
 						</p>
-						{process.env.NODE_ENV === "development" && error && (
+						{showErrorDetails ? (
 							<details className="mx-auto mt-6 max-w-2xl text-left">
 								<summary className="cursor-pointer font-medium text-red-600 text-sm">
 									Error details
@@ -39,7 +42,7 @@ export function GlobalError({ error, reset }: ErrorComponentProps) {
 									{error.stack ? `\n\n${error.stack}` : null}
 								</pre>
 							</details>
-						)}
+						) : null}
 						<button
 							className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-black px-6 py-3 font-bold text-white transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
 							onClick={handleRetry}

@@ -81,29 +81,34 @@ class MemoryCache {
 export const cache = new MemoryCache();
 
 /**
+ * Default locale for cache keys
+ * When locale is not provided, use default to ensure consistent keys
+ */
+const DEFAULT_LOCALE = "en";
+
+/**
  * Cache key generators
  * All keys include locale for multi-language support
+ * When locale is undefined, uses DEFAULT_LOCALE to ensure key consistency
  */
 export const cacheKeys = {
-	// Products (not yet multi-language in Polylang)
+	// Products
 	productsList: (locale?: string) =>
-		locale ? `products:list:${locale}` : "products:list",
+		`products:list:${locale ?? DEFAULT_LOCALE}`,
 	productBySlug: (slug: string, locale?: string) =>
-		locale ? `products:slug:${slug}:${locale}` : `products:slug:${slug}`,
+		`products:slug:${slug}:${locale ?? DEFAULT_LOCALE}`,
 	productById: (id: number, locale?: string) =>
-		locale ? `products:id:${id}:${locale}` : `products:id:${id}`,
+		`products:id:${id}:${locale ?? DEFAULT_LOCALE}`,
 
-	// Posts (multi-language enabled)
-	postsList: (locale?: string) =>
-		locale ? `posts:list:${locale}` : "posts:list",
+	// Posts
+	postsList: (locale?: string) => `posts:list:${locale ?? DEFAULT_LOCALE}`,
 	postBySlug: (slug: string, locale?: string) =>
-		locale ? `posts:slug:${slug}:${locale}` : `posts:slug:${slug}`,
+		`posts:slug:${slug}:${locale ?? DEFAULT_LOCALE}`,
 	postById: (id: number, locale?: string) =>
-		locale ? `posts:id:${id}:${locale}` : `posts:id:${id}`,
+		`posts:id:${id}:${locale ?? DEFAULT_LOCALE}`,
 
 	// Homepage
-	homepage: (locale?: string) =>
-		locale ? `homepage:data:${locale}` : "homepage:data",
+	homepage: (locale?: string) => `homepage:data:${locale ?? DEFAULT_LOCALE}`,
 };
 
 /**

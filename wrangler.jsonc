@@ -1,10 +1,16 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "headless-wp-frontend",
-  "compatibility_date": "2025-12-22",
+  "compatibility_date": "2025-12-17",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
   "vars": {
     "NODE_ENV": "production"
-  }
+  },
+  "kv_namespaces": [
+    {
+      "binding": "FALLBACK_KV",
+      "id": "db676979c1f74f2b915f25982b3da571"
+    }
+  ]
 }

@@ -3,9 +3,10 @@ import { z } from "zod";
 import { productSchema } from "@/acf/definitions";
 import { QUERY_LIMITS } from "@/graphql/constants";
 import { HomepageDataDocument } from "@/graphql/homepage/queries.generated";
-import { cache, cacheKeys } from "@/lib/cache";
+import { cacheKeys } from "@/lib/cache";
 import { graphqlRequest } from "@/lib/graphql";
 import { toLanguageFilter } from "@/lib/i18n/language";
+import { kvFirstFetch } from "@/lib/kv-first";
 
 // Homepage 产品列表 schema
 const homepageProductsSchema = z.array(productSchema);
@@ -44,6 +45,7 @@ async function fetchHomepageData(locale?: string) {
 /**
  * 获取首页数据（支持多语言）
  * 包含文章和产品列表，使用 Zod 验证产品数据
+ * 使用 KV-First 模式：优先从 KV 返回数据，后台异步更新
  */
 export const getHomepageData = createServerFn({
 	method: "GET",
@@ -53,17 +55,16 @@ export const getHomepageData = createServerFn({
 		const { locale } = data;
 		const cacheKey = cacheKeys.homepage(locale);
 
-		// Check cache first
-		const cached =
-			cache.get<Awaited<ReturnType<typeof fetchHomepageData>>>(cacheKey);
-		if (cached) {
-			return cached;
-		}
+		const result = await kvFirstFetch(cacheKey, () =>
+			fetchHomepageData(locale)
+		);
 
-		const result = await fetchHomepageData(locale);
-
-		// Store in cache
-		cache.set(cacheKey, result);
-
-		return result;
+		return {
+			...result.data,
+			_meta: {
+				isStale: result.isStale,
+				age: result.age,
+				source: result.source,
+			},
+		};
 	});

@@ -11,7 +11,9 @@ import { IntlayerProvider } from "react-intlayer";
 import { GlobalError } from "../components/error-boundary";
 import Header from "../components/header";
 import { NotFoundPage } from "../components/not-found";
+import { StaleBanner } from "../components/stale-banner";
 import { seoConfig } from "../lib/seo";
+import { StaleIndicatorProvider } from "../lib/stale-indicator/context";
 import appCss from "../styles.css?url";
 
 type MyRouterContext = {
@@ -74,8 +76,11 @@ function RootComponent() {
 
 	return (
 		<IntlayerProvider locale={currentLocale}>
-			<Header />
-			<Outlet />
+			<StaleIndicatorProvider>
+				<StaleBanner />
+				<Header />
+				<Outlet />
+			</StaleIndicatorProvider>
 		</IntlayerProvider>
 	);
 }

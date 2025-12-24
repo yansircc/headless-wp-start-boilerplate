@@ -18,8 +18,8 @@ export const env = createEnv({
 	 */
 	server: {
 		// WordPress Configuration
-		WP_URL: z.string().url().optional(),
-		GRAPHQL_ENDPOINT: z.string().url(),
+		WP_URL: z.url().optional(),
+		GRAPHQL_ENDPOINT: z.url(),
 
 		// Headless Bridge API Key (for ACF sync)
 		ACF_SYNC_KEY: z.string().min(1),
@@ -41,11 +41,11 @@ export const env = createEnv({
 
 	client: {
 		// SEO Configuration (available on both client and server)
-		VITE_SITE_URL: z.string().url(),
+		VITE_SITE_URL: z.url(),
 		VITE_SITE_NAME: z.string().min(1),
 
 		// Sentry (optional)
-		VITE_SENTRY_DSN: z.string().url().optional(),
+		VITE_SENTRY_DSN: z.url().optional(),
 	},
 
 	/**
