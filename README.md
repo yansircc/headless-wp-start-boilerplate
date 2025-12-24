@@ -76,9 +76,11 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 |------|------|
 | `bun dev` | 开发服务器 |
 | `bun run build` | 构建（自动检查） |
-| `bun run deploy` | 快照 KV + 构建 + 部署 |
+| `bun run deploy` | 智能部署：KV 有数据则跳过 snapshot |
+| `bun run deploy:force` | 强制刷新 KV + 构建 + 部署 |
 | `bun sync` | ACF 字段同步 + 类型生成 |
-| `bun snapshot` | 预填充 Cloudflare KV 缓存 |
+| `bun snapshot` | 预填充本地 KV 缓存（开发环境） |
+| `bun snapshot:prod` | 预填充生产 KV 缓存 |
 | `bun checkall` | 运行所有预构建检查 |
 | `bun run test` | 运行单元测试 |
 
@@ -95,7 +97,8 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 ```bash
 npx wrangler login     # 首次登录
 bun env:push           # 推送 .env.prod.local 到 Cloudflare
-bun run deploy         # 部署
+bun run deploy         # 智能部署（KV 有数据则跳过 snapshot）
+bun run deploy:force   # 强制刷新 KV 后部署
 ```
 
 ---

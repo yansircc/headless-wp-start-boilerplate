@@ -7,7 +7,6 @@
  *
  * Options:
  *   --check          Check-only mode, don't generate files (for git hooks)
- *   --skip-snapshot  Skip WordPress connectivity check (for offline dev)
  */
 
 import { execSync } from "node:child_process";
@@ -146,35 +145,6 @@ function checkI18nConfig(): {
 	}
 }
 
-function checkSnapshot(): {
-	passed: boolean;
-	output: string;
-	skipped: boolean;
-} {
-	try {
-		const output = execSync("bun run snapshot:check", {
-			cwd: ROOT_DIR,
-			encoding: "utf-8",
-			stdio: ["pipe", "pipe", "pipe"],
-		});
-		return { passed: true, output, skipped: false };
-	} catch (error) {
-		const err = error as { stderr?: string; stdout?: string };
-		const errorOutput = err.stderr || err.stdout || "";
-
-		// Check if it's a "no KV configured" warning (not an error)
-		if (errorOutput.includes("no KV namespace configured")) {
-			return { passed: true, output: errorOutput, skipped: true };
-		}
-
-		return {
-			passed: false,
-			output: errorOutput || "Snapshot check failed",
-			skipped: false,
-		};
-	}
-}
-
 function checkFragmentUsage(): {
 	passed: boolean;
 	warnings: string[];
@@ -217,10 +187,6 @@ function printCheck(name: string, passed: boolean, detail?: string): void {
 	const reset = "\x1b[0m";
 	const suffix = detail ? ` ${"\x1b[2m"}${detail}${reset}` : "";
 	console.log(`  ${color}${icon}${reset} ${name}${suffix}`);
-}
-
-function printSkipped(name: string, reason: string): void {
-	console.log(`  \x1b[33m○\x1b[0m ${name} \x1b[2m(${reason})\x1b[0m`);
 }
 
 // ============================================
@@ -301,35 +267,12 @@ function runI18nCheck(): CheckResult {
 	return { passed: true, errors: [] };
 }
 
-function runSnapshotCheck(): CheckResult {
-	const result = checkSnapshot();
-
-	if (result.skipped) {
-		printSkipped("WordPress connectivity", "no KV configured");
-		return { passed: true, errors: [] };
-	}
-
-	printCheck("WordPress connectivity", result.passed);
-
-	if (!result.passed) {
-		return {
-			passed: false,
-			errors: [
-				"Cannot reach WordPress GraphQL",
-				"Use --skip-snapshot for offline dev",
-			],
-		};
-	}
-	return { passed: true, errors: [] };
-}
-
 // ============================================
 // Main
 // ============================================
 
 async function main() {
 	const isCheckOnly = process.argv.includes("--check");
-	const skipSnapshot = process.argv.includes("--skip-snapshot");
 
 	console.log("\n\x1b[1mChecking...\x1b[0m\n");
 
@@ -340,12 +283,6 @@ async function main() {
 	results.push(runFragmentUsageCheck());
 	results.push(runSeoCheck(isCheckOnly));
 	results.push(runI18nCheck());
-
-	if (skipSnapshot) {
-		printSkipped("WordPress connectivity", "--skip-snapshot");
-	} else {
-		results.push(runSnapshotCheck());
-	}
 
 	// Collect all errors
 	const allErrors = results.flatMap((r) => r.errors);

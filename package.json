@@ -5,10 +5,8 @@
   "scripts": {
     "dev": "vite dev --port 3008",
     "build": "bun checkall && vite build",
-    "snapshot": "bun scripts/snapshot.ts",
-    "snapshot:check": "bun scripts/snapshot.ts --check",
     "serve": "vite preview",
-    "deploy": "bun snapshot && bun run build && wrangler deploy",
+    "deploy": "bun run build && wrangler deploy",
     "deploy:preview": "bun run build && wrangler deploy --env preview",
     "cf-typegen": "wrangler types",
     "env:push": "wrangler secret bulk .env.prod.local",
