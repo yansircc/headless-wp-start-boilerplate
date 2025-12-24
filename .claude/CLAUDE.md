@@ -250,7 +250,9 @@ The project uses a KV-first architecture for resilience:
 |--------|---------|-------------|
 | **Webhook** | Content changes | WordPress plugin sends webhook → Frontend writes to KV |
 | **Full Sync** | Manual | WordPress admin button or `POST /api/kv/sync` |
-| **On-demand** | User visit | KV miss → fetch from WordPress → cache in memory |
+| **Auto-backfill** | User visit | KV miss → fetch from WordPress → write to Memory + KV |
+
+The system is **self-healing**: even if Full Sync is forgotten or webhook fails, user visits will auto-backfill KV.
 
 ### Cache Keys
 
