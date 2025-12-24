@@ -6,7 +6,7 @@ import { HomepageDataDocument } from "@/graphql/homepage/queries.generated";
 import { cacheKeys } from "@/lib/cache";
 import { graphqlRequest } from "@/lib/graphql";
 import { toLanguageFilter } from "@/lib/i18n/language";
-import { kvFirstFetch } from "@/lib/kv-first";
+import { kvFirstFetch } from "@/lib/kv";
 
 // Homepage 产品列表 schema
 const homepageProductsSchema = z.array(productSchema);

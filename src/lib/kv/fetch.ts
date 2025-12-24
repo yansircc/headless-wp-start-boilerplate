@@ -12,7 +12,7 @@
  */
 
 import { cache } from "@/lib/cache";
-import { isKVAvailable, kvGetWithMetadata, kvPut } from "@/lib/kv";
+import { isKVAvailable, kvGetWithMetadata, kvPut } from "./client";
 
 /**
  * Options for kvFirstFetch

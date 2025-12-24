@@ -13,8 +13,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { createFileRoute } from "@tanstack/react-router";
 import { env } from "@/env";
 import { cache, invalidateByWebhook } from "@/lib/cache";
-import { isKVAvailable } from "@/lib/kv";
-import { syncToKV } from "@/lib/kv-sync";
+import { isKVAvailable, syncToKV } from "@/lib/kv";
 
 type WebhookPayload = {
 	action:

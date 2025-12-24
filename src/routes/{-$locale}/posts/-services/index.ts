@@ -7,7 +7,7 @@ import {
 import { cacheKeys } from "@/lib/cache";
 import { graphqlRequest } from "@/lib/graphql";
 import { toLanguageCode, toLanguageFilter } from "@/lib/i18n/language";
-import { kvFirstFetch } from "@/lib/kv-first";
+import { kvFirstFetch } from "@/lib/kv";
 
 type GetPostsInput = {
 	locale?: string;

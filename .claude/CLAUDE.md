@@ -88,9 +88,10 @@ This document serves as the authoritative guide for AI developers working on thi
 | `src/graphql/_generated/` | Auto-generated types (DO NOT EDIT) |
 | `src/routes/**/-services/` | Data fetching with KV-first pattern |
 | `src/lib/cache/index.ts` | Cache keys and invalidation logic |
-| `src/lib/kv/index.ts` | Cloudflare KV read/write via Worker Binding |
-| `src/lib/kv-first/index.ts` | KV-first fetch with stale-while-revalidate |
-| `src/lib/kv-sync/index.ts` | KV sync logic (webhook → KV) |
+| `src/lib/kv/` | Unified KV module (client, fetch, sync) |
+| `src/lib/kv/client.ts` | Cloudflare KV read/write via Worker Binding |
+| `src/lib/kv/fetch.ts` | KV-first fetch with stale-while-revalidate |
+| `src/lib/kv/sync/` | KV sync logic (webhook → KV, modularized) |
 | `src/lib/seo/seo.config.ts` | SEO configuration (SSOT) |
 | `src/lib/i18n/language.ts` | Language utilities (derived from GraphQL) |
 | `src/routes/api/webhook/revalidate.ts` | Webhook handler (invalidate + sync KV) |
@@ -316,8 +317,8 @@ registerTaxonomy("event-category", {
 KV sync uses a **registry pattern**. Built-in types (post, product, category, tag, product-category) are pre-registered. For new types:
 
 ```typescript
-// src/lib/kv-sync/index.ts
-import { registerPostTypeSync, registerTaxonomySync } from "@/lib/kv-sync";
+// src/lib/kv/sync/registrations/ or any initialization file
+import { registerPostTypeSync, registerTaxonomySync } from "@/lib/kv";
 
 // Register a new post type
 registerPostTypeSync("event", {
