@@ -92,12 +92,14 @@ export async function kvFirstFetch<T>(
 	// Store in memory cache
 	cache.set(cacheKey, freshData);
 
-	// Backfill KV for resilience (non-blocking, fire and forget)
+	// Backfill KV for resilience (self-healing)
 	// This ensures KV has data even if webhook was missed
 	if (isKVAvailable()) {
-		kvPut(cacheKey, freshData).catch(() => {
+		try {
+			await kvPut(cacheKey, freshData);
+		} catch {
 			// Silently ignore KV write failures - not critical
-		});
+		}
 	}
 
 	return {
