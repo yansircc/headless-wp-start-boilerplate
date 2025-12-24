@@ -19,11 +19,25 @@ This document serves as the authoritative guide for AI developers working on thi
 │        │                                                            │
 │        │ import                                                     │
 │        ▼                                                            │
-│  routes/**/-services/     ──── cache ────►  src/lib/cache/         │
-│        │                                         │                  │
-│        │ loader                                  │ webhook          │
-│        ▼                                         ▼                  │
-│  routes/**/*.tsx          ◄──── invalidate ──── WordPress          │
+│  routes/**/-services/     ──── kvFirstFetch ────►  KV + Memory     │
+│        │                                              │             │
+│        │ loader                      background       │ webhook     │
+│        ▼                             revalidate       ▼             │
+│  routes/**/*.tsx          ◄──── stale data ──── WordPress          │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                     KV-First Fallback Architecture                  │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  Request → Memory Cache (1ms) → Cloudflare KV (50ms) → WordPress   │
+│                                                                     │
+│  • Memory cache: fastest, per-isolate                               │
+│  • KV: pre-populated via `bun snapshot`, survives WordPress outage │
+│  • WordPress: background revalidation, stale-while-revalidate      │
+│                                                                     │
+│  When WordPress is down, users see cached data with "stale" banner │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 
@@ -54,12 +68,14 @@ This document serves as the authoritative guide for AI developers working on thi
 |------|---------|
 | `src/acf/definitions/` | ACF field definitions (source of truth) |
 | `src/graphql/_generated/` | Auto-generated types (DO NOT EDIT) |
-| `src/routes/**/-services/` | Data fetching with cache |
+| `src/routes/**/-services/` | Data fetching with KV-first pattern |
 | `src/lib/cache/index.ts` | Cache keys and invalidation logic |
+| `src/lib/kv/index.ts` | Cloudflare KV access via `cloudflare:workers` |
+| `src/lib/kv-first/index.ts` | KV-first fetch with stale-while-revalidate |
 | `src/lib/seo/seo.config.ts` | SEO configuration (SSOT) |
 | `src/lib/i18n/language.ts` | Language utilities (derived from GraphQL) |
-| `intlayer.config.ts` | i18n config (AUTO-GENERATED from WordPress Polylang) |
-| `src/content/*.content.ts` | UI translations (Intlayer) |
+| `scripts/snapshot.ts` | KV snapshot script for build-time data population |
+| `scripts/checkall.ts` | Pre-build validation checks |
 
 ---
 
@@ -197,18 +213,22 @@ navigation: {
 
 ---
 
-## Cache Invalidation
+## Cache & KV Fallback
 
-WordPress sends webhooks to `/api/webhook/revalidate` when content changes.
+The project uses a KV-first architecture for resilience:
+
+1. **Memory cache**: Per-isolate, fastest (~1ms)
+2. **Cloudflare KV**: Pre-populated via `bun snapshot`, survives WordPress outages
+3. **WordPress GraphQL**: Background revalidation with stale-while-revalidate
 
 Cache keys are defined in `src/lib/cache/index.ts`:
 
 ```typescript
+// Keys always include locale (defaults to "en")
 export const cacheKeys = {
-  productsList: (locale?) => locale ? `products:list:${locale}` : "products:list",
-  postsList: (locale?) => locale ? `posts:list:${locale}` : "posts:list",
-  postBySlug: (slug, locale?) => locale ? `posts:slug:${slug}:${locale}` : `posts:slug:${slug}`,
-  homepage: (locale?) => locale ? `homepage:data:${locale}` : "homepage:data",
+  productsList: (locale?) => `products:list:${locale ?? "en"}`,
+  postBySlug: (slug, locale?) => `posts:slug:${slug}:${locale ?? "en"}`,
+  homepage: (locale?) => `homepage:data:${locale ?? "en"}`,
 };
 ```
 
@@ -221,14 +241,13 @@ export const cacheKeys = {
 | Command | Description |
 |---------|-------------|
 | `bun dev` | Start development server |
-| `bun run build` | Build for production (runs validate + seo first) |
+| `bun run build` | Build for production (runs checkall first) |
+| `bun run deploy` | Snapshot KV + build + deploy to Cloudflare Workers |
 | `bun env:push` | Push .env.prod.local secrets to Cloudflare |
-| `bun run deploy` | Deploy to Cloudflare Workers |
 | `bun sync` | Full sync: ACF → WordPress → GraphQL types → i18n config |
-| `bun sync:i18n` | Sync only i18n config from GraphQL LanguageCodeEnum |
-| `bun sync:i18n:check` | Check if i18n config is up-to-date (CI) |
+| `bun snapshot` | Populate Cloudflare KV with WordPress data |
+| `bun checkall` | Run all pre-build checks |
 | `bun seo` | Validate SEO config and generate robots.txt/sitemap.xml |
-| `bun validate` | Run all pre-build validations |
 | `bun typecheck` | TypeScript type checking |
 | `bun lint` | Lint and format code |
 | `bun run test` | Run unit tests (Vitest) |
@@ -330,9 +349,7 @@ Before committing:
 
 - [ ] Ran `bun sync` after ACF changes or WordPress language changes
 - [ ] Ran `bun seo` after adding routes
-- [ ] Ran `bun lint` to fix formatting
-- [ ] Ran `bun typecheck` to verify types
-- [ ] Ran `bun run test` to verify tests pass
+- [ ] Ran `bun checkall` to verify all checks pass
 - [ ] Added cache keys for new content types (with locale support)
 - [ ] Did NOT modify any `_generated`, `.intlayer`, or `intlayer.config.ts` files
 

@@ -4,11 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 3008",
-    "build": "bun validate && bun snapshot && vite build",
+    "build": "bun checkall && vite build",
     "snapshot": "bun scripts/snapshot.ts",
     "snapshot:check": "bun scripts/snapshot.ts --check",
     "serve": "vite preview",
-    "deploy": "bun run build && wrangler deploy",
+    "deploy": "bun snapshot && bun run build && wrangler deploy",
     "deploy:preview": "bun run build && wrangler deploy --env preview",
     "cf-typegen": "wrangler types",
     "env:push": "wrangler secret bulk .env.prod.local",
@@ -22,8 +22,7 @@
     "sync:i18n:check": "bun scripts/sync-i18n.ts --check",
     "seo": "bun scripts/generate-seo-files.ts",
     "seo:check": "bun scripts/generate-seo-files.ts --check",
-    "validate": "bun scripts/validate.ts",
-    "validate:check": "bun scripts/validate.ts --check",
+    "checkall": "bun scripts/checkall.ts",
     "prepare": "husky"
   },
   "dependencies": {

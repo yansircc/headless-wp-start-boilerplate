@@ -1,4 +1,4 @@
 bun typecheck
 bun run test
 bun check
-bun validate:check
+bun checkall --check --skip-snapshot

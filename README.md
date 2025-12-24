@@ -6,7 +6,7 @@
 
 - **AI 可理解** - 项目包含完整的 AI 开发指南，Claude Code 能自主完成常见开发任务
 - **类型安全** - ACF 字段定义自动生成 GraphQL Fragment + TypeScript 类型
-- **缓存 + Webhook** - 服务端缓存 + WordPress 内容变更自动失效
+- **高可用** - KV-first 架构，WordPress 宕机时仍可正常访问
 - **i18n 就绪** - Intlayer + Polylang，URL 路由模式 (`/`, `/zh/`, `/ja/`)，SEO 友好
 
 ## 快速开始
@@ -75,11 +75,11 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 | 命令 | 说明 |
 |------|------|
 | `bun dev` | 开发服务器 |
-| `bun run build` | 构建（自动验证） |
-| `bun env:push` | 推送 .env.prod.local 到 Cloudflare |
-| `bun run deploy` | 部署到 Cloudflare Workers |
+| `bun run build` | 构建（自动检查） |
+| `bun run deploy` | 快照 KV + 构建 + 部署 |
 | `bun sync` | ACF 字段同步 + 类型生成 |
-| `bun seo` | SEO 验证 + 生成 sitemap |
+| `bun snapshot` | 预填充 Cloudflare KV 缓存 |
+| `bun checkall` | 运行所有预构建检查 |
 | `bun run test` | 运行单元测试 |
 
 ---
@@ -106,13 +106,18 @@ bun run deploy         # 部署
 
 ---
 
-## 缓存
+## 缓存 & 高可用
 
-服务端内存缓存，WordPress 内容变更时通过 Webhook 精确失效：
+KV-first 架构确保 WordPress 宕机时用户仍可正常访问：
 
-- TTL: 1 小时
-- 失效粒度: post_type + slug
-- 健康检查: `GET /api/webhook/revalidate`
+```
+请求 → 内存缓存(1ms) → Cloudflare KV(50ms) → WordPress(后台刷新)
+```
+
+- **内存缓存**: 每个 Worker isolate，最快
+- **Cloudflare KV**: 构建时通过 `bun snapshot` 预填充
+- **WordPress**: 后台异步刷新，stale-while-revalidate
+- **Webhook**: 内容变更时精确失效 (`/api/webhook/revalidate`)
 
 ---
 
