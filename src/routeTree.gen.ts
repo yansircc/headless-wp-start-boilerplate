@@ -11,6 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as ProductSitemapDotxmlRouteImport } from './routes/product-sitemap[.]xml'
+import { Route as ProductCategorySitemapDotxmlRouteImport } from './routes/product-category-sitemap[.]xml'
+import { Route as PostSitemapDotxmlRouteImport } from './routes/post-sitemap[.]xml'
+import { Route as PageSitemapDotxmlRouteImport } from './routes/page-sitemap[.]xml'
+import { Route as CategorySitemapDotxmlRouteImport } from './routes/category-sitemap[.]xml'
 import { Route as Char123LocaleChar125IndexRouteImport } from './routes/{-$locale}/index'
 import { Route as Char123LocaleChar125ProductsIndexRouteImport } from './routes/{-$locale}/products/index'
 import { Route as Char123LocaleChar125PostsIndexRouteImport } from './routes/{-$locale}/posts/index'
@@ -32,6 +37,32 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductSitemapDotxmlRoute = ProductSitemapDotxmlRouteImport.update({
+  id: '/product-sitemap.xml',
+  path: '/product-sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductCategorySitemapDotxmlRoute =
+  ProductCategorySitemapDotxmlRouteImport.update({
+    id: '/product-category-sitemap.xml',
+    path: '/product-category-sitemap.xml',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PostSitemapDotxmlRoute = PostSitemapDotxmlRouteImport.update({
+  id: '/post-sitemap.xml',
+  path: '/post-sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PageSitemapDotxmlRoute = PageSitemapDotxmlRouteImport.update({
+  id: '/page-sitemap.xml',
+  path: '/page-sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategorySitemapDotxmlRoute = CategorySitemapDotxmlRouteImport.update({
+  id: '/category-sitemap.xml',
+  path: '/category-sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char123LocaleChar125IndexRoute =
@@ -106,6 +137,11 @@ const Char123LocaleChar125PostsCategoriesCategorySlugRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/category-sitemap.xml': typeof CategorySitemapDotxmlRoute
+  '/page-sitemap.xml': typeof PageSitemapDotxmlRoute
+  '/post-sitemap.xml': typeof PostSitemapDotxmlRoute
+  '/product-category-sitemap.xml': typeof ProductCategorySitemapDotxmlRoute
+  '/product-sitemap.xml': typeof ProductSitemapDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
@@ -122,6 +158,11 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/products/categories': typeof Char123LocaleChar125ProductsCategoriesIndexRoute
 }
 export interface FileRoutesByTo {
+  '/category-sitemap.xml': typeof CategorySitemapDotxmlRoute
+  '/page-sitemap.xml': typeof PageSitemapDotxmlRoute
+  '/post-sitemap.xml': typeof PostSitemapDotxmlRoute
+  '/product-category-sitemap.xml': typeof ProductCategorySitemapDotxmlRoute
+  '/product-sitemap.xml': typeof ProductSitemapDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
@@ -139,6 +180,11 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/category-sitemap.xml': typeof CategorySitemapDotxmlRoute
+  '/page-sitemap.xml': typeof PageSitemapDotxmlRoute
+  '/post-sitemap.xml': typeof PostSitemapDotxmlRoute
+  '/product-category-sitemap.xml': typeof ProductCategorySitemapDotxmlRoute
+  '/product-sitemap.xml': typeof ProductSitemapDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
@@ -157,6 +203,11 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/category-sitemap.xml'
+    | '/page-sitemap.xml'
+    | '/post-sitemap.xml'
+    | '/product-category-sitemap.xml'
+    | '/product-sitemap.xml'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/{-$locale}'
@@ -173,6 +224,11 @@ export interface FileRouteTypes {
     | '/{-$locale}/products/categories'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/category-sitemap.xml'
+    | '/page-sitemap.xml'
+    | '/post-sitemap.xml'
+    | '/product-category-sitemap.xml'
+    | '/product-sitemap.xml'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/{-$locale}'
@@ -189,6 +245,11 @@ export interface FileRouteTypes {
     | '/{-$locale}/products/categories'
   id:
     | '__root__'
+    | '/category-sitemap.xml'
+    | '/page-sitemap.xml'
+    | '/post-sitemap.xml'
+    | '/product-category-sitemap.xml'
+    | '/product-sitemap.xml'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/{-$locale}/'
@@ -206,6 +267,11 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  CategorySitemapDotxmlRoute: typeof CategorySitemapDotxmlRoute
+  PageSitemapDotxmlRoute: typeof PageSitemapDotxmlRoute
+  PostSitemapDotxmlRoute: typeof PostSitemapDotxmlRoute
+  ProductCategorySitemapDotxmlRoute: typeof ProductCategorySitemapDotxmlRoute
+  ProductSitemapDotxmlRoute: typeof ProductSitemapDotxmlRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char123LocaleChar125IndexRoute: typeof Char123LocaleChar125IndexRoute
@@ -236,6 +302,41 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product-sitemap.xml': {
+      id: '/product-sitemap.xml'
+      path: '/product-sitemap.xml'
+      fullPath: '/product-sitemap.xml'
+      preLoaderRoute: typeof ProductSitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product-category-sitemap.xml': {
+      id: '/product-category-sitemap.xml'
+      path: '/product-category-sitemap.xml'
+      fullPath: '/product-category-sitemap.xml'
+      preLoaderRoute: typeof ProductCategorySitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/post-sitemap.xml': {
+      id: '/post-sitemap.xml'
+      path: '/post-sitemap.xml'
+      fullPath: '/post-sitemap.xml'
+      preLoaderRoute: typeof PostSitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/page-sitemap.xml': {
+      id: '/page-sitemap.xml'
+      path: '/page-sitemap.xml'
+      fullPath: '/page-sitemap.xml'
+      preLoaderRoute: typeof PageSitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/category-sitemap.xml': {
+      id: '/category-sitemap.xml'
+      path: '/category-sitemap.xml'
+      fullPath: '/category-sitemap.xml'
+      preLoaderRoute: typeof CategorySitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/{-$locale}/': {
@@ -326,6 +427,11 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  CategorySitemapDotxmlRoute: CategorySitemapDotxmlRoute,
+  PageSitemapDotxmlRoute: PageSitemapDotxmlRoute,
+  PostSitemapDotxmlRoute: PostSitemapDotxmlRoute,
+  ProductCategorySitemapDotxmlRoute: ProductCategorySitemapDotxmlRoute,
+  ProductSitemapDotxmlRoute: ProductSitemapDotxmlRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char123LocaleChar125IndexRoute: Char123LocaleChar125IndexRoute,
