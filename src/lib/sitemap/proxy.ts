@@ -33,9 +33,11 @@ export async function proxySitemap(sitemapPath: string): Promise<Response> {
 
 		let content = await response.text();
 
-		// Remove XSL stylesheet reference to avoid CORS errors
-		// The XSL is only for browser display; search engines don't need it
-		content = content.replace(/<\?xml-stylesheet[^?]*\?>\s*/g, "");
+		// Replace WordPress XSL with our local stylesheet to avoid CORS errors
+		content = content.replace(
+			/<\?xml-stylesheet[^?]*\?>\s*/g,
+			'<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n'
+		);
 
 		// Replace WordPress URLs with frontend URLs
 		const frontendUrl =

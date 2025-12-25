@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxslRouteImport } from './routes/sitemap[.]xsl'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ProductSitemapDotxmlRouteImport } from './routes/product-sitemap[.]xml'
@@ -29,6 +30,11 @@ import { Route as Char123LocaleChar125ProductsCategoriesCategorySlugRouteImport 
 import { Route as Char123LocaleChar125PostsTagsTagSlugRouteImport } from './routes/{-$locale}/posts/tags/$tagSlug'
 import { Route as Char123LocaleChar125PostsCategoriesCategorySlugRouteImport } from './routes/{-$locale}/posts/categories/$categorySlug'
 
+const SitemapDotxslRoute = SitemapDotxslRouteImport.update({
+  id: '/sitemap.xsl',
+  path: '/sitemap.xsl',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/product-sitemap.xml': typeof ProductSitemapDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/sitemap.xsl': typeof SitemapDotxslRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/product-sitemap.xml': typeof ProductSitemapDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/sitemap.xsl': typeof SitemapDotxslRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/product-sitemap.xml': typeof ProductSitemapDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/sitemap.xsl': typeof SitemapDotxslRoute
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
     | '/product-sitemap.xml'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/sitemap.xsl'
     | '/{-$locale}'
     | '/api/kv/sync'
     | '/api/webhook/revalidate'
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/product-sitemap.xml'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/sitemap.xsl'
     | '/{-$locale}'
     | '/api/kv/sync'
     | '/api/webhook/revalidate'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/product-sitemap.xml'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/sitemap.xsl'
     | '/{-$locale}/'
     | '/api/kv/sync'
     | '/api/webhook/revalidate'
@@ -274,6 +286,7 @@ export interface RootRouteChildren {
   ProductSitemapDotxmlRoute: typeof ProductSitemapDotxmlRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SitemapDotxslRoute: typeof SitemapDotxslRoute
   Char123LocaleChar125IndexRoute: typeof Char123LocaleChar125IndexRoute
   ApiKvSyncRoute: typeof ApiKvSyncRoute
   ApiWebhookRevalidateRoute: typeof ApiWebhookRevalidateRoute
@@ -290,6 +303,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xsl': {
+      id: '/sitemap.xsl'
+      path: '/sitemap.xsl'
+      fullPath: '/sitemap.xsl'
+      preLoaderRoute: typeof SitemapDotxslRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -434,6 +454,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductSitemapDotxmlRoute: ProductSitemapDotxmlRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SitemapDotxslRoute: SitemapDotxslRoute,
   Char123LocaleChar125IndexRoute: Char123LocaleChar125IndexRoute,
   ApiKvSyncRoute: ApiKvSyncRoute,
   ApiWebhookRevalidateRoute: ApiWebhookRevalidateRoute,
