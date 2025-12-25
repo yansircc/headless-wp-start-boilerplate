@@ -24,6 +24,9 @@ fragment ProductDetailFields on Product {
 	...ProductFields
 	date
 	content
+	seo {
+		...YoastSeoFields
+	}
 }
 
 # 产品列表查询（支持多语言）

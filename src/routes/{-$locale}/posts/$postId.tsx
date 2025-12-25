@@ -5,14 +5,8 @@ import { LocalizedLink } from "@/components/localized-link";
 import { ResourceNotFound } from "@/components/not-found";
 import { Container, Section } from "@/components/shared";
 import type { PostCategory, PostTag } from "@/graphql/types";
-import {
-	buildHreflangLinks,
-	buildSchemaScript,
-	buildSeoMeta,
-	generateDescription,
-	getDynamicRouteSeo,
-	seoConfig,
-} from "@/lib/seo";
+import { buildHreflangLinks, seoConfig } from "@/lib/seo";
+import { buildYoastMeta, buildYoastSchema } from "@/lib/seo/yoast";
 import { getPostBySlug } from "./-services";
 
 export const Route = createFileRoute("/{-$locale}/posts/$postId")({
@@ -40,27 +34,12 @@ export const Route = createFileRoute("/{-$locale}/posts/$postId")({
 		return post;
 	},
 	head: ({ loaderData: post, params }) => {
-		const { title, type } = getDynamicRouteSeo("/posts/$postId", post?.title);
 		const canonical = `/posts/${params.postId}`;
-		const config = {
-			title,
-			description: generateDescription(post?.content, post?.excerpt),
-			canonical,
-			image: post?.featuredImage?.node?.sourceUrl ?? undefined,
-			imageAlt: post?.featuredImage?.node?.altText ?? post?.title ?? undefined,
-			type,
-			publishedTime: post?.date ?? undefined,
-			author: post?.author?.node?.name ?? undefined,
-		};
-
-		const schema = buildSchemaScript({
-			...config,
-			siteName: seoConfig.site.name,
-			siteUrl: seoConfig.site.url,
-		});
+		const seo = post?.seo;
+		const schema = buildYoastSchema(seo);
 
 		return {
-			meta: buildSeoMeta(config, seoConfig.site.url),
+			meta: buildYoastMeta(seo),
 			links: buildHreflangLinks(canonical, seoConfig.site.url),
 			scripts: schema ? [schema] : [],
 		};

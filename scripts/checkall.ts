@@ -103,27 +103,6 @@ function checkGeneratedFilesExist(): {
 	};
 }
 
-function checkSeoConfig(checkOnly: boolean): {
-	passed: boolean;
-	output: string;
-} {
-	try {
-		const command = checkOnly ? "bun run seo --check" : "bun run seo";
-		const output = execSync(command, {
-			cwd: ROOT_DIR,
-			encoding: "utf-8",
-			stdio: ["pipe", "pipe", "pipe"],
-		});
-		return { passed: true, output };
-	} catch (error) {
-		const err = error as { stderr?: string; stdout?: string };
-		return {
-			passed: false,
-			output: err.stderr || err.stdout || "SEO validation failed",
-		};
-	}
-}
-
 function checkI18nConfig(): {
 	passed: boolean;
 	output: string;
@@ -243,19 +222,6 @@ function runFragmentUsageCheck(): CheckResult {
 	return { passed: true, errors: [] };
 }
 
-function runSeoCheck(checkOnly: boolean): CheckResult {
-	const result = checkSeoConfig(checkOnly);
-	printCheck("SEO configuration", result.passed);
-
-	if (!result.passed) {
-		return {
-			passed: false,
-			errors: ["SEO validation failed", result.output, "Fix: Run `bun seo`"],
-		};
-	}
-	return { passed: true, errors: [] };
-}
-
 function runI18nCheck(): CheckResult {
 	const result = checkI18nConfig();
 	printCheck("i18n configuration", result.passed);
@@ -274,8 +240,6 @@ function runI18nCheck(): CheckResult {
 // ============================================
 
 async function main() {
-	const isCheckOnly = process.argv.includes("--check");
-
 	console.log("\n\x1b[1mChecking...\x1b[0m\n");
 
 	const results: CheckResult[] = [];
@@ -283,7 +247,6 @@ async function main() {
 	results.push(await runGeneratedFilesCheck());
 	results.push(runFilesExistCheck());
 	results.push(runFragmentUsageCheck());
-	results.push(runSeoCheck(isCheckOnly));
 	results.push(runI18nCheck());
 
 	// Collect all errors

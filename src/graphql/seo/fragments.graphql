@@ -1,0 +1,68 @@
+# ============================================
+# Yoast SEO Fragments (WPGraphQL Yoast SEO Plugin)
+# ============================================
+
+# SEO fragment for Post Types (posts, products, pages, etc.)
+fragment YoastSeoFields on PostTypeSEO {
+	title
+	metaDesc
+	canonical
+	metaRobotsNoindex
+	metaRobotsNofollow
+	# Open Graph
+	opengraphTitle
+	opengraphDescription
+	opengraphImage {
+		sourceUrl
+		altText
+	}
+	opengraphType
+	opengraphUrl
+	opengraphModifiedTime
+	opengraphPublishedTime
+	opengraphSiteName
+	# Twitter
+	twitterTitle
+	twitterDescription
+	twitterImage {
+		sourceUrl
+	}
+	# Schema.org JSON-LD
+	schema {
+		raw
+	}
+	# Breadcrumbs
+	breadcrumbs {
+		text
+		url
+	}
+}
+
+# SEO fragment for Taxonomies (categories, tags, product-categories, etc.)
+fragment YoastTaxonomySeoFields on TaxonomySEO {
+	title
+	metaDesc
+	canonical
+	metaRobotsNoindex
+	metaRobotsNofollow
+	# Open Graph
+	opengraphTitle
+	opengraphDescription
+	opengraphImage {
+		sourceUrl
+		altText
+	}
+	opengraphType
+	opengraphUrl
+	# Twitter
+	twitterTitle
+	twitterDescription
+	twitterImage {
+		sourceUrl
+	}
+	# Breadcrumbs
+	breadcrumbs {
+		text
+		url
+	}
+}

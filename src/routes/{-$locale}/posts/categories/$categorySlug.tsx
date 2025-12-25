@@ -3,7 +3,8 @@ import { ArrowLeft } from "lucide-react";
 import { LocalizedLink } from "@/components/localized-link";
 import { Container, Section } from "@/components/shared";
 import type { PostFieldsFragment } from "@/graphql/types";
-import { buildHreflangLinks, buildSeoMeta, seoConfig } from "@/lib/seo";
+import { buildHreflangLinks, seoConfig } from "@/lib/seo";
+import { buildYoastMeta } from "@/lib/seo/yoast";
 import { PostCard } from "../-components/post-card";
 import { getCategoryBySlug, getPostsByCategory } from "./-services";
 
@@ -25,21 +26,11 @@ export const Route = createFileRoute(
 		return { category, posts };
 	},
 	head: ({ loaderData, params }) => {
-		const title = loaderData?.category?.name ?? "Category";
-		const description =
-			loaderData?.category?.description ??
-			`Browse articles in ${title} category`;
 		const canonical = `/posts/categories/${params.categorySlug}`;
+		const seo = loaderData?.category?.seo;
 
 		return {
-			meta: buildSeoMeta(
-				{
-					title: `${title} - Articles`,
-					description,
-					canonical,
-				},
-				seoConfig.site.url
-			),
+			meta: buildYoastMeta(seo),
 			links: buildHreflangLinks(canonical, seoConfig.site.url),
 		};
 	},

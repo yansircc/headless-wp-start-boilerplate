@@ -28,7 +28,7 @@ bun dev
 | 你说 | AI 会做 |
 |------|---------|
 | "给 product 加一个 stock 字段" | 修改 `fields.ts` → 运行 `bun sync` |
-| "新建一个 /about 页面" | 创建路由 → 运行 `bun seo` → 添加 SEO 配置 |
+| "新建一个 /about 页面" | 创建路由 → 添加 SEO 配置到 `seo.config.ts` |
 | "新增一个 accessories 内容类型" | 创建 ACF 定义 + Post Type + GraphQL + 路由 |
 
 ### AI 知道的规则
@@ -48,7 +48,6 @@ bun dev
 |------|---------|
 | `bun sync` | ACF 变更后同步到 WordPress + 生成类型 |
 | `bun checkall` | 构建前验证，失败时输出修复指引 |
-| `bun seo` | 新路由后检查 SEO 配置 |
 
 **工作流示例**：AI 添加字段 → 运行 `bun sync` → 失败 → 看错误 → 自主修复
 
@@ -59,7 +58,7 @@ bun dev
 ```
 ✅ No manual modifications to generated files
 ✅ All GraphQL queries use auto-generated fragments
-✅ SEO configuration is valid
+✅ i18n configuration is valid
 ```
 
 ---

@@ -24,6 +24,9 @@ fragment CategoryDetailFields on Category {
 			...CategoryFields
 		}
 	}
+	seo {
+		...YoastTaxonomySeoFields
+	}
 }
 
 # ============================================
@@ -36,6 +39,13 @@ fragment TagFields on Tag {
 	name
 	description
 	count
+}
+
+fragment TagDetailFields on Tag {
+	...TagFields
+	seo {
+		...YoastTaxonomySeoFields
+	}
 }
 
 # ============================================
@@ -63,6 +73,9 @@ fragment ProductCategoryDetailFields on ProductCategory {
 		nodes {
 			...ProductCategoryFields
 		}
+	}
+	seo {
+		...YoastTaxonomySeoFields
 	}
 }
 
@@ -105,7 +118,7 @@ query TagsList($first: Int = 100, $language: LanguageCodeFilterEnum) {
 query TagBySlug($slug: ID!, $language: LanguageCodeEnum!) {
 	tag(id: $slug, idType: SLUG) {
 		translation(language: $language) {
-			...TagFields
+			...TagDetailFields
 		}
 	}
 }

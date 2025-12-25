@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as Char123LocaleChar125IndexRouteImport } from './routes/{-$locale}/index'
 import { Route as Char123LocaleChar125ProductsIndexRouteImport } from './routes/{-$locale}/products/index'
 import { Route as Char123LocaleChar125PostsIndexRouteImport } from './routes/{-$locale}/posts/index'
@@ -22,6 +24,16 @@ import { Route as Char123LocaleChar125ProductsCategoriesCategorySlugRouteImport 
 import { Route as Char123LocaleChar125PostsTagsTagSlugRouteImport } from './routes/{-$locale}/posts/tags/$tagSlug'
 import { Route as Char123LocaleChar125PostsCategoriesCategorySlugRouteImport } from './routes/{-$locale}/posts/categories/$categorySlug'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Char123LocaleChar125IndexRoute =
   Char123LocaleChar125IndexRouteImport.update({
     id: '/{-$locale}/',
@@ -94,6 +106,8 @@ const Char123LocaleChar125PostsCategoriesCategorySlugRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
@@ -108,6 +122,8 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/products/categories': typeof Char123LocaleChar125ProductsCategoriesIndexRoute
 }
 export interface FileRoutesByTo {
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
@@ -123,6 +139,8 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
@@ -139,6 +157,8 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/{-$locale}'
     | '/api/kv/sync'
     | '/api/webhook/revalidate'
@@ -153,6 +173,8 @@ export interface FileRouteTypes {
     | '/{-$locale}/products/categories'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/{-$locale}'
     | '/api/kv/sync'
     | '/api/webhook/revalidate'
@@ -167,6 +189,8 @@ export interface FileRouteTypes {
     | '/{-$locale}/products/categories'
   id:
     | '__root__'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/{-$locale}/'
     | '/api/kv/sync'
     | '/api/webhook/revalidate'
@@ -182,6 +206,8 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char123LocaleChar125IndexRoute: typeof Char123LocaleChar125IndexRoute
   ApiKvSyncRoute: typeof ApiKvSyncRoute
   ApiWebhookRevalidateRoute: typeof ApiWebhookRevalidateRoute
@@ -198,6 +224,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/{-$locale}/': {
       id: '/{-$locale}/'
       path: '/{-$locale}'
@@ -286,6 +326,8 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char123LocaleChar125IndexRoute: Char123LocaleChar125IndexRoute,
   ApiKvSyncRoute: ApiKvSyncRoute,
   ApiWebhookRevalidateRoute: ApiWebhookRevalidateRoute,

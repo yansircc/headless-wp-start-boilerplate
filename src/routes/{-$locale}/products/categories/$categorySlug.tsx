@@ -3,7 +3,8 @@ import { ArrowLeft } from "lucide-react";
 import { LocalizedLink } from "@/components/localized-link";
 import { Container, Section } from "@/components/shared";
 import type { ProductFieldsFragment } from "@/graphql/types";
-import { buildHreflangLinks, buildSeoMeta, seoConfig } from "@/lib/seo";
+import { buildHreflangLinks, seoConfig } from "@/lib/seo";
+import { buildYoastMeta } from "@/lib/seo/yoast";
 import { ProductCard } from "../-components/product-card";
 import { getProductCategoryBySlug, getProductsByCategory } from "./-services";
 
@@ -25,21 +26,11 @@ export const Route = createFileRoute(
 		return { category, products };
 	},
 	head: ({ loaderData, params }) => {
-		const title = loaderData?.category?.name ?? "Category";
-		const description =
-			loaderData?.category?.description ??
-			`Browse products in ${title} category`;
 		const canonical = `/products/categories/${params.categorySlug}`;
+		const seo = loaderData?.category?.seo;
 
 		return {
-			meta: buildSeoMeta(
-				{
-					title: `${title} - Products`,
-					description,
-					canonical,
-				},
-				seoConfig.site.url
-			),
+			meta: buildYoastMeta(seo),
 			links: buildHreflangLinks(canonical, seoConfig.site.url),
 		};
 	},

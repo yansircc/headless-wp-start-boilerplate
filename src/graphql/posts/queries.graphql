@@ -35,6 +35,9 @@ fragment PostDetailFields on Post {
 			name
 		}
 	}
+	seo {
+		...YoastSeoFields
+	}
 }
 
 # 文章列表查询（支持多语言）

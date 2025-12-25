@@ -4,14 +4,8 @@ import { ProductSkeleton } from "@/components/loading";
 import { LocalizedLink } from "@/components/localized-link";
 import { ResourceNotFound } from "@/components/not-found";
 import { Container, Divider, Section } from "@/components/shared";
-import {
-	buildHreflangLinks,
-	buildSchemaScript,
-	buildSeoMeta,
-	generateDescription,
-	getDynamicRouteSeo,
-	seoConfig,
-} from "@/lib/seo";
+import { buildHreflangLinks, seoConfig } from "@/lib/seo";
+import { buildYoastMeta, buildYoastSchema } from "@/lib/seo/yoast";
 import { getProductBySlug } from "./-services";
 
 export const Route = createFileRoute("/{-$locale}/products/$productId")({
@@ -39,29 +33,12 @@ export const Route = createFileRoute("/{-$locale}/products/$productId")({
 		return product;
 	},
 	head: ({ loaderData: product, params }) => {
-		const { title, type } = getDynamicRouteSeo(
-			"/products/$productId",
-			product?.title
-		);
 		const canonical = `/products/${params.productId}`;
-		const config = {
-			title,
-			description: generateDescription(product?.content),
-			canonical,
-			image: product?.featuredImage?.node?.sourceUrl ?? undefined,
-			imageAlt:
-				product?.featuredImage?.node?.altText ?? product?.title ?? undefined,
-			type,
-		};
-
-		const schema = buildSchemaScript({
-			...config,
-			siteName: seoConfig.site.name,
-			siteUrl: seoConfig.site.url,
-		});
+		const seo = product?.seo;
+		const schema = buildYoastSchema(seo);
 
 		return {
-			meta: buildSeoMeta(config, seoConfig.site.url),
+			meta: buildYoastMeta(seo),
 			links: buildHreflangLinks(canonical, seoConfig.site.url),
 			scripts: schema ? [schema] : [],
 		};

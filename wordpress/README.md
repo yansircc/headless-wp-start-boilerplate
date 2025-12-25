@@ -24,6 +24,8 @@
 | [WPGraphQL](https://www.wpgraphql.com/) | GraphQL API |
 | [WPGraphQL for ACF](https://acf.wpgraphql.com/) | ACF 字段暴露到 GraphQL |
 | [Polylang](https://polylang.pro/) | 多语言内容管理 |
+| [Yoast SEO](https://yoast.com/wordpress/plugins/seo/) | SEO 管理 |
+| [WPGraphQL Yoast SEO](https://github.com/ashhitch/wp-graphql-yoast-seo) | Yoast SEO 暴露到 GraphQL |
 | **Headless Bridge** (本项目自带) | Polylang GraphQL 支持 + 不同语言共享相同 slug |
 
 > **注意**: Headless Bridge 已内置 WPGraphQL Polylang 和 Polylang Slug 的功能，无需单独安装这两个插件。
@@ -57,6 +59,58 @@
 1. 创建默认语言（EN）的文章
 2. 点击文章列表中的 `+` 图标创建其他语言版本
 3. Polylang Slug 插件会让所有语言版本共享相同 slug
+
+---
+
+## SEO 设置 (Yoast SEO)
+
+前端使用 Yoast SEO 管理动态内容的 SEO 数据。
+
+### 1. 安装插件
+
+安装 **Yoast SEO** 和 **WPGraphQL Yoast SEO** 插件。
+
+### 2. 全局设置
+
+**SEO → Settings** 配置：
+- Site basics（站点名称、标语）
+- Social profiles（社交媒体链接）
+- Content types（为每种内容类型设置 SEO 模板）
+
+### 3. 内容 SEO
+
+编辑文章/产品时，在 Yoast SEO 面板中设置：
+- **SEO title** - 页面标题
+- **Meta description** - 页面描述
+- **Social** - Open Graph 和 Twitter 卡片设置
+
+### 4. 与 Polylang 配合
+
+Yoast SEO 与 Polylang 有官方集成：
+- 每个语言版本有独立的 SEO 设置
+- sitemap 自动包含 hreflang 标签
+- 根据当前语言显示正确的 SEO 数据
+
+### 前端如何使用
+
+前端通过 GraphQL 查询 Yoast SEO 数据：
+
+```graphql
+query PostBySlug($slug: ID!) {
+  post(id: $slug, idType: SLUG) {
+    seo {
+      title
+      metaDesc
+      opengraphImage { sourceUrl }
+      schema { raw }
+    }
+  }
+}
+```
+
+- **动态内容**（文章、产品）: 使用 `buildYoastMeta()` 和 `buildYoastSchema()`
+- **静态页面**（首页、列表页）: 使用 `seo.config.ts`
+- **robots.txt / sitemap.xml**: 自动代理到 WordPress Yoast 生成的版本
 
 ---
 
@@ -136,8 +190,9 @@ WordPress 需要部署到公网（Cloudflare Workers 无法访问本地）。
 
 ### 部署检查清单
 
-- [ ] 安装所有必需插件
+- [ ] 安装所有必需插件（包括 Yoast SEO + WPGraphQL Yoast SEO）
 - [ ] 配置 Polylang 语言
+- [ ] 配置 Yoast SEO 全局设置
 - [ ] 安装并配置 Headless Bridge 插件
 - [ ] 测试 Webhook 连通性（点击 Test Webhook）
 - [ ] 触发 Full Sync 初始化 KV

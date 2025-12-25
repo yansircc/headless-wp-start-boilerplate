@@ -92,7 +92,9 @@ This document serves as the authoritative guide for AI developers working on thi
 | `src/lib/kv/client.ts` | Cloudflare KV read/write via Worker Binding |
 | `src/lib/kv/fetch.ts` | KV-first fetch with stale-while-revalidate |
 | `src/lib/kv/sync/` | KV sync logic (webhook → KV, modularized) |
-| `src/lib/seo/seo.config.ts` | SEO configuration (SSOT) |
+| `src/lib/seo/seo.config.ts` | SEO config for static pages |
+| `src/lib/seo/yoast.ts` | Yoast SEO utilities for dynamic content |
+| `src/graphql/seo/fragments.graphql` | Yoast SEO GraphQL fragments |
 | `src/lib/i18n/language.ts` | Language utilities (derived from GraphQL) |
 | `src/routes/api/webhook/revalidate.ts` | Webhook handler (invalidate + sync KV) |
 | `src/routes/api/kv/sync.ts` | Full KV sync endpoint |
@@ -123,13 +125,11 @@ bun sync
 # 1. Create the route file
 touch src/routes/about.tsx
 
-# 2. Run SEO validation to see what config is needed
-bun seo
-
-# 3. Copy the suggested config from output to seo.config.ts
+# 2. Add SEO config for the route
 vim src/lib/seo/seo.config.ts
+# Add entry in routes: { "/about": { title: "About", description: "..." } }
 
-# 4. Fill in title and description
+# 3. Use buildSeoMeta in the route's head() function
 ```
 
 ### Creating a New Content Type (Generic Pattern)
@@ -163,9 +163,8 @@ touch src/routes/{-$locale}/{type}s/\${type}Slug.tsx
 # 6. (Optional) Register KV sync for new type
 # See "Registering New Types for KV Sync" below
 
-# 7. Sync and validate
+# 7. Sync to generate types
 bun sync
-bun seo
 ```
 
 **Key Points:**
@@ -386,7 +385,6 @@ Response: {
 | `bun env:push` | Push .env.prod.local secrets to Cloudflare |
 | `bun sync` | Full sync: ACF → WordPress → GraphQL types → i18n config |
 | `bun checkall` | Run all pre-build checks |
-| `bun seo` | Validate SEO config and generate robots.txt/sitemap.xml |
 | `bun typecheck` | TypeScript type checking |
 | `bun lint` | Lint and format code |
 | `bun run test` | Run unit tests (Vitest) |
@@ -423,8 +421,6 @@ These files are auto-generated. Changes will be overwritten.
 ❌ src/graphql/_generated/*
 ❌ src/acf/definitions/*/_generated/*
 ❌ src/acf/compiled/*
-❌ public/robots.txt
-❌ public/sitemap.xml
 ❌ .intlayer/*
 ❌ intlayer.config.ts (auto-generated from WordPress Polylang)
 ```
@@ -451,21 +447,32 @@ fragment ProductFields on Product {
 }
 ```
 
-### SEO Config is Required
+### SEO Architecture
 
-Every static route must have SEO configuration:
-
+**Static pages** (homepage, listing pages): Use `seo.config.ts`
 ```typescript
 // src/lib/seo/seo.config.ts
 routes: {
-  "/about": {
-    title: "About Us",      // Required
-    description: "...",     // Required
-  },
+  "/about": { title: "About Us", description: "..." },
 }
+
+// In route head()
+import { buildSeoMeta, getRouteSeo } from "@/lib/seo";
+const { title, description } = getRouteSeo("/about");
+return { meta: buildSeoMeta({ title, description }, siteUrl) };
 ```
 
-Build will fail if SEO config is incomplete.
+**Dynamic content** (posts, products, taxonomies): Use Yoast SEO
+```typescript
+// GraphQL query includes seo field via ...YoastSeoFields fragment
+// In route head()
+import { buildYoastMeta, buildYoastSchema } from "@/lib/seo/yoast";
+return { meta: buildYoastMeta(post?.seo), scripts: [buildYoastSchema(post?.seo)] };
+```
+
+**robots.txt & sitemap.xml**: Proxied from WordPress Yoast SEO
+- `/robots.txt` → proxies from WordPress
+- `/sitemap.xml` → proxies from WordPress sitemap_index.xml
 
 ---
 
@@ -490,10 +497,9 @@ Key rules:
 Before committing:
 
 - [ ] Ran `bun sync` after ACF changes or WordPress language changes
-- [ ] Ran `bun seo` after adding routes
 - [ ] Ran `bun checkall` to verify all checks pass
 - [ ] Used generic cache keys (`cacheKeys.list()`, `cacheKeys.bySlug()`) for new content types
-- [ ] (Optional) Registered KV sync handlers if real-time sync needed for new types
+- [ ] Added `seo` field with `...YoastSeoFields` fragment for new content queries
 - [ ] Did NOT modify any `_generated`, `.intlayer`, or `intlayer.config.ts` files
 
 ---
@@ -516,8 +522,7 @@ src/
 │   ├── setup.ts      # Test environment setup
 │   └── utils.tsx     # Test utilities (renderWithProviders)
 ├── lib/
-│   ├── cache/index.test.ts     # Cache utility tests
-│   └── seo/*.test.ts           # SEO utility tests
+│   └── cache/index.test.ts     # Cache utility tests
 ├── acf/definitions/
 │   └── product/schema.test.ts  # Zod schema validation tests
 └── components/
