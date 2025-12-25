@@ -158,6 +158,9 @@ export const cacheKeys = {
 	// Homepage
 	homepage: (locale?: string) => cacheKeys.page("homepage", locale),
 
+	// Static Pages SEO (from Yoast Archive Settings, language-independent)
+	staticSeo: () => "seo:static-pages",
+
 	// Post Categories
 	categoriesList: (locale?: string) => cacheKeys.list("categories", locale),
 	categoryBySlug: (slug: string, locale?: string) =>

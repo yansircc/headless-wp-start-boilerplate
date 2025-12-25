@@ -143,3 +143,88 @@ export function buildYoastCanonical(
 	}
 	return { rel: "canonical", href: seo.canonical };
 }
+
+// ============================================
+// Archive SEO (for static pages like /posts, /products)
+// ============================================
+
+/**
+ * Archive SEO type from Yoast Content Types settings
+ */
+export type ArchiveSeo = {
+	title?: string | null;
+	metaDesc?: string | null;
+	metaRobotsNoindex?: boolean | null;
+	breadcrumbTitle?: string | null;
+	archiveLink?: string | null;
+	hasArchive?: boolean | null;
+} | null;
+
+/**
+ * Convert Yoast Archive SEO data to meta tags array
+ * Used for static pages like /posts, /products that use Yoast Content Type Archive settings
+ */
+export function buildYoastArchiveMeta(
+	archive: ArchiveSeo,
+	options?: {
+		defaultImage?: string | null;
+		siteUrl?: string;
+		canonical?: string;
+	}
+): MetaTag[] {
+	if (!archive) {
+		return [];
+	}
+
+	const meta: MetaTag[] = [];
+
+	// Title
+	if (archive.title) {
+		meta.push({ title: archive.title });
+	}
+
+	// Description
+	if (archive.metaDesc) {
+		meta.push({ name: "description", content: archive.metaDesc });
+	}
+
+	// Robots
+	if (archive.metaRobotsNoindex) {
+		meta.push({ name: "robots", content: "noindex" });
+	}
+
+	// Open Graph
+	meta.push({ property: "og:type", content: "website" });
+	if (archive.title) {
+		meta.push({ property: "og:title", content: archive.title });
+	}
+	if (archive.metaDesc) {
+		meta.push({ property: "og:description", content: archive.metaDesc });
+	}
+	if (options?.canonical && options?.siteUrl) {
+		meta.push({
+			property: "og:url",
+			content: `${options.siteUrl}${options.canonical}`,
+		});
+	}
+	if (options?.defaultImage) {
+		meta.push({ property: "og:image", content: options.defaultImage });
+	}
+
+	// Twitter
+	meta.push({
+		name: "twitter:card",
+		content: options?.defaultImage ? "summary_large_image" : "summary",
+	});
+	if (archive.title) {
+		meta.push({ name: "twitter:title", content: archive.title });
+	}
+	if (archive.metaDesc) {
+		meta.push({ name: "twitter:description", content: archive.metaDesc });
+	}
+	if (options?.defaultImage) {
+		meta.push({ name: "twitter:image", content: options.defaultImage });
+	}
+
+	return meta;
+}

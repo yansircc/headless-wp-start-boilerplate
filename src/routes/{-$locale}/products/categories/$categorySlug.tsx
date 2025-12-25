@@ -45,10 +45,10 @@ function RouteComponent() {
 				<Container size="md">
 					<LocalizedLink
 						className="group mb-8 inline-flex items-center gap-2 font-medium text-gray-500 text-sm hover:text-black"
-						to="/products/categories"
+						to="/products"
 					>
 						<ArrowLeft className="group-hover:-translate-x-1 h-4 w-4 transition-transform" />
-						All Categories
+						All Products
 					</LocalizedLink>
 					<h1 className="gradient-text font-bold text-5xl text-black tracking-tight">
 						{category.name}

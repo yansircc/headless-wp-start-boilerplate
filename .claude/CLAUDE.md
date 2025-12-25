@@ -92,9 +92,11 @@ This document serves as the authoritative guide for AI developers working on thi
 | `src/lib/kv/client.ts` | Cloudflare KV read/write via Worker Binding |
 | `src/lib/kv/fetch.ts` | KV-first fetch with stale-while-revalidate |
 | `src/lib/kv/sync/` | KV sync logic (webhook → KV, modularized) |
-| `src/lib/seo/seo.config.ts` | SEO config for static pages |
-| `src/lib/seo/yoast.ts` | Yoast SEO utilities for dynamic content |
+| `src/lib/seo/seo.config.ts` | Site-level SEO config (url, name, defaults) |
+| `src/lib/seo/yoast.ts` | Yoast SEO utilities (buildYoastMeta, buildYoastArchiveMeta) |
+| `src/lib/seo/static-pages.ts` | Static pages SEO from Yoast Archive Settings |
 | `src/graphql/seo/fragments.graphql` | Yoast SEO GraphQL fragments |
+| `src/graphql/seo/static-pages.graphql` | Static pages SEO query (Archive Settings) |
 | `src/lib/i18n/language.ts` | Language utilities (derived from GraphQL) |
 | `src/routes/api/webhook/revalidate.ts` | Webhook handler (invalidate + sync KV) |
 | `src/routes/api/kv/sync.ts` | Full KV sync endpoint |
@@ -449,17 +451,24 @@ fragment ProductFields on Product {
 
 ### SEO Architecture
 
-**Static pages** (homepage, listing pages): Use `seo.config.ts`
+**All SEO is managed via WordPress Yoast SEO.** No SEO data is stored in frontend code.
+
+**Static pages** (/, /posts, /products): Use Yoast Archive Settings
 ```typescript
-// src/lib/seo/seo.config.ts
-routes: {
-  "/about": { title: "About Us", description: "..." },
-}
+// In route loader - fetch SEO from Yoast Content Type Archive settings
+const [data, seoData] = await Promise.all([
+  getData({ data: { locale } }),
+  getStaticPagesSeo({ data: {} }),
+]);
+return { ...data, seo: seoData.data };
 
 // In route head()
-import { buildSeoMeta, getRouteSeo } from "@/lib/seo";
-const { title, description } = getRouteSeo("/about");
-return { meta: buildSeoMeta({ title, description }, siteUrl) };
+import { buildYoastArchiveMeta, getArchiveSeo, getDefaultOgImage, seoConfig } from "@/lib/seo";
+const archive = getArchiveSeo(loaderData?.seo, "post"); // or "product", "page"
+const defaultImage = getDefaultOgImage(loaderData?.seo);
+return {
+  meta: buildYoastArchiveMeta(archive, { defaultImage, siteUrl: seoConfig.site.url, canonical: "/posts" }),
+};
 ```
 
 **Dynamic content** (posts, products, taxonomies): Use Yoast SEO
@@ -469,6 +478,24 @@ return { meta: buildSeoMeta({ title, description }, siteUrl) };
 import { buildYoastMeta, buildYoastSchema } from "@/lib/seo/yoast";
 return { meta: buildYoastMeta(post?.seo), scripts: [buildYoastSchema(post?.seo)] };
 ```
+
+**Category list pages** (/posts/categories, /products/categories): Redirect to parent
+```typescript
+// These pages have no WordPress equivalent, so they redirect
+export const Route = createFileRoute("/{-$locale}/posts/categories/")({
+  beforeLoad: ({ params }) => {
+    throw redirect({ to: params.locale ? `/${params.locale}/posts` : "/posts" });
+  },
+});
+```
+
+**Yoast Settings Locations:**
+| Page | Yoast Setting Path |
+|------|-------------------|
+| Homepage `/` | SEO → Settings → Content types → Homepage |
+| Posts `/posts` | SEO → Settings → Content types → Posts → Archive |
+| Products `/products` | SEO → Settings → Content types → Products → Archive |
+| Single Category | Posts → Categories → Edit → Yoast SEO panel |
 
 **robots.txt & sitemap.xml**: Proxied from WordPress Yoast SEO
 - `/robots.txt` → proxies from WordPress

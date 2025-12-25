@@ -1,0 +1,42 @@
+# Static Pages SEO Query
+# Fetches SEO data for archive pages (posts, products) from Yoast Settings
+# Used for: /, /posts, /products
+
+query StaticPagesSeo {
+	seo {
+		contentTypes {
+			post {
+				archive {
+					title
+					metaDesc
+					metaRobotsNoindex
+					breadcrumbTitle
+					archiveLink
+					hasArchive
+				}
+			}
+			product {
+				archive {
+					title
+					metaDesc
+					metaRobotsNoindex
+					breadcrumbTitle
+					archiveLink
+					hasArchive
+				}
+			}
+			page {
+				archive {
+					title
+					metaDesc
+					metaRobotsNoindex
+				}
+			}
+		}
+		openGraph {
+			defaultImage {
+				sourceUrl
+			}
+		}
+	}
+}

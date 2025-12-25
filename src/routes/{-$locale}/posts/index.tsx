@@ -4,8 +4,10 @@ import { Container, Section } from "@/components/shared";
 import type { PostFieldsFragment } from "@/graphql/types";
 import {
 	buildHreflangLinks,
-	buildSeoMeta,
-	getRouteSeo,
+	buildYoastArchiveMeta,
+	getArchiveSeo,
+	getDefaultOgImage,
+	getStaticPagesSeo,
 	seoConfig,
 } from "@/lib/seo";
 import { PostCard } from "./-components/post-card";
@@ -13,28 +15,30 @@ import { getPosts } from "./-services";
 
 export const Route = createFileRoute("/{-$locale}/posts/")({
 	component: RouteComponent,
-	loader: ({ params }) => {
+	loader: async ({ params }) => {
 		const locale = params.locale;
-		return getPosts({ data: { locale } });
+		const [posts, seoData] = await Promise.all([
+			getPosts({ data: { locale } }),
+			getStaticPagesSeo({ data: {} }),
+		]);
+		return { posts, seo: seoData.data };
 	},
-	head: () => {
-		const { title, description } = getRouteSeo("/posts");
+	head: ({ loaderData }) => {
+		const archive = getArchiveSeo(loaderData?.seo, "post");
+		const defaultImage = getDefaultOgImage(loaderData?.seo);
 		return {
-			meta: buildSeoMeta(
-				{
-					title,
-					description,
-					canonical: "/posts",
-				},
-				seoConfig.site.url
-			),
+			meta: buildYoastArchiveMeta(archive, {
+				defaultImage,
+				siteUrl: seoConfig.site.url,
+				canonical: "/posts",
+			}),
 			links: buildHreflangLinks("/posts", seoConfig.site.url),
 		};
 	},
 });
 
 function RouteComponent() {
-	const posts = Route.useLoaderData();
+	const { posts } = Route.useLoaderData();
 	const { sections } = useIntlayer("common");
 
 	return (

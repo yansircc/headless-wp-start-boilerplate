@@ -4,8 +4,10 @@ import { Container, Section } from "@/components/shared";
 import type { ProductFieldsFragment } from "@/graphql/types";
 import {
 	buildHreflangLinks,
-	buildSeoMeta,
-	getRouteSeo,
+	buildYoastArchiveMeta,
+	getArchiveSeo,
+	getDefaultOgImage,
+	getStaticPagesSeo,
 	seoConfig,
 } from "@/lib/seo";
 import { ProductCard } from "./-components/product-card";
@@ -13,28 +15,30 @@ import { getProducts } from "./-services";
 
 export const Route = createFileRoute("/{-$locale}/products/")({
 	component: RouteComponent,
-	loader: ({ params }) => {
+	loader: async ({ params }) => {
 		const locale = params.locale;
-		return getProducts({ data: { locale } });
+		const [products, seoData] = await Promise.all([
+			getProducts({ data: { locale } }),
+			getStaticPagesSeo({ data: {} }),
+		]);
+		return { products, seo: seoData.data };
 	},
-	head: () => {
-		const { title, description } = getRouteSeo("/products");
+	head: ({ loaderData }) => {
+		const archive = getArchiveSeo(loaderData?.seo, "product");
+		const defaultImage = getDefaultOgImage(loaderData?.seo);
 		return {
-			meta: buildSeoMeta(
-				{
-					title,
-					description,
-					canonical: "/products",
-				},
-				seoConfig.site.url
-			),
+			meta: buildYoastArchiveMeta(archive, {
+				defaultImage,
+				siteUrl: seoConfig.site.url,
+				canonical: "/products",
+			}),
 			links: buildHreflangLinks("/products", seoConfig.site.url),
 		};
 	},
 });
 
 function RouteComponent() {
-	const products = Route.useLoaderData();
+	const { products } = Route.useLoaderData();
 	const { sections } = useIntlayer("common");
 
 	return (

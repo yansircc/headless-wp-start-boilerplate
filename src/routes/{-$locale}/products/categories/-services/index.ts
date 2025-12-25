@@ -1,52 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { QUERY_LIMITS } from "@/graphql/constants";
 import {
-	ProductCategoriesListDocument,
 	ProductCategoryBySlugDocument,
 	ProductsByCategoryDocument,
 } from "@/graphql/taxonomies/queries.generated";
 import { cacheKeys } from "@/lib/cache";
 import { graphqlRequest } from "@/lib/graphql";
-import { toLanguageCode, toLanguageFilter } from "@/lib/i18n/language";
+import { toLanguageCode } from "@/lib/i18n/language";
 import { kvFirstFetch } from "@/lib/kv";
-
-type GetProductCategoriesInput = {
-	locale?: string;
-};
-
-async function fetchProductCategories(locale?: string) {
-	const language = toLanguageFilter(locale);
-	const data = await graphqlRequest(ProductCategoriesListDocument, {
-		first: QUERY_LIMITS.list.productCategories,
-		language,
-	});
-	return data.productCategories;
-}
-
-/**
- * Get all product categories
- */
-export const getProductCategories = createServerFn({
-	method: "GET",
-})
-	.inputValidator((input: GetProductCategoriesInput) => input)
-	.handler(async ({ data }) => {
-		const { locale } = data;
-		const cacheKey = cacheKeys.productCategoriesList(locale);
-
-		const result = await kvFirstFetch(cacheKey, () =>
-			fetchProductCategories(locale)
-		);
-
-		return {
-			...result.data,
-			_meta: {
-				isStale: result.isStale,
-				age: result.age,
-				source: result.source,
-			},
-		};
-	});
 
 type GetProductCategoryBySlugInput = {
 	slug: string;

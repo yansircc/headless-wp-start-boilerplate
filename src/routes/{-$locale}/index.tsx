@@ -9,8 +9,10 @@ import type {
 } from "@/graphql/types";
 import {
 	buildHreflangLinks,
-	buildSeoMeta,
-	getRouteSeo,
+	buildYoastArchiveMeta,
+	getArchiveSeo,
+	getDefaultOgImage,
+	getStaticPagesSeo,
 	seoConfig,
 } from "@/lib/seo";
 import { getHomepageData } from "../-services";
@@ -19,22 +21,23 @@ import { ProductCard } from "./products/-components/product-card";
 
 export const Route = createFileRoute("/{-$locale}/")({
 	component: Homepage,
-	loader: ({ params }) => {
+	loader: async ({ params }) => {
 		const locale = params.locale;
-		return getHomepageData({ data: { locale } });
+		const [homepageData, seoData] = await Promise.all([
+			getHomepageData({ data: { locale } }),
+			getStaticPagesSeo({ data: {} }),
+		]);
+		return { ...homepageData, seo: seoData.data };
 	},
-	head: () => {
-		const { title, description } = getRouteSeo("/");
+	head: ({ loaderData }) => {
+		const archive = getArchiveSeo(loaderData?.seo, "page");
+		const defaultImage = getDefaultOgImage(loaderData?.seo);
 		return {
-			meta: buildSeoMeta(
-				{
-					title,
-					description,
-					canonical: "/",
-					image: seoConfig.defaults.image,
-				},
-				seoConfig.site.url
-			),
+			meta: buildYoastArchiveMeta(archive, {
+				defaultImage,
+				siteUrl: seoConfig.site.url,
+				canonical: "/",
+			}),
 			links: buildHreflangLinks("/", seoConfig.site.url),
 		};
 	},
