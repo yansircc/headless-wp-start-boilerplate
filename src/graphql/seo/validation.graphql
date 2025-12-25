@@ -1,0 +1,46 @@
+# SEO Validation Query
+# Used by `bun checkall` to verify SEO configuration completeness
+# This query fetches all SEO settings needed for validation
+
+query SeoValidation {
+	seo {
+		# Content Types Archive SEO
+		contentTypes {
+			post {
+				archive {
+					title
+					metaDesc
+					metaRobotsNoindex
+					hasArchive
+					archiveLink
+				}
+			}
+			product {
+				archive {
+					title
+					metaDesc
+					metaRobotsNoindex
+					hasArchive
+					archiveLink
+				}
+			}
+			page {
+				archive {
+					title
+					metaDesc
+				}
+			}
+		}
+
+		# Global SEO Config
+		openGraph {
+			defaultImage {
+				sourceUrl
+			}
+		}
+		schema {
+			siteName
+			siteUrl
+		}
+	}
+}

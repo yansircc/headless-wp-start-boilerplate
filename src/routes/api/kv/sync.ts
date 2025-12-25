@@ -51,6 +51,9 @@ export const Route = createFileRoute("/api/kv/sync")({
 					errors: [],
 				};
 
+				// Sync static pages SEO (language-independent, sync once)
+				await syncStaticPagesSeo(result);
+
 				// Sync for each locale
 				for (const locale of supportedLocales) {
 					await syncLocale(locale, result);
@@ -136,5 +139,28 @@ async function syncLocale(locale: string, result: SyncResult): Promise<void> {
 		}
 	} catch (e) {
 		result.errors.push(`products:list:${locale}: ${e}`);
+	}
+}
+
+/**
+ * Sync static pages SEO (language-independent)
+ * This data comes from Yoast Archive Settings and is shared across all locales
+ */
+async function syncStaticPagesSeo(result: SyncResult): Promise<void> {
+	const { StaticPagesSeoDocument } = await import(
+		"@/graphql/seo/static-pages.generated"
+	);
+
+	try {
+		const data = await graphqlRequest(StaticPagesSeoDocument);
+
+		const key = cacheKeys.staticSeo();
+		if (await kvPut(key, data.seo)) {
+			result.synced.push(key);
+		} else {
+			result.errors.push(`Failed: ${key}`);
+		}
+	} catch (e) {
+		result.errors.push(`seo:static-pages: ${e}`);
 	}
 }

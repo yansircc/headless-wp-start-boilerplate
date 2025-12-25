@@ -12,6 +12,7 @@ import {
 	handleTaxonomyUpdate,
 	handleUpdate,
 	updateHomepage,
+	updateStaticPagesSeo,
 } from "./handlers";
 import {
 	isTaxonomy,
@@ -76,8 +77,9 @@ export async function syncToKV(payload: {
 		// Unknown post type - log warning but don't fail
 		console.warn(`[KV Sync] Unknown post_type: ${post_type}. Skipping sync.`);
 		result.errors.push(`Unknown post_type: ${post_type}`);
-		// Still update homepage as it may contain mixed content
+		// Still update homepage and static SEO as they may be affected
 		await updateHomepage(locale, result);
+		await updateStaticPagesSeo(result);
 		result.success = result.errors.length === 0;
 		return result;
 	}

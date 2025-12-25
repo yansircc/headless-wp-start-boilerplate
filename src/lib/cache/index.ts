@@ -287,6 +287,13 @@ export function invalidateByWebhook(payload: {
 	// Always invalidate homepage (contains mixed content)
 	invalidated.push(...allKeys.filter((k) => k.startsWith("homepage:data")));
 
+	// Always invalidate static pages SEO (Yoast settings are global)
+	// This ensures any Yoast settings change is reflected across all pages
+	const staticSeoKey = cacheKeys.staticSeo();
+	if (allKeys.includes(staticSeoKey)) {
+		invalidated.push(staticSeoKey);
+	}
+
 	// Delete all targeted keys (deduplicated)
 	const uniqueKeys = [...new Set(invalidated)];
 	for (const key of uniqueKeys) {
