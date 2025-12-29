@@ -4,6 +4,8 @@
  * Exports all available checks for checkall.ts
  */
 
+// Fonts validation check
+export { runFontsValidationCheck } from "./fonts-validation";
 // Generated files checks
 export {
 	runGeneratedFilesExistCheck,

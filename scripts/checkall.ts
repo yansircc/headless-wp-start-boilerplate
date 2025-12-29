@@ -11,10 +11,12 @@
  * Environment:
  *   SKIP_SEO_CHECK=1      Skip SEO validation (for CI without WordPress)
  *   SKIP_SITEMAP_CHECK=1  Skip sitemap URL validation
+ *   SKIP_FONTS_CHECK=1    Skip font files validation
  */
 
 import {
 	type CheckResult,
+	runFontsValidationCheck,
 	runFragmentUsageCheck,
 	runGeneratedFilesExistCheck,
 	runGeneratedFilesNotModifiedCheck,
@@ -38,6 +40,9 @@ async function main() {
 	results.push(runGeneratedFilesExistCheck());
 	results.push(runFragmentUsageCheck());
 	results.push(runI18nCheck());
+
+	// Run fonts validation check
+	results.push(runFontsValidationCheck());
 
 	// Run SEO validation checks
 	const seoResult = await runSeoValidationChecks();

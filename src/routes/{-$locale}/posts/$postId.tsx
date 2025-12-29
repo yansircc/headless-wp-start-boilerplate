@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { ArticleSkeleton } from "@/components/loading";
 import { LocalizedLink } from "@/components/localized-link";
 import { ResourceNotFound } from "@/components/not-found";
+import { OptimizedImage } from "@/components/optimized-image";
 import { Container, Section } from "@/components/shared";
 import type { PostCategory, PostTag } from "@/graphql/types";
 import { buildHreflangLinks, seoConfig } from "@/lib/seo";
@@ -84,12 +85,12 @@ function RouteComponent() {
 									<div className="flex items-center gap-3">
 										{!!post.author.node.avatar?.url && (
 											<div className="h-10 w-10 overflow-hidden rounded-full border border-gray-100 shadow-sm">
-												<img
+												<OptimizedImage
 													alt={post.author.node.name || "Author"}
 													className="h-full w-full object-cover"
-													height="40"
-													src={post.author.node.avatar.url || undefined}
-													width="40"
+													height={40}
+													src={post.author.node.avatar.url}
+													width={40}
 												/>
 											</div>
 										)}
@@ -129,16 +130,18 @@ function RouteComponent() {
 				<Section className="-mt-12 relative z-10 mb-12 py-0">
 					<Container size="lg">
 						<div className="aspect-video overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-2xl">
-							<img
+							<OptimizedImage
 								alt={
 									post.featuredImage.node.altText ||
 									post.title ||
 									"Featured image"
 								}
 								className="h-full w-full object-cover"
-								height="720"
-								src={post.featuredImage.node.sourceUrl || undefined}
-								width="1280"
+								height={720}
+								priority
+								sizes="(max-width: 1024px) 100vw, 1024px"
+								src={post.featuredImage.node.sourceUrl}
+								width={1280}
 							/>
 						</div>
 					</Container>

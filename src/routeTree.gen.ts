@@ -18,6 +18,7 @@ import { Route as PostSitemapDotxmlRouteImport } from './routes/post-sitemap[.]x
 import { Route as PageSitemapDotxmlRouteImport } from './routes/page-sitemap[.]xml'
 import { Route as CategorySitemapDotxmlRouteImport } from './routes/category-sitemap[.]xml'
 import { Route as Char123LocaleChar125IndexRouteImport } from './routes/{-$locale}/index'
+import { Route as ApiImageRouteImport } from './routes/api/image'
 import { Route as Char123LocaleChar125ProductsIndexRouteImport } from './routes/{-$locale}/products/index'
 import { Route as Char123LocaleChar125PostsIndexRouteImport } from './routes/{-$locale}/posts/index'
 import { Route as Char123LocaleChar125ProductsProductIdRouteImport } from './routes/{-$locale}/products/$productId'
@@ -77,6 +78,11 @@ const Char123LocaleChar125IndexRoute =
     path: '/{-$locale}/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiImageRoute = ApiImageRouteImport.update({
+  id: '/api/image',
+  path: '/api/image',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Char123LocaleChar125ProductsIndexRoute =
   Char123LocaleChar125ProductsIndexRouteImport.update({
     id: '/{-$locale}/products/',
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sitemap.xsl': typeof SitemapDotxslRoute
+  '/api/image': typeof ApiImageRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sitemap.xsl': typeof SitemapDotxslRoute
+  '/api/image': typeof ApiImageRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sitemap.xsl': typeof SitemapDotxslRoute
+  '/api/image': typeof ApiImageRoute
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/api/kv/sync': typeof ApiKvSyncRoute
   '/api/webhook/revalidate': typeof ApiWebhookRevalidateRoute
@@ -220,6 +229,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/sitemap.xsl'
+    | '/api/image'
     | '/{-$locale}'
     | '/api/kv/sync'
     | '/api/webhook/revalidate'
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/sitemap.xsl'
+    | '/api/image'
     | '/{-$locale}'
     | '/api/kv/sync'
     | '/api/webhook/revalidate'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/sitemap.xsl'
+    | '/api/image'
     | '/{-$locale}/'
     | '/api/kv/sync'
     | '/api/webhook/revalidate'
@@ -287,6 +299,7 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SitemapDotxslRoute: typeof SitemapDotxslRoute
+  ApiImageRoute: typeof ApiImageRoute
   Char123LocaleChar125IndexRoute: typeof Char123LocaleChar125IndexRoute
   ApiKvSyncRoute: typeof ApiKvSyncRoute
   ApiWebhookRevalidateRoute: typeof ApiWebhookRevalidateRoute
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/{-$locale}'
       fullPath: '/{-$locale}'
       preLoaderRoute: typeof Char123LocaleChar125IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/image': {
+      id: '/api/image'
+      path: '/api/image'
+      fullPath: '/api/image'
+      preLoaderRoute: typeof ApiImageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/{-$locale}/products/': {
@@ -455,6 +475,7 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SitemapDotxslRoute: SitemapDotxslRoute,
+  ApiImageRoute: ApiImageRoute,
   Char123LocaleChar125IndexRoute: Char123LocaleChar125IndexRoute,
   ApiKvSyncRoute: ApiKvSyncRoute,
   ApiWebhookRevalidateRoute: ApiWebhookRevalidateRoute,

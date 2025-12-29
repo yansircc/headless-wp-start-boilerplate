@@ -8,6 +8,7 @@
 - **类型安全** - ACF 字段定义自动生成 GraphQL Fragment + TypeScript 类型
 - **高可用** - KV-first 架构，WordPress 宕机时仍可正常访问
 - **i18n 就绪** - Intlayer + Polylang，URL 路由模式 (`/`, `/zh/`, `/ja/`)，SEO 友好
+- **性能优化** - 自托管字体 + Cloudflare Image Resizing，Core Web Vitals 友好
 
 ## 快速开始
 
@@ -59,6 +60,7 @@ bun dev
 ✅ No manual modifications to generated files
 ✅ All GraphQL queries use auto-generated fragments
 ✅ i18n configuration is valid
+✅ Font files exist and match configuration
 ✅ Sitemap URLs won't 404 after transformation
 ```
 
@@ -90,6 +92,7 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 | `bun run build` | 构建（自动检查） |
 | `bun run deploy` | 构建 + 部署到 Cloudflare Workers |
 | `bun sync` | ACF 字段同步 + 类型生成 |
+| `bun fonts:sync` | 下载字体 + 生成 CSS |
 | `bun checkall` | 运行所有预构建检查 |
 | `bun run test` | 运行单元测试 |
 
@@ -109,8 +112,9 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 |------|----------|------|
 | **Workers** | 10万次/天 | 足够中小型站点 |
 | **KV** | 10万次读/天，1000次写/天 | 写入主要来自 webhook |
+| **Image Resizing** | Pro 计划起 | 图片自动转 AVIF/WebP，按需调整尺寸 |
 
-> 对于大多数项目，**免费套餐完全够用**。超出后按量计费，非常便宜。
+> 对于大多数项目，**免费套餐完全够用**。图片优化需要 Pro 计划（$20/月），但在开发环境会自动回退到原始图片。
 
 ### 部署步骤
 

@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { ProductSkeleton } from "@/components/loading";
 import { LocalizedLink } from "@/components/localized-link";
 import { ResourceNotFound } from "@/components/not-found";
+import { OptimizedImage } from "@/components/optimized-image";
 import { Container, Divider, Section } from "@/components/shared";
 import { buildHreflangLinks, seoConfig } from "@/lib/seo";
 import { buildYoastMeta, buildYoastSchema } from "@/lib/seo/yoast";
@@ -71,16 +72,18 @@ function RouteComponent() {
 						<div className="sticky top-32">
 							{product.featuredImage?.node?.sourceUrl ? (
 								<div className="aspect-square overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl transition-all hover:shadow-2xl">
-									<img
+									<OptimizedImage
 										alt={
 											product.featuredImage.node.altText ||
 											product.title ||
 											"Product image"
 										}
 										className="h-full w-full object-cover transition-transform duration-700 hover:scale-110"
-										height="800"
-										src={product.featuredImage.node.sourceUrl || undefined}
-										width="800"
+										height={600}
+										priority
+										sizes="(max-width: 1024px) 100vw, 50vw"
+										src={product.featuredImage.node.sourceUrl}
+										width={600}
 									/>
 								</div>
 							) : (

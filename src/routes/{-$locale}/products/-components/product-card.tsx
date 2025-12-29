@@ -1,4 +1,5 @@
 import { LocalizedLink } from "@/components/localized-link";
+import { OptimizedImage } from "@/components/optimized-image";
 import type { ProductCardProps } from "../-types";
 
 export function ProductCard({
@@ -15,12 +16,13 @@ export function ProductCard({
 			<article className="hover:-translate-y-2 h-full overflow-hidden rounded-3xl border border-gray-100 bg-white transition-all hover:shadow-2xl">
 				{!!featuredImage?.node && (
 					<div className="aspect-square overflow-hidden bg-gray-50">
-						<img
+						<OptimizedImage
 							alt={featuredImage.node.altText || title || ""}
 							className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-							height="600"
-							src={featuredImage.node.sourceUrl || ""}
-							width="800"
+							height={400}
+							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+							src={featuredImage.node.sourceUrl}
+							width={400}
 						/>
 					</div>
 				)}

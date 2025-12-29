@@ -12,6 +12,7 @@ import { GlobalError } from "../components/error-boundary";
 import Header from "../components/header";
 import { NotFoundPage } from "../components/not-found";
 import { StaleBanner } from "../components/stale-banner";
+import { getFontPreloadLinks } from "../lib/fonts";
 import { seoConfig } from "../lib/seo";
 import { StaleIndicatorProvider } from "../lib/stale-indicator/context";
 import appCss from "../styles.css?url";
@@ -48,6 +49,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			},
 		],
 		links: [
+			// Preload fonts before stylesheet for better LCP
+			...getFontPreloadLinks(),
 			{
 				rel: "stylesheet",
 				href: appCss,

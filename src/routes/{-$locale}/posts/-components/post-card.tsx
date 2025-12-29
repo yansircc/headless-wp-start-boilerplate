@@ -1,4 +1,5 @@
 import { LocalizedLink } from "@/components/localized-link";
+import { OptimizedImage } from "@/components/optimized-image";
 import type { PostCardProps } from "../-types";
 
 export function PostCard({
@@ -21,12 +22,13 @@ export function PostCard({
 			<article className="hover:-translate-y-1 flex flex-col gap-6 rounded-3xl p-4 transition-all hover:bg-white hover:shadow-xl md:flex-row">
 				{!!featuredImage?.node && (
 					<div className="h-32 shrink-0 overflow-hidden rounded-2xl bg-gray-100 md:w-48">
-						<img
+						<OptimizedImage
 							alt={featuredImage.node.altText || title || ""}
 							className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-							height="400"
-							src={featuredImage.node.sourceUrl || ""}
-							width="600"
+							height={128}
+							sizes="(max-width: 768px) 100vw, 192px"
+							src={featuredImage.node.sourceUrl}
+							width={192}
 						/>
 					</div>
 				)}
