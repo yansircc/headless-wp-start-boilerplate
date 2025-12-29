@@ -10,10 +10,10 @@ import type {
 	ProductFieldsFragment,
 } from "@/graphql/types";
 import {
+	buildHomepageMeta,
 	buildHreflangLinks,
-	buildYoastArchiveMeta,
-	getArchiveSeo,
 	getDefaultOgImage,
+	getHomepageSeo,
 	getStaticPagesSeo,
 	seoConfig,
 } from "@/lib/seo";
@@ -32,13 +32,12 @@ export const Route = createFileRoute("/{-$locale}/")({
 		return { ...homepageData, seo: seoData.data };
 	},
 	head: ({ loaderData }) => {
-		const archive = getArchiveSeo(loaderData?.seo, "page");
+		const homepageSeo = getHomepageSeo(loaderData?.seo);
 		const defaultImage = getDefaultOgImage(loaderData?.seo);
 		return {
-			meta: buildYoastArchiveMeta(archive, {
+			meta: buildHomepageMeta(homepageSeo, {
 				defaultImage,
 				siteUrl: seoConfig.site.url,
-				canonical: "/",
 			}),
 			links: buildHreflangLinks("/", seoConfig.site.url),
 		};
@@ -87,11 +86,11 @@ function Homepage() {
 				</Container>
 			</Section>
 
-			{/* Main Content */}
-			<Section>
-				<Container>
-					<div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-						{/* Articles Section */}
+			{/* Content Sections */}
+			<Section className="pb-32">
+				<Container size="lg">
+					<div className="grid gap-24 md:grid-cols-2">
+						{/* Posts Section */}
 						<section>
 							<div className="mb-6 flex items-end justify-between">
 								<div>

@@ -60,12 +60,42 @@ export const getStaticPagesSeo = createServerFn({
  */
 export function getArchiveSeo(
 	staticSeo: StaticPagesSeo | null | undefined,
-	contentType: "post" | "product" | "page"
+	contentType: "post" | "product"
 ): ArchiveSeoData | null {
 	if (!staticSeo?.contentTypes) {
 		return null;
 	}
 	return staticSeo.contentTypes[contentType]?.archive ?? null;
+}
+
+/**
+ * Homepage SEO data type
+ */
+export type HomepageSeoData = {
+	title?: string | null;
+	description?: string | null;
+	ogTitle?: string | null;
+	ogDescription?: string | null;
+	ogImage?: string | null;
+} | null;
+
+/**
+ * Helper to get homepage SEO from Yoast settings
+ * Uses seo.meta.homepage and seo.openGraph.frontPage
+ */
+export function getHomepageSeo(
+	staticSeo: StaticPagesSeo | null | undefined
+): HomepageSeoData {
+	if (!staticSeo) {
+		return null;
+	}
+	return {
+		title: staticSeo.meta?.homepage?.title ?? null,
+		description: staticSeo.meta?.homepage?.description ?? null,
+		ogTitle: staticSeo.openGraph?.frontPage?.title ?? null,
+		ogDescription: staticSeo.openGraph?.frontPage?.description ?? null,
+		ogImage: staticSeo.openGraph?.frontPage?.image?.sourceUrl ?? null,
+	};
 }
 
 /**

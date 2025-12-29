@@ -16,7 +16,9 @@ export {
 	type ArchiveSeoData,
 	getArchiveSeo,
 	getDefaultOgImage,
+	getHomepageSeo,
 	getStaticPagesSeo,
+	type HomepageSeoData,
 	type StaticPagesSeo,
 } from "./static-pages";
 // Types
@@ -24,6 +26,7 @@ export type { MetaTag } from "./types";
 // Yoast SEO utilities
 export {
 	type ArchiveSeo,
+	buildHomepageMeta,
 	buildYoastArchiveMeta,
 	buildYoastCanonical,
 	buildYoastMeta,

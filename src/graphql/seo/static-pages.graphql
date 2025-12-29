@@ -1,9 +1,17 @@
 # Static Pages SEO Query
-# Fetches SEO data for archive pages (posts, products) from Yoast Settings
+# Fetches SEO data for homepage and archive pages from Yoast Settings
 # Used for: /, /posts, /products
 
 query StaticPagesSeo {
 	seo {
+		# Homepage SEO (Yoast → Settings → Content Types → Homepage)
+		meta {
+			homepage {
+				title
+				description
+			}
+		}
+		# Archive SEO for content types
 		contentTypes {
 			post {
 				archive {
@@ -25,17 +33,18 @@ query StaticPagesSeo {
 					hasArchive
 				}
 			}
-			page {
-				archive {
-					title
-					metaDesc
-					metaRobotsNoindex
-				}
-			}
 		}
 		openGraph {
 			defaultImage {
 				sourceUrl
+			}
+			# Homepage Open Graph
+			frontPage {
+				title
+				description
+				image {
+					sourceUrl
+				}
 			}
 		}
 	}

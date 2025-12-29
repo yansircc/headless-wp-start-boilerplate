@@ -8,6 +8,7 @@ import type {
 	YoastSeoFieldsFragment,
 	YoastTaxonomySeoFieldsFragment,
 } from "@/graphql/seo/fragments.generated";
+import type { HomepageSeoData } from "./static-pages";
 import type { MetaTag } from "./types";
 
 type YoastSeo =
@@ -142,6 +143,93 @@ export function buildYoastCanonical(
 		return null;
 	}
 	return { rel: "canonical", href: seo.canonical };
+}
+
+// ============================================
+// Homepage SEO (from Yoast Settings → Content Types → Homepage)
+// ============================================
+
+function buildHomepageBasicMeta(
+	homepage: NonNullable<HomepageSeoData>
+): MetaTag[] {
+	const meta: MetaTag[] = [];
+	if (homepage.title) {
+		meta.push({ title: homepage.title });
+	}
+	if (homepage.description) {
+		meta.push({ name: "description", content: homepage.description });
+	}
+	return meta;
+}
+
+function buildHomepageOpenGraphMeta(
+	homepage: NonNullable<HomepageSeoData>,
+	options?: { defaultImage?: string | null; siteUrl?: string }
+): MetaTag[] {
+	const meta: MetaTag[] = [{ property: "og:type", content: "website" }];
+	const title = homepage.ogTitle || homepage.title;
+	const description = homepage.ogDescription || homepage.description;
+	const image = homepage.ogImage || options?.defaultImage;
+
+	if (title) {
+		meta.push({ property: "og:title", content: title });
+	}
+	if (description) {
+		meta.push({ property: "og:description", content: description });
+	}
+	if (options?.siteUrl) {
+		meta.push({ property: "og:url", content: options.siteUrl });
+	}
+	if (image) {
+		meta.push({ property: "og:image", content: image });
+	}
+
+	return meta;
+}
+
+function buildHomepageTwitterMeta(
+	homepage: NonNullable<HomepageSeoData>,
+	options?: { defaultImage?: string | null }
+): MetaTag[] {
+	const title = homepage.ogTitle || homepage.title;
+	const description = homepage.ogDescription || homepage.description;
+	const image = homepage.ogImage || options?.defaultImage;
+
+	const meta: MetaTag[] = [
+		{
+			name: "twitter:card",
+			content: image ? "summary_large_image" : "summary",
+		},
+	];
+	if (title) {
+		meta.push({ name: "twitter:title", content: title });
+	}
+	if (description) {
+		meta.push({ name: "twitter:description", content: description });
+	}
+	if (image) {
+		meta.push({ name: "twitter:image", content: image });
+	}
+
+	return meta;
+}
+
+/**
+ * Convert Yoast Homepage SEO data to meta tags array
+ * Used for the homepage (/) route
+ */
+export function buildHomepageMeta(
+	homepage: HomepageSeoData,
+	options?: { defaultImage?: string | null; siteUrl?: string }
+): MetaTag[] {
+	if (!homepage) {
+		return [];
+	}
+	return [
+		...buildHomepageBasicMeta(homepage),
+		...buildHomepageOpenGraphMeta(homepage, options),
+		...buildHomepageTwitterMeta(homepage, options),
+	];
 }
 
 // ============================================
