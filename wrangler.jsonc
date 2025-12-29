@@ -12,5 +12,11 @@
       "binding": "FALLBACK_KV",
       "id": "db676979c1f74f2b915f25982b3da571"
     }
+  ],
+  "routes": [
+    {
+      "pattern": "headless-demo.xunpanziyou.com/*",
+      "zone_name": "xunpanziyou.com"
+    }
   ]
 }

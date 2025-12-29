@@ -4,7 +4,10 @@ import { ProductSkeleton } from "@/components/loading";
 import { LocalizedLink } from "@/components/localized-link";
 import { ResourceNotFound } from "@/components/not-found";
 import { OptimizedImage } from "@/components/optimized-image";
-import { Container, Divider, Section } from "@/components/shared";
+import { Container, Section } from "@/components/shared";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { buildHreflangLinks, seoConfig } from "@/lib/seo";
 import { buildYoastMeta, buildYoastSchema } from "@/lib/seo/yoast";
 import { getProductBySlug } from "./-services";
@@ -54,13 +57,12 @@ function RouteComponent() {
 			{/* Back Button */}
 			<Section className="pt-16 pb-8">
 				<Container size="lg">
-					<LocalizedLink
-						className="group inline-flex items-center gap-2 font-medium text-gray-500 text-sm transition-all hover:text-black"
-						to="/products"
-					>
-						<ArrowLeft className="group-hover:-translate-x-1 h-4 w-4 transition-transform" />
-						Back to Products
-					</LocalizedLink>
+					<Button asChild className="gap-2" size="sm" variant="ghost">
+						<LocalizedLink to="/products">
+							<ArrowLeft className="h-4 w-4" />
+							Back to Products
+						</LocalizedLink>
+					</Button>
 				</Container>
 			</Section>
 
@@ -71,7 +73,7 @@ function RouteComponent() {
 						{/* Product Image */}
 						<div className="sticky top-32">
 							{product.featuredImage?.node?.sourceUrl ? (
-								<div className="aspect-square overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl transition-all hover:shadow-2xl">
+								<div className="aspect-square overflow-hidden rounded-3xl border border-border bg-card shadow-xl transition-all hover:shadow-2xl">
 									<OptimizedImage
 										alt={
 											product.featuredImage.node.altText ||
@@ -87,8 +89,8 @@ function RouteComponent() {
 									/>
 								</div>
 							) : (
-								<div className="flex aspect-square items-center justify-center rounded-3xl border border-gray-200 border-dashed bg-gray-50">
-									<span className="font-medium text-gray-400 text-sm">
+								<div className="flex aspect-square items-center justify-center rounded-3xl border border-border border-dashed bg-muted">
+									<span className="font-medium text-muted-foreground text-sm">
 										No Image Available
 									</span>
 								</div>
@@ -99,29 +101,29 @@ function RouteComponent() {
 						<div className="space-y-10 lg:pl-8">
 							<div className="space-y-4">
 								<div className="flex items-center gap-3">
-									<span className="glass rounded-full px-3 py-1 font-bold text-[10px] text-orange-500 uppercase tracking-widest">
+									<span className="glass rounded-full px-3 py-1 font-bold text-[10px] text-primary uppercase tracking-widest">
 										Product Details
 									</span>
 									{typeof product.productAcfGroup?.stock === "number" && (
-										<span
-											className={`rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-widest ${
+										<Badge
+											variant={
 												product.productAcfGroup.stock > 0
-													? "bg-green-50 text-green-600"
-													: "bg-red-50 text-red-600"
-											}`}
+													? "secondary"
+													: "destructive"
+											}
 										>
 											{product.productAcfGroup.stock > 0
 												? "In Stock"
 												: "Out of Stock"}
-										</span>
+										</Badge>
 									)}
 								</div>
-								<h1 className="gradient-text font-bold text-5xl text-black leading-tight tracking-tight">
+								<h1 className="gradient-text font-bold text-5xl text-foreground leading-tight tracking-tight">
 									{product.title || "Untitled"}
 								</h1>
 
 								{!!product.date && (
-									<time className="block font-medium text-gray-400 text-xs uppercase tracking-widest">
+									<time className="block font-medium text-muted-foreground text-xs uppercase tracking-widest">
 										Published on{" "}
 										{new Date(product.date).toLocaleDateString("en-US", {
 											year: "numeric",
@@ -135,23 +137,23 @@ function RouteComponent() {
 							{/* Price */}
 							{!!product.productAcfGroup?.price && (
 								<div className="flex items-baseline gap-2">
-									<span className="font-bold text-4xl text-black">
+									<span className="font-bold text-4xl text-foreground">
 										${Number(product.productAcfGroup.price).toLocaleString()}
 									</span>
-									<span className="font-medium text-gray-400">USD</span>
+									<span className="font-medium text-muted-foreground">USD</span>
 								</div>
 							)}
 
-							<Divider className="opacity-50" />
+							<Separator className="opacity-50" />
 
 							{/* Description */}
 							{!!product.content && (
 								<div className="space-y-4">
-									<h2 className="font-bold text-gray-900 text-sm uppercase tracking-widest">
+									<h2 className="font-bold text-foreground text-sm uppercase tracking-widest">
 										Description
 									</h2>
 									<div
-										className="prose prose-base max-w-none prose-headings:font-bold prose-a:text-blue-600 text-gray-600 leading-relaxed prose-headings:tracking-tight prose-a:no-underline hover:prose-a:underline"
+										className="prose prose-base max-w-none prose-headings:font-bold prose-a:text-primary text-muted-foreground leading-relaxed prose-headings:tracking-tight prose-a:no-underline hover:prose-a:underline"
 										dangerouslySetInnerHTML={{
 											__html: product.content,
 										}}
@@ -160,23 +162,23 @@ function RouteComponent() {
 							)}
 
 							{/* Product Metadata */}
-							<div className="grid grid-cols-2 gap-8 border-gray-100 border-t border-b py-8">
+							<div className="grid grid-cols-2 gap-8 border-border border-t border-b py-8">
 								{!!product.productAcfGroup?.sku && (
 									<div>
-										<span className="mb-1 block font-bold text-[10px] text-gray-400 uppercase tracking-widest">
+										<span className="mb-1 block font-bold text-[10px] text-muted-foreground uppercase tracking-widest">
 											SKU
 										</span>
-										<span className="font-medium text-black">
+										<span className="font-medium text-foreground">
 											{product.productAcfGroup.sku}
 										</span>
 									</div>
 								)}
 								{typeof product.productAcfGroup?.stock === "number" && (
 									<div>
-										<span className="mb-1 block font-bold text-[10px] text-gray-400 uppercase tracking-widest">
+										<span className="mb-1 block font-bold text-[10px] text-muted-foreground uppercase tracking-widest">
 											Availability
 										</span>
-										<span className="font-medium text-black">
+										<span className="font-medium text-foreground">
 											{product.productAcfGroup.stock > 0
 												? `${product.productAcfGroup.stock} units left`
 												: "Currently unavailable"}
@@ -187,19 +189,16 @@ function RouteComponent() {
 
 							{/* Action Buttons */}
 							<div className="flex flex-col gap-4 sm:flex-row">
-								<button
-									className="flex-1 rounded-2xl bg-black px-8 py-5 font-bold text-base text-white transition-all hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none"
+								<Button
+									className="flex-1"
 									disabled={product.productAcfGroup?.stock === 0}
-									type="button"
+									size="lg"
 								>
 									Add to Cart
-								</button>
-								<button
-									className="glass rounded-2xl px-8 py-5 font-bold text-base transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
-									type="button"
-								>
+								</Button>
+								<Button size="lg" variant="outline">
 									Wishlist
-								</button>
+								</Button>
 							</div>
 						</div>
 					</div>

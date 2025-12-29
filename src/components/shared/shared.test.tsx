@@ -44,7 +44,7 @@ describe("Container", () => {
 
 	it("should have base padding class", () => {
 		const { container } = render(<Container>Content</Container>);
-		expect(container.firstChild).toHaveClass("px-6");
+		expect(container.firstChild).toHaveClass("px-4");
 		expect(container.firstChild).toHaveClass("mx-auto");
 	});
 });
@@ -62,7 +62,7 @@ describe("Section", () => {
 
 	it("should have default padding", () => {
 		const { container } = render(<Section>Content</Section>);
-		expect(container.firstChild).toHaveClass("py-16");
+		expect(container.firstChild).toHaveClass("py-12");
 	});
 
 	it("should apply custom className", () => {
@@ -74,7 +74,7 @@ describe("Section", () => {
 
 	it("should combine default and custom classes", () => {
 		const { container } = render(<Section className="mt-8">Content</Section>);
-		expect(container.firstChild).toHaveClass("py-16");
+		expect(container.firstChild).toHaveClass("py-12");
 		expect(container.firstChild).toHaveClass("mt-8");
 	});
 });
@@ -94,7 +94,7 @@ describe("Divider", () => {
 
 	it("should have background color", () => {
 		const { container } = render(<Divider />);
-		expect(container.firstChild).toHaveClass("bg-gray-200");
+		expect(container.firstChild).toHaveClass("bg-border");
 	});
 
 	it("should apply custom className", () => {

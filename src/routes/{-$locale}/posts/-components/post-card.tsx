@@ -1,5 +1,12 @@
 import { LocalizedLink } from "@/components/localized-link";
 import { OptimizedImage } from "@/components/optimized-image";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import type { PostCardProps } from "../-types";
 
 export function PostCard({
@@ -12,43 +19,47 @@ export function PostCard({
 	const formattedDate = date
 		? new Date(date).toLocaleDateString("en-US", {
 				year: "numeric",
-				month: "long",
+				month: "short",
 				day: "numeric",
 			})
 		: "";
 
 	return (
-		<LocalizedLink className="group block transition-all" to={`/posts/${slug}`}>
-			<article className="hover:-translate-y-1 flex flex-col gap-6 rounded-3xl p-4 transition-all hover:bg-white hover:shadow-xl md:flex-row">
-				{!!featuredImage?.node && (
-					<div className="h-32 shrink-0 overflow-hidden rounded-2xl bg-gray-100 md:w-48">
+		<LocalizedLink to={`/posts/${slug}`}>
+			<Card className="group flex flex-col gap-0 overflow-hidden transition-shadow hover:shadow-lg md:flex-row">
+				{featuredImage?.node ? (
+					<div className="h-48 shrink-0 overflow-hidden md:h-auto md:w-48">
 						<OptimizedImage
 							alt={featuredImage.node.altText || title || ""}
-							className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-							height={128}
+							className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+							height={192}
 							sizes="(max-width: 768px) 100vw, 192px"
 							src={featuredImage.node.sourceUrl}
 							width={192}
 						/>
 					</div>
-				)}
-				<div className="flex flex-col justify-center space-y-3">
-					{!!date && (
-						<time className="block font-medium text-blue-500 text-xs uppercase tracking-widest">
-							{formattedDate}
-						</time>
-					)}
-					<h3 className="font-bold text-black text-xl leading-snug transition-colors group-hover:text-blue-600">
-						{title}
-					</h3>
-					{!!excerpt && excerpt.length > 0 && (
-						<div
-							className="line-clamp-2 font-normal text-gray-500 text-sm leading-relaxed"
-							dangerouslySetInnerHTML={{ __html: excerpt }}
-						/>
-					)}
+				) : null}
+				<div className="flex flex-1 flex-col">
+					<CardHeader>
+						{date ? (
+							<time className="text-muted-foreground text-xs">
+								{formattedDate}
+							</time>
+						) : null}
+						<CardTitle className="transition-colors group-hover:text-primary">
+							{title}
+						</CardTitle>
+					</CardHeader>
+					{!!excerpt && excerpt.length > 0 ? (
+						<CardContent>
+							<CardDescription
+								className="line-clamp-2"
+								dangerouslySetInnerHTML={{ __html: excerpt }}
+							/>
+						</CardContent>
+					) : null}
 				</div>
-			</article>
+			</Card>
 		</LocalizedLink>
 	);
 }

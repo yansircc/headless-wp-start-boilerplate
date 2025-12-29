@@ -15,6 +15,8 @@ TanStack Start + WordPress (ACF/Polylang/Yoast) + Cloudflare Workers
 | `src/lib/i18n/language.ts` | Language utilities (derived from GraphQL) |
 | `src/lib/fonts/config.ts` | Font configuration (SSOT) |
 | `src/components/optimized-image.tsx` | OptimizedImage component |
+| `src/components/ui/` | shadcn components (DO NOT EDIT) |
+| `components.json` | shadcn configuration |
 
 ## Commands
 
@@ -38,6 +40,7 @@ src/graphql/_generated/*
 src/acf/definitions/*/_generated/*
 src/acf/compiled/*
 src/lib/fonts/_generated/*
+src/components/ui/*
 .intlayer/*
 intlayer.config.ts
 ```
@@ -57,4 +60,5 @@ Before committing:
 - [ ] Used `<OptimizedImage>` for new images
 - [ ] Used `cacheKeys.list()` / `cacheKeys.bySlug()` for cache keys
 - [ ] Added `...YoastSeoFields` fragment for new content queries
-- [ ] Did NOT modify any `_generated` files
+- [ ] Used semantic colors (`text-muted-foreground`, not `text-gray-500`)
+- [ ] Did NOT modify any `_generated` files or `src/components/ui/*`

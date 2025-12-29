@@ -43,17 +43,17 @@ function RouteComponent() {
 
 	return (
 		<div className="min-h-screen">
-			<Section className="mb-16 border-gray-100 border-b pt-16 pb-24">
+			<Section className="mb-16 border-border border-b pt-16 pb-24">
 				<Container className="text-center" size="md">
-					<div className="glass mb-6 inline-flex items-center gap-2 rounded-full px-3 py-1">
-						<span className="font-bold text-[10px] text-orange-500 uppercase tracking-widest">
+					<div className="mb-6">
+						<span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 font-bold text-[10px] text-primary uppercase tracking-widest">
 							{sections.products.badge}
 						</span>
 					</div>
-					<h1 className="gradient-text font-bold text-5xl text-black tracking-tight">
+					<h1 className="gradient-text font-bold text-5xl text-foreground tracking-tight">
 						{sections.products.title}
 					</h1>
-					<p className="mt-4 text-gray-500 text-lg">
+					<p className="mt-4 text-lg text-muted-foreground">
 						{sections.products.pageSubtitle}
 					</p>
 				</Container>
@@ -68,7 +68,7 @@ function RouteComponent() {
 							))}
 						</div>
 					) : (
-						<div className="rounded-3xl border border-gray-200 border-dashed py-24 text-center font-normal text-gray-400">
+						<div className="rounded-3xl border border-border border-dashed py-24 text-center font-normal text-muted-foreground">
 							{sections.products.empty}
 						</div>
 					)}

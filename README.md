@@ -189,7 +189,7 @@ KV-first 架构确保 WordPress 宕机时用户仍可正常访问：
 
 ## Tech Stack
 
-TanStack Start (React 19) · TanStack Router · TanStack Query · Tailwind CSS v4 · Intlayer · Polylang · Zod · GraphQL Codegen · t3-env · Vitest · Vite · Biome · Bun · Cloudflare Workers
+TanStack Start (React 19) · TanStack Router · TanStack Query · Tailwind CSS v4 · shadcn/ui · Intlayer · Polylang · Zod · GraphQL Codegen · t3-env · Vitest · Vite · Biome · Bun · Cloudflare Workers
 
 ## License
 

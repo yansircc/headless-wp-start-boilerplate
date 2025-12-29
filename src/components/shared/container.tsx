@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 type ContainerProps = {
 	children: ReactNode;
@@ -15,11 +16,11 @@ const sizeMap = {
 
 export function Container({
 	children,
-	className = "",
+	className,
 	size = "lg",
 }: ContainerProps) {
 	return (
-		<div className={`mx-auto px-6 ${sizeMap[size]} ${className}`}>
+		<div className={cn("mx-auto px-4", sizeMap[size], className)}>
 			{children}
 		</div>
 	);

@@ -1,5 +1,7 @@
 import { LocalizedLink } from "@/components/localized-link";
 import { OptimizedImage } from "@/components/optimized-image";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ProductCardProps } from "../-types";
 
 export function ProductCard({
@@ -8,54 +10,44 @@ export function ProductCard({
 	productAcfGroup,
 	featuredImage,
 }: ProductCardProps) {
+	const inStock =
+		typeof productAcfGroup?.stock === "number" && productAcfGroup.stock > 0;
+
 	return (
-		<LocalizedLink
-			className="group block transition-all"
-			to={`/products/${slug}`}
-		>
-			<article className="hover:-translate-y-2 h-full overflow-hidden rounded-3xl border border-gray-100 bg-white transition-all hover:shadow-2xl">
-				{!!featuredImage?.node && (
-					<div className="aspect-square overflow-hidden bg-gray-50">
+		<LocalizedLink to={`/products/${slug}`}>
+			<Card className="group h-full gap-0 overflow-hidden transition-shadow hover:shadow-lg">
+				{featuredImage?.node ? (
+					<div className="aspect-square overflow-hidden bg-muted">
 						<OptimizedImage
 							alt={featuredImage.node.altText || title || ""}
-							className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+							className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
 							height={400}
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
 							src={featuredImage.node.sourceUrl}
 							width={400}
 						/>
 					</div>
-				)}
-				<div className="space-y-4 p-6">
-					<div className="flex items-start justify-between gap-4">
-						<h3 className="font-bold text-black text-xl leading-tight transition-colors group-hover:text-blue-600">
+				) : null}
+				<CardHeader>
+					<div className="flex items-start justify-between gap-2">
+						<CardTitle className="transition-colors group-hover:text-primary">
 							{title}
-						</h3>
-						{!!productAcfGroup?.price && (
-							<span className="shrink-0 font-bold text-black text-xl">
+						</CardTitle>
+						{productAcfGroup?.price ? (
+							<span className="shrink-0 font-bold">
 								${Number(productAcfGroup.price).toLocaleString()}
 							</span>
-						)}
+						) : null}
 					</div>
-
-					<div className="flex items-center justify-between border-gray-50 border-t pt-2">
-						{typeof productAcfGroup?.stock === "number" && (
-							<span
-								className={`rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-widest ${
-									productAcfGroup.stock > 0
-										? "bg-green-50 text-green-600"
-										: "bg-red-50 text-red-600"
-								}`}
-							>
-								{productAcfGroup.stock > 0 ? "In Stock" : "Out of Stock"}
-							</span>
-						)}
-						<span className="font-medium text-gray-400 text-xs">
-							View Details →
-						</span>
-					</div>
-				</div>
-			</article>
+				</CardHeader>
+				<CardContent>
+					{typeof productAcfGroup?.stock === "number" ? (
+						<Badge variant={inStock ? "secondary" : "destructive"}>
+							{inStock ? "In Stock" : "Out of Stock"}
+						</Badge>
+					) : null}
+				</CardContent>
+			</Card>
 		</LocalizedLink>
 	);
 }
