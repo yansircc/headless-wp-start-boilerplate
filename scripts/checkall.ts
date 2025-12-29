@@ -9,7 +9,8 @@
  *   --check          Check-only mode, don't generate files (for git hooks)
  *
  * Environment:
- *   SKIP_SEO_CHECK=1   Skip SEO validation (for CI without WordPress)
+ *   SKIP_SEO_CHECK=1      Skip SEO validation (for CI without WordPress)
+ *   SKIP_SITEMAP_CHECK=1  Skip sitemap URL validation
  */
 
 import {
@@ -19,6 +20,7 @@ import {
 	runGeneratedFilesNotModifiedCheck,
 	runI18nCheck,
 	runSeoValidationChecks,
+	runSitemapValidationCheck,
 } from "./checks";
 
 // ============================================
@@ -40,6 +42,10 @@ async function main() {
 	// Run SEO validation checks
 	const seoResult = await runSeoValidationChecks();
 	results.push(seoResult);
+
+	// Run sitemap validation check
+	const sitemapResult = await runSitemapValidationCheck();
+	results.push(sitemapResult);
 
 	// Collect all errors and warnings
 	const allErrors = results.flatMap((r) => r.errors);

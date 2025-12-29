@@ -59,6 +59,7 @@ bun dev
 ✅ No manual modifications to generated files
 ✅ All GraphQL queries use auto-generated fragments
 ✅ i18n configuration is valid
+✅ Sitemap URLs won't 404 after transformation
 ```
 
 ---
@@ -168,6 +169,7 @@ KV-first 架构确保 WordPress 宕机时用户仍可正常访问：
 - **Cloudflare KV**: 通过 Webhook 自动同步，无需手动维护
 - **WordPress**: 后台异步刷新，stale-while-revalidate
 - **Webhook**: 内容变更时自动同步到 KV (`/api/webhook/revalidate`)
+- **Sitemap**: 自动代理并转换 WordPress URL 到前端 URL（见 `src/lib/sitemap/proxy.ts`）
 
 ### KV 同步方式
 

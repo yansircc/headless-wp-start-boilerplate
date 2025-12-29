@@ -100,7 +100,9 @@ This document serves as the authoritative guide for AI developers working on thi
 | `src/lib/i18n/language.ts` | Language utilities (derived from GraphQL) |
 | `src/routes/api/webhook/revalidate.ts` | Webhook handler (invalidate + sync KV) |
 | `src/routes/api/kv/sync.ts` | Full KV sync endpoint |
+| `src/lib/sitemap/proxy.ts` | Sitemap proxy with URL transformation |
 | `scripts/checkall.ts` | Pre-build validation checks |
+| `scripts/checks/sitemap-validation.ts` | Sitemap URL validation check |
 
 ---
 
@@ -500,6 +502,25 @@ export const Route = createFileRoute("/{-$locale}/posts/categories/")({
 **robots.txt & sitemap.xml**: Proxied from WordPress Yoast SEO
 - `/robots.txt` → proxies from WordPress
 - `/sitemap.xml` → proxies from WordPress sitemap_index.xml
+
+### Sitemap URL Transformation
+
+WordPress URLs are automatically transformed to frontend URLs when proxying sitemaps:
+
+| WordPress | Frontend |
+|-----------|----------|
+| `/$slug` | `/posts/$slug` |
+| `/ja/$slug` | `/ja/posts/$slug` |
+| `/blog/` | `/posts/` |
+| `/ja/home/` | `/ja/` |
+| `/category/$slug` | `/posts/categories/$slug` |
+| `/tag/$slug` | `/posts/tags/$slug` |
+| `/product/$slug` | `/products/$slug` |
+| `/product-category/$slug` | `/products/categories/$slug` |
+
+Configuration: `src/lib/sitemap/proxy.ts`
+
+The `bun checkall` command validates all sitemap URLs to ensure they won't 404 after transformation.
 
 ---
 

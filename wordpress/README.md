@@ -60,6 +60,16 @@
 2. 点击文章列表中的 `+` 图标创建其他语言版本
 3. Polylang Slug 插件会让所有语言版本共享相同 slug
 
+### 5. 多语言 Taxonomy 设置
+
+**重要**：ACF 注册的自定义 taxonomy（如 Product Categories）需要在 Polylang 中正确设置语言：
+
+1. 去 **Products → Categories**
+2. 编辑每个分类，在 Polylang 语言选择器中设置语言
+3. 使用 "Translations" 面板关联不同语言的分类
+
+如果 taxonomy term 没有设置语言，GraphQL 的 `translation()` 查询会返回 null。
+
 ---
 
 ## SEO 设置 (Yoast SEO)
@@ -176,6 +186,23 @@ GET  /wp-json/headless-bridge/v1/status # 检查状态
 - 首次部署后初始化 KV
 - KV 数据异常需要重建
 - 添加新语言后
+
+#### 4. ACF Taxonomy Slug Fix
+
+修复 ACF 注册的自定义 taxonomy 在 WPGraphQL 中无法通过 slug 查询的问题。
+
+**问题原因**：Polylang 会过滤 `get_term_by()` 的结果，导致跨语言的 slug 查询返回 null。
+
+**解决方案**：插件会在 GraphQL 查询时临时禁用 Polylang 的语言过滤。
+
+**配置**：在 `class-acf-taxonomy-fix.php` 中添加需要修复的 taxonomy：
+
+```php
+private static array $acf_taxonomies = [
+    'product-category' => 'productCategory',
+    // 添加其他 ACF taxonomy...
+];
+```
 
 ---
 

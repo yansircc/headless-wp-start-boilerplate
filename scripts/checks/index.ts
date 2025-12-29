@@ -15,5 +15,7 @@ export { runFragmentUsageCheck } from "./graphql-fragments";
 export { runI18nCheck } from "./i18n";
 // SEO validation checks
 export { runSeoValidationChecks } from "./seo-validation";
+// Sitemap validation check
+export { runSitemapValidationCheck } from "./sitemap-validation";
 export type { Check, CheckResult } from "./types";
 export { printCheck, printSkipped, printWarning } from "./types";
