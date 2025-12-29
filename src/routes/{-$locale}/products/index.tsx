@@ -63,9 +63,11 @@ function RouteComponent() {
 				<Container size="lg">
 					{(products?.nodes?.length ?? 0) > 0 ? (
 						<div className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-							{products?.nodes?.map((product: ProductFieldsFragment) => (
-								<ProductCard key={product.id} {...product} />
-							))}
+							{products?.nodes?.map(
+								(product: ProductFieldsFragment, index: number) => (
+									<ProductCard index={index} key={product.id} {...product} />
+								)
+							)}
 						</div>
 					) : (
 						<div className="rounded-3xl border border-border border-dashed py-24 text-center font-normal text-muted-foreground">

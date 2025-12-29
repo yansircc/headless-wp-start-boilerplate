@@ -114,8 +114,8 @@ function Homepage() {
 
 							{(data?.posts?.length ?? 0) > 0 ? (
 								<div className="space-y-4">
-									{data.posts.map((post: PostFieldsFragment) => (
-										<PostCard key={post.id} {...post} />
+									{data.posts.map((post: PostFieldsFragment, index: number) => (
+										<PostCard index={index} key={post.id} {...post} />
 									))}
 								</div>
 							) : (
@@ -148,9 +148,15 @@ function Homepage() {
 
 							{(data?.products?.length ?? 0) > 0 ? (
 								<div className="space-y-4">
-									{data.products.map((product: ProductFieldsFragment) => (
-										<ProductCard key={product.id} {...product} />
-									))}
+									{data.products.map(
+										(product: ProductFieldsFragment, index: number) => (
+											<ProductCard
+												index={index}
+												key={product.id}
+												{...product}
+											/>
+										)
+									)}
 								</div>
 							) : (
 								<div className="rounded-lg border border-dashed py-12 text-center text-muted-foreground">

@@ -9,7 +9,8 @@ export function ProductCard({
 	title,
 	productAcfGroup,
 	featuredImage,
-}: ProductCardProps) {
+	index,
+}: ProductCardProps & { index?: number }) {
 	const inStock =
 		typeof productAcfGroup?.stock === "number" && productAcfGroup.stock > 0;
 
@@ -22,6 +23,7 @@ export function ProductCard({
 							alt={featuredImage.node.altText || title || ""}
 							className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
 							height={400}
+							priority={index === 0}
 							sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
 							src={featuredImage.node.sourceUrl}
 							width={400}

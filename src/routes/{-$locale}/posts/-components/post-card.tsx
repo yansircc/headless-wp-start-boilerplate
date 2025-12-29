@@ -15,7 +15,8 @@ export function PostCard({
 	excerpt,
 	date,
 	featuredImage,
-}: PostCardProps) {
+	index,
+}: PostCardProps & { index?: number }) {
 	const formattedDate = date
 		? new Date(date).toLocaleDateString("en-US", {
 				year: "numeric",
@@ -33,6 +34,7 @@ export function PostCard({
 							alt={featuredImage.node.altText || title || ""}
 							className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
 							height={192}
+							priority={index === 0}
 							sizes="(max-width: 768px) 100vw, 192px"
 							src={featuredImage.node.sourceUrl}
 							width={192}

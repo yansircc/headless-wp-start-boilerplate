@@ -71,8 +71,8 @@ function RouteComponent() {
 				<Container size="md">
 					{(posts?.nodes?.length ?? 0) > 0 ? (
 						<div className="grid gap-12">
-							{posts?.nodes?.map((post: PostFieldsFragment) => (
-								<PostCard key={post.id} {...post} />
+							{posts?.nodes?.map((post: PostFieldsFragment, index: number) => (
+								<PostCard index={index} key={post.id} {...post} />
 							))}
 						</div>
 					) : (
