@@ -30,6 +30,8 @@ TanStack Start + WordPress (ACF/Polylang/Yoast) + Cloudflare Workers
 | `bun checkall` | Run all pre-build checks |
 | `bun lint` | Lint and format code |
 | `bun run test` | Run unit tests |
+| `bun i18n:archive <locale>` | Archive orphaned translations (comment out) |
+| `bun i18n:restore <locale>` | Restore archived translations (uncomment) |
 
 ## Critical Rules
 

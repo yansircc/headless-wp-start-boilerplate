@@ -96,6 +96,8 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 | `bun fonts:sync` | 下载字体 + 生成 CSS |
 | `bun checkall` | 运行所有预构建检查 |
 | `bun run test` | 运行单元测试 |
+| `bun i18n:archive <locale>` | 存档已移除语言的翻译 |
+| `bun i18n:restore <locale>` | 恢复已存档的翻译 |
 
 ---
 
