@@ -53,13 +53,18 @@ WordPress Polylang (SSOT)
       │
       │ bun sync
       ▼
-GraphQL LanguageCodeEnum
+GraphQL LanguageCodeEnum ◄────────────────┐
+      │                                    │
+      ├──► intlayer.config.ts ◄── Intlayer Locales (dynamic lookup)
+      │    (auto-generated)
       │
-      ├──► intlayer.config.ts (auto-generated)
+      ├──► src/lib/i18n/language.ts (derived from enum)
+      │         │
+      │         └──► toLanguageFilter(), toLanguageCode()
+      │                   │
+      │                   └──► All service files
       │
-      └──► src/lib/i18n/language.ts (derived from enum)
-                  │
-                  └──► toLanguageFilter(), toLanguageCode()
-                            │
-                            └──► All service files import from here
+      └──► scripts/checks/*.ts (dynamic locale validation)
 ```
+
+**No hardcoded locale lists** - All scripts read from GraphQL LanguageCodeEnum or Intlayer Locales.

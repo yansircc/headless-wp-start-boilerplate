@@ -25,7 +25,7 @@ TanStack Start + WordPress (ACF/Polylang/Yoast) + Cloudflare Workers
 | `bun dev` | Start development server |
 | `bun run build` | Build for production |
 | `bun run deploy` | Build + deploy to Cloudflare Workers |
-| `bun sync` | Full sync: ACF → WordPress → GraphQL types |
+| `bun sync` | Full sync: ACF → WordPress → GraphQL types + i18n |
 | `bun fonts:sync` | Download fonts + generate CSS |
 | `bun checkall` | Run all pre-build checks |
 | `bun lint` | Lint and format code |

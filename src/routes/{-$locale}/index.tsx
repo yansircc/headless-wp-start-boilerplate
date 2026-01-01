@@ -46,7 +46,11 @@ export const Route = createFileRoute("/{-$locale}/")({
 
 function Homepage() {
 	const data = Route.useLoaderData();
-	const { homepage, sections, actions, errors } = useIntlayer("common");
+	const homepage = useIntlayer("homepage");
+	const posts = useIntlayer("posts");
+	const products = useIntlayer("products");
+	const actions = useIntlayer("actions");
+	const errors = useIntlayer("errors");
 
 	if (!data) {
 		return (
@@ -95,10 +99,10 @@ function Homepage() {
 							<div className="mb-6 flex items-end justify-between">
 								<div>
 									<h2 className="font-bold text-2xl tracking-tight">
-										{sections.articles.title}
+										{posts.title}
 									</h2>
 									<p className="text-muted-foreground text-sm">
-										{sections.articles.subtitle}
+										{posts.subtitle}
 									</p>
 								</div>
 								{data?.postsHasMore ? (
@@ -119,7 +123,7 @@ function Homepage() {
 								</div>
 							) : (
 								<div className="rounded-lg border border-dashed py-12 text-center text-muted-foreground">
-									{sections.articles.empty}
+									{posts.empty}
 								</div>
 							)}
 						</section>
@@ -129,10 +133,10 @@ function Homepage() {
 							<div className="mb-6 flex items-end justify-between">
 								<div>
 									<h2 className="font-bold text-2xl tracking-tight">
-										{sections.products.title}
+										{products.title}
 									</h2>
 									<p className="text-muted-foreground text-sm">
-										{sections.products.subtitle}
+										{products.subtitle}
 									</p>
 								</div>
 								{data?.productsHasMore ? (
@@ -159,7 +163,7 @@ function Homepage() {
 								</div>
 							) : (
 								<div className="rounded-lg border border-dashed py-12 text-center text-muted-foreground">
-									{sections.products.empty}
+									{products.empty}
 								</div>
 							)}
 						</section>

@@ -6,7 +6,7 @@ import { LocalizedLink } from "./localized-link";
 import { Button } from "./ui/button";
 
 export default function Header() {
-	const { navigation } = useIntlayer("common");
+	const navigation = useIntlayer("navigation");
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (

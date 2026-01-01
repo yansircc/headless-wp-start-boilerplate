@@ -60,6 +60,7 @@ bun dev
 ✅ No manual modifications to generated files
 ✅ All GraphQL queries use auto-generated fragments
 ✅ i18n configuration is valid
+✅ Content files have all required locales
 ✅ Font files exist and match configuration
 ✅ Sitemap URLs won't 404 after transformation
 ```
@@ -91,7 +92,7 @@ routes/*.tsx             ─── SSR/CSR ───►   Browser
 | `bun dev` | 开发服务器 |
 | `bun run build` | 构建（自动检查） |
 | `bun run deploy` | 构建 + 部署到 Cloudflare Workers |
-| `bun sync` | ACF 字段同步 + 类型生成 |
+| `bun sync` | ACF 字段同步 + 类型生成 + i18n 配置 |
 | `bun fonts:sync` | 下载字体 + 生成 CSS |
 | `bun checkall` | 运行所有预构建检查 |
 | `bun run test` | 运行单元测试 |

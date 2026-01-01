@@ -39,7 +39,7 @@ export const Route = createFileRoute("/{-$locale}/products/")({
 
 function RouteComponent() {
 	const { products } = Route.useLoaderData();
-	const { sections } = useIntlayer("common");
+	const productsContent = useIntlayer("products");
 
 	return (
 		<div className="min-h-screen">
@@ -47,14 +47,14 @@ function RouteComponent() {
 				<Container className="text-center" size="md">
 					<div className="mb-6">
 						<span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 font-bold text-[10px] text-primary uppercase tracking-widest">
-							{sections.products.badge}
+							{productsContent.badge}
 						</span>
 					</div>
 					<h1 className="gradient-text font-bold text-5xl text-foreground tracking-tight">
-						{sections.products.title}
+						{productsContent.title}
 					</h1>
 					<p className="mt-4 text-lg text-muted-foreground">
-						{sections.products.pageSubtitle}
+						{productsContent.pageSubtitle}
 					</p>
 				</Container>
 			</Section>
@@ -71,7 +71,7 @@ function RouteComponent() {
 						</div>
 					) : (
 						<div className="rounded-3xl border border-border border-dashed py-24 text-center font-normal text-muted-foreground">
-							{sections.products.empty}
+							{productsContent.empty}
 						</div>
 					)}
 				</Container>

@@ -1,8 +1,11 @@
 /**
  * Content Locales Check
  *
- * Verifies that all content files have translations for all configured locales.
- * Reports missing locales with guidance on how to fix.
+ * Verifies that:
+ * 1. All content files have translations for all configured locales
+ * 2. No [TODO:xx] placeholders remain (untranslated entries)
+ *
+ * Returns ERROR if any issues found (blocks build).
  */
 
 import { readFile } from "node:fs/promises";
@@ -12,12 +15,17 @@ import { type CheckResult, printCheck } from "./types";
 const CONTENT_DIR = "src/content";
 const GRAPHQL_FILE = "src/graphql/_generated/graphql.ts";
 
+// Regex patterns (top-level for performance)
+const LANGUAGE_ENUM_PATTERN = /export enum LanguageCodeEnum \{([^}]+)\}/;
+const LOCALE_PATTERN = /\b([a-z]{2}):\s*["'`]/g;
+const TODO_PATTERN = /\[TODO:([a-z]{2})\]\s*([^"'`]*)/g;
+
 /**
  * Extract language codes from GraphQL LanguageCodeEnum
  */
 async function getConfiguredLocales(): Promise<string[]> {
 	const content = await readFile(GRAPHQL_FILE, "utf-8");
-	const enumMatch = content.match(/export enum LanguageCodeEnum \{([^}]+)\}/);
+	const enumMatch = content.match(LANGUAGE_ENUM_PATTERN);
 	if (!enumMatch) {
 		return [];
 	}
@@ -28,72 +36,139 @@ async function getConfiguredLocales(): Promise<string[]> {
 	return languages;
 }
 
-/**
- * Find locales present in a content file
- */
-async function getFileLocales(filePath: string): Promise<Set<string>> {
-	const content = await readFile(filePath, "utf-8");
-	const locales = new Set<string>();
+type FileIssue = {
+	missingLocales: string[];
+	todoPlaceholders: Array<{ locale: string; line: number; text: string }>;
+};
 
-	// Find all locale keys in t() calls: en:, zh:, ja:, etc.
-	const localePattern = /\b([a-z]{2}):\s*["'`]/g;
-	let match;
-	while ((match = localePattern.exec(content)) !== null) {
-		locales.add(match[1]);
+/**
+ * Analyze a content file for missing locales and TODO placeholders
+ */
+async function analyzeFile(
+	filePath: string,
+	configuredLocales: string[]
+): Promise<FileIssue> {
+	const content = await readFile(filePath, "utf-8");
+	const lines = content.split("\n");
+
+	// Find locales present in the file
+	const presentLocales = new Set<string>();
+	const localeRegex = new RegExp(LOCALE_PATTERN.source, "g");
+	for (const match of content.matchAll(localeRegex)) {
+		presentLocales.add(match[1]);
 	}
 
-	return locales;
+	// Find missing locales
+	const missingLocales = configuredLocales.filter(
+		(l) => !presentLocales.has(l)
+	);
+
+	// Find [TODO:xx] placeholders with line numbers
+	const todoPlaceholders: FileIssue["todoPlaceholders"] = [];
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i];
+		const todoRegex = new RegExp(TODO_PATTERN.source, "g");
+		for (const todoMatch of line.matchAll(todoRegex)) {
+			const text = todoMatch[2].trim();
+			todoPlaceholders.push({
+				locale: todoMatch[1],
+				line: i + 1,
+				text: text.slice(0, 30) + (text.length > 30 ? "..." : ""),
+			});
+		}
+	}
+
+	return { missingLocales, todoPlaceholders };
 }
 
 /**
- * Check all content files for missing locales
+ * Check all content files
  */
 async function checkContentLocales(): Promise<{
 	passed: boolean;
-	missingByFile: Map<string, string[]>;
+	issues: Map<string, FileIssue>;
 	configuredLocales: string[];
 }> {
 	const configuredLocales = await getConfiguredLocales();
-	const missingByFile = new Map<string, string[]>();
+	const issues = new Map<string, FileIssue>();
 
 	// Find all content files
 	const glob = new Glob("**/*.content.ts");
 	for await (const file of glob.scan({ cwd: CONTENT_DIR })) {
 		const filePath = `${CONTENT_DIR}/${file}`;
-		const fileLocales = await getFileLocales(filePath);
+		const fileIssue = await analyzeFile(filePath, configuredLocales);
 
-		// Find missing locales
-		const missing = configuredLocales.filter((l) => !fileLocales.has(l));
-		if (missing.length > 0) {
-			missingByFile.set(filePath, missing);
+		if (
+			fileIssue.missingLocales.length > 0 ||
+			fileIssue.todoPlaceholders.length > 0
+		) {
+			issues.set(filePath, fileIssue);
 		}
 	}
 
 	return {
-		passed: missingByFile.size === 0,
-		missingByFile,
+		passed: issues.size === 0,
+		issues,
 		configuredLocales,
 	};
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Linear flow with nested loops
 export async function runContentLocalesCheck(): Promise<CheckResult> {
 	const result = await checkContentLocales();
 	printCheck("Content locales", result.passed);
 
 	if (!result.passed) {
 		const errors: string[] = [];
-		errors.push("Missing translations in content files:");
 
-		for (const [file, missing] of result.missingByFile) {
-			errors.push(`  • ${file}: missing ${missing.join(", ")}`);
+		// Check for TODO placeholders
+		const filesWithTodos = [...result.issues.entries()].filter(
+			([, issue]) => issue.todoPlaceholders.length > 0
+		);
+
+		if (filesWithTodos.length > 0) {
+			// Collect unique locales that need translation
+			const localesNeeded = new Set<string>();
+			for (const [, issue] of filesWithTodos) {
+				for (const todo of issue.todoPlaceholders) {
+					localesNeeded.add(todo.locale);
+				}
+			}
+
+			const fileNames = filesWithTodos
+				.map(([file]) => file.replace("src/content/", ""))
+				.join(", ");
+			const localesList = [...localesNeeded].join(", ");
+
+			errors.push(
+				`${filesWithTodos.length} file(s) need translation for: ${localesList}`
+			);
+			errors.push(`  ${fileNames}`);
+			errors.push("");
+			errors.push(`Search: [TODO:${[...localesNeeded][0]}]`);
 		}
 
-		errors.push("");
-		errors.push("Fix: Add translations for missing locales in each t() call:");
-		errors.push('  t({ en: "Hello", zh: "你好", pt: "Olá" })');
-		errors.push("");
-		errors.push("Or run: bun scripts/sync-content-locales.ts");
-		errors.push("  (auto-adds missing locales using English as placeholder)");
+		// Check for missing locales
+		const filesWithMissing = [...result.issues.entries()].filter(
+			([, issue]) => issue.missingLocales.length > 0
+		);
+
+		if (filesWithMissing.length > 0) {
+			if (errors.length > 0) {
+				errors.push("");
+			}
+			const missingLocales = new Set<string>();
+			for (const [, issue] of filesWithMissing) {
+				for (const locale of issue.missingLocales) {
+					missingLocales.add(locale);
+				}
+			}
+
+			errors.push(`Missing locales: ${[...missingLocales].join(", ")}`);
+			errors.push(
+				"Add translations manually with [TODO:xx] placeholder, then translate."
+			);
+		}
 
 		return { passed: false, errors };
 	}

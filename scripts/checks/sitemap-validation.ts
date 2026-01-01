@@ -7,6 +7,7 @@
  * Checks all sitemaps: post, page, category, product, product-category
  */
 
+import { readFile } from "node:fs/promises";
 import {
 	type CheckResult,
 	printCheck,
@@ -33,21 +34,35 @@ type SitemapValidationResult = {
 };
 
 // ============================================
-// Configuration (must match proxy.ts)
+// Configuration (derived from GraphQL LanguageCodeEnum - SSOT)
 // ============================================
 
-const LOCALE_CODES = new Set([
-	"en",
-	"ja",
-	"zh",
-	"ko",
-	"fr",
-	"de",
-	"es",
-	"pt",
-	"it",
-	"ru",
-]);
+const GRAPHQL_FILE = "src/graphql/_generated/graphql.ts";
+const LANGUAGE_ENUM_PATTERN = /export enum LanguageCodeEnum \{([^}]+)\}/;
+
+/**
+ * Extract language codes from GraphQL LanguageCodeEnum (SSOT)
+ */
+async function getLocaleCodes(): Promise<Set<string>> {
+	try {
+		const content = await readFile(GRAPHQL_FILE, "utf-8");
+		const enumMatch = content.match(LANGUAGE_ENUM_PATTERN);
+		if (!enumMatch) {
+			// Fallback to common locales if GraphQL file not found
+			return new Set(["en", "ja", "zh", "es", "pt"]);
+		}
+		const languages = [...enumMatch[1].matchAll(/(\w+)\s*=/g)].map((m) =>
+			m[1].toLowerCase()
+		);
+		return new Set(languages);
+	} catch {
+		// Fallback to common locales if file read fails
+		return new Set(["en", "ja", "zh", "es", "pt"]);
+	}
+}
+
+// Will be populated at runtime
+const LOCALE_CODES: Set<string> = new Set();
 
 const STATIC_PAGES = new Set([
 	"blog",
@@ -424,6 +439,14 @@ export async function runSitemapValidationCheck(): Promise<CheckResult> {
 	if (!process.env.GRAPHQL_ENDPOINT) {
 		printSkipped("Sitemap validation", "no GRAPHQL_ENDPOINT");
 		return { passed: true, errors: [], warnings: [] };
+	}
+
+	// Initialize locale codes from GraphQL LanguageCodeEnum (SSOT)
+	const localeCodes = await getLocaleCodes();
+	// Update the module-level LOCALE_CODES for use in transform functions
+	LOCALE_CODES.clear();
+	for (const code of localeCodes) {
+		LOCALE_CODES.add(code);
 	}
 
 	const results = await Promise.all(

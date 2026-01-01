@@ -8,11 +8,14 @@
  *
  * SSOT Chain:
  *   WordPress Polylang → GraphQL Schema → LanguageCodeEnum → intlayer.config.ts
+ *                                                              ↑
+ *                                               Intlayer Locales (dynamic lookup)
  *
  * Usage: bun scripts/sync-i18n.ts
  */
 
 import { readFile, writeFile } from "node:fs/promises";
+import { Locales } from "intlayer";
 
 // Colors for terminal output
 const c = {
@@ -29,46 +32,27 @@ function log(msg: string, color: keyof typeof c = "reset") {
 }
 
 /**
- * Mapping from GraphQL LanguageCodeEnum keys to Intlayer Locales
- * This is the only place where this mapping needs to be maintained.
- *
- * When WordPress adds a new language:
- * 1. `bun sync` downloads the new schema with updated LanguageCodeEnum
- * 2. This script reads the enum and maps to Intlayer Locales
- * 3. If the language isn't in this map, a warning is shown
+ * Build a reverse lookup map from Intlayer Locales
+ * Locales = { ENGLISH: "en", JAPANESE: "ja", ... }
+ * We need: { "en": "ENGLISH", "ja": "JAPANESE", ... }
  */
-const LANGUAGE_TO_INTLAYER: Record<string, string> = {
-	En: "Locales.ENGLISH",
-	Ja: "Locales.JAPANESE",
-	Zh: "Locales.CHINESE",
-	Ko: "Locales.KOREAN",
-	Fr: "Locales.FRENCH",
-	De: "Locales.GERMAN",
-	Es: "Locales.SPANISH",
-	Pt: "Locales.PORTUGUESE",
-	It: "Locales.ITALIAN",
-	Ru: "Locales.RUSSIAN",
-	Ar: "Locales.ARABIC",
-	Hi: "Locales.HINDI",
-	Th: "Locales.THAI",
-	Vi: "Locales.VIETNAMESE",
-	Id: "Locales.INDONESIAN",
-	Ms: "Locales.MALAY",
-	Nl: "Locales.DUTCH",
-	Pl: "Locales.POLISH",
-	Tr: "Locales.TURKISH",
-	Uk: "Locales.UKRAINIAN",
-	Cs: "Locales.CZECH",
-	El: "Locales.GREEK",
-	He: "Locales.HEBREW",
-	Hu: "Locales.HUNGARIAN",
-	Ro: "Locales.ROMANIAN",
-	Sv: "Locales.SWEDISH",
-	Da: "Locales.DANISH",
-	Fi: "Locales.FINNISH",
-	No: "Locales.NORWEGIAN",
-	Nb: "Locales.NORWEGIAN",
-};
+const CODE_TO_LOCALE_KEY: Record<string, string> = {};
+for (const [key, value] of Object.entries(Locales)) {
+	if (typeof value === "string") {
+		CODE_TO_LOCALE_KEY[value.toLowerCase()] = key;
+	}
+}
+
+/**
+ * Get Intlayer locale string from language code (dynamic lookup)
+ * @param langCode - GraphQL language code like "En", "Ja", "Zh"
+ * @returns Intlayer locale string like "Locales.ENGLISH" or undefined
+ */
+function getIntlayerLocale(langCode: string): string | undefined {
+	const code = langCode.toLowerCase();
+	const localeKey = CODE_TO_LOCALE_KEY[code];
+	return localeKey ? `Locales.${localeKey}` : undefined;
+}
 
 const GRAPHQL_FILE = "src/graphql/_generated/graphql.ts";
 const INTLAYER_CONFIG_FILE = "intlayer.config.ts";
@@ -107,7 +91,7 @@ function generateIntlayerConfig(languages: string[]): string {
 	const unmapped: string[] = [];
 
 	for (const lang of languages) {
-		const intlayerLocale = LANGUAGE_TO_INTLAYER[lang];
+		const intlayerLocale = getIntlayerLocale(lang);
 		if (intlayerLocale) {
 			intlayerLocales.push(intlayerLocale);
 		} else {
@@ -117,7 +101,7 @@ function generateIntlayerConfig(languages: string[]): string {
 
 	if (unmapped.length > 0) {
 		log(
-			`  ⚠ Unmapped languages: ${unmapped.join(", ")}. Add them to LANGUAGE_TO_INTLAYER in scripts/sync-i18n.ts`,
+			`  ⚠ Unmapped languages: ${unmapped.join(", ")}. These are not supported by Intlayer.`,
 			"yellow"
 		);
 	}
@@ -173,14 +157,21 @@ async function checkConfigUpToDate(newContent: string): Promise<boolean> {
 
 async function main() {
 	const isCheck = process.argv.includes("--check");
+	const isQuiet = process.argv.includes("--quiet");
 
-	log(`\n${c.cyan}🌐 Syncing i18n configuration...${c.reset}`);
+	if (!isQuiet) {
+		log(`\n${c.cyan}🌐 Syncing i18n configuration...${c.reset}`);
+	}
 
 	try {
 		// Step 1: Extract languages from GraphQL schema
-		log("  Reading LanguageCodeEnum from GraphQL schema...", "dim");
+		if (!isQuiet) {
+			log("  Reading LanguageCodeEnum from GraphQL schema...", "dim");
+		}
 		const languages = await extractLanguagesFromSchema();
-		log(`  ✓ Found languages: ${languages.join(", ")}`, "green");
+		if (!isQuiet) {
+			log(`  ✓ Found languages: ${languages.join(", ")}`, "green");
+		}
 
 		// Step 2: Generate new config
 		const newConfig = generateIntlayerConfig(languages);
@@ -189,7 +180,11 @@ async function main() {
 		if (isCheck) {
 			const isUpToDate = await checkConfigUpToDate(newConfig);
 			if (isUpToDate) {
-				log("  ✓ intlayer.config.ts is up to date", "green");
+				if (isQuiet) {
+					log("  ✓ intlayer.config.ts up to date", "green");
+				} else {
+					log("  ✓ intlayer.config.ts is up to date", "green");
+				}
 				return;
 			}
 			log(
@@ -201,9 +196,14 @@ async function main() {
 
 		// Write the config
 		await writeFile(INTLAYER_CONFIG_FILE, newConfig);
-		log(`  ✓ Updated ${INTLAYER_CONFIG_FILE}`, "green");
 
-		log(`\n${c.green}✅ i18n sync complete!${c.reset}\n`);
+		if (isQuiet) {
+			// One-line summary for integrated mode
+			log(`  ✓ intlayer.config.ts (${languages.length} locales)`, "green");
+		} else {
+			log(`  ✓ Updated ${INTLAYER_CONFIG_FILE}`, "green");
+			log(`\n${c.green}✅ i18n sync complete!${c.reset}\n`);
+		}
 	} catch (error) {
 		log(`\n❌ Error: ${error}`, "red");
 		process.exit(1);

@@ -11,7 +11,7 @@ import {
 } from "./ui/card";
 
 export function NotFoundPage() {
-	const { errors } = useIntlayer("common");
+	const errors = useIntlayer("errors");
 
 	return (
 		<div className="flex min-h-[50vh] items-center justify-center p-4">

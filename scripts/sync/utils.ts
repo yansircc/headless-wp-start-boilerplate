@@ -37,8 +37,14 @@ export function step(num: number, total: number, msg: string): void {
 // Process Runner
 // ============================================
 
-export async function run(cmd: string, args: string[]): Promise<boolean> {
-	log(`  ${c.dim}$ ${cmd} ${args.join(" ")}${c.reset}`, "dim");
+export async function run(
+	cmd: string,
+	args: string[],
+	options?: { silent?: boolean }
+): Promise<boolean> {
+	if (!options?.silent) {
+		log(`  ${c.dim}$ ${cmd} ${args.join(" ")}${c.reset}`, "dim");
+	}
 	const proc = spawn([cmd, ...args], { stdout: "inherit", stderr: "inherit" });
 	return (await proc.exited) === 0;
 }
