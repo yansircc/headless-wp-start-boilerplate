@@ -12,14 +12,13 @@ import { type IntlayerConfig, Locales } from "intlayer";
 const config: IntlayerConfig = {
 	internationalization: {
 		locales: [
-			Locales.AFRIKAANS,
 			Locales.ENGLISH,
 			Locales.SPANISH,
 			Locales.JAPANESE,
 			Locales.PORTUGUESE,
 			Locales.CHINESE,
 		],
-		defaultLocale: Locales.AFRIKAANS,
+		defaultLocale: Locales.ENGLISH,
 	},
 	content: {
 		contentDir: ["./src/content"],
