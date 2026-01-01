@@ -14,11 +14,12 @@ import { type CheckResult, printCheck } from "./types";
 const ROOT_DIR = join(import.meta.dir, "../..");
 
 // Files that should only be modified by `bun sync`, not manually
+// Note: intlayer.config.ts is validated by runI18nCheck() instead,
+// which dynamically verifies it matches the GraphQL schema
 const GENERATED_PATTERNS = [
 	"src/graphql/_generated/**/*",
 	"src/acf/definitions/*/_generated/**/*",
 	"src/acf/compiled/**/*",
-	"intlayer.config.ts",
 ];
 
 const CRITICAL_GENERATED_FILES = [

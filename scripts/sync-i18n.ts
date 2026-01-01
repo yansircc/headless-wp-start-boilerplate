@@ -125,8 +125,10 @@ function generateIntlayerConfig(languages: string[]): string {
 	// Default locale is the first one (usually English)
 	const defaultLocale = intlayerLocales[0] || "Locales.ENGLISH";
 
-	// Format to match biome output (single line for short arrays)
-	const localesStr = intlayerLocales.join(", ");
+	// Format to match biome output (multi-line for arrays)
+	const localesFormatted = intlayerLocales
+		.map((locale) => `\t\t\t${locale},`)
+		.join("\n");
 
 	return `/**
  * Intlayer Configuration
@@ -141,7 +143,9 @@ import { type IntlayerConfig, Locales } from "intlayer";
 
 const config: IntlayerConfig = {
 	internationalization: {
-		locales: [${localesStr}],
+		locales: [
+${localesFormatted}
+		],
 		defaultLocale: ${defaultLocale},
 	},
 	content: {
