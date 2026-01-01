@@ -18,6 +18,8 @@
     "sync": "bun scripts/sync.ts",
     "sync:i18n": "bun scripts/sync-i18n.ts",
     "sync:i18n:check": "bun scripts/sync-i18n.ts --check",
+    "i18n:archive": "bun scripts/i18n-archive.ts",
+    "i18n:restore": "bun scripts/i18n-restore.ts",
     "fonts:sync": "bun scripts/fonts-sync.ts",
     "checkall": "bun scripts/checkall.ts",
     "prepare": "husky"

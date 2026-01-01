@@ -23,12 +23,11 @@ function checkI18nConfig(): {
 		return { passed: true, output };
 	} catch (error) {
 		const err = error as { stderr?: string; stdout?: string };
+		// Combine stdout and stderr to capture all output
+		const output = [err.stdout, err.stderr].filter(Boolean).join("\n");
 		return {
 			passed: false,
-			output:
-				err.stderr ||
-				err.stdout ||
-				"i18n config out of sync. Run `bun sync` to update.",
+			output: output || "i18n config out of sync. Run `bun sync` to update.",
 		};
 	}
 }
@@ -38,9 +37,28 @@ export function runI18nCheck(): CheckResult {
 	printCheck("i18n configuration", result.passed);
 
 	if (!result.passed) {
+		// Parse output to provide specific error messages
+		const output = result.output;
+
+		// Check for orphaned translations
+		const orphanedMatch = output.match(
+			/Orphaned translations found: ([a-z, ]+)/
+		);
+		if (orphanedMatch) {
+			const locales = orphanedMatch[1];
+			return {
+				passed: false,
+				errors: [
+					`Orphaned translations: ${locales}`,
+					`Fix: Run \`bun i18n:archive ${locales.replace(/, /g, " ")}\``,
+				],
+			};
+		}
+
+		// Default: config out of sync
 		return {
 			passed: false,
-			errors: ["i18n out of sync", "Fix: Run `bun sync`"],
+			errors: ["i18n config out of sync", "Fix: Run `bun sync`"],
 		};
 	}
 	return { passed: true, errors: [] };
