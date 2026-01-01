@@ -113,62 +113,86 @@ async function checkContentLocales(): Promise<{
 	};
 }
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Linear flow with nested loops
+/**
+ * Generate errors for files with TODO placeholders
+ */
+function generateTodoErrors(issues: Map<string, FileIssue>): {
+	errors: string[];
+	localesNeeded: Set<string>;
+} {
+	const errors: string[] = [];
+	const filesWithTodos = [...issues.entries()].filter(
+		([, issue]) => issue.todoPlaceholders.length > 0
+	);
+
+	if (filesWithTodos.length === 0) {
+		return { errors, localesNeeded: new Set() };
+	}
+
+	// Collect unique locales that need translation
+	const localesNeeded = new Set<string>();
+	for (const [, issue] of filesWithTodos) {
+		for (const todo of issue.todoPlaceholders) {
+			localesNeeded.add(todo.locale);
+		}
+	}
+
+	const fileNames = filesWithTodos
+		.map(([file]) => file.replace("src/content/", ""))
+		.join(", ");
+	const localesList = [...localesNeeded].join(", ");
+
+	errors.push(
+		`${filesWithTodos.length} file(s) need translation for: ${localesList}`
+	);
+	errors.push(`  ${fileNames}`);
+	errors.push("");
+	errors.push(`Search: [TODO:${[...localesNeeded][0]}]`);
+
+	return { errors, localesNeeded };
+}
+
+/**
+ * Generate errors for files with missing locales
+ */
+function generateMissingLocaleErrors(issues: Map<string, FileIssue>): string[] {
+	const errors: string[] = [];
+	const filesWithMissing = [...issues.entries()].filter(
+		([, issue]) => issue.missingLocales.length > 0
+	);
+
+	if (filesWithMissing.length === 0) {
+		return errors;
+	}
+
+	const missingLocales = new Set<string>();
+	for (const [, issue] of filesWithMissing) {
+		for (const locale of issue.missingLocales) {
+			missingLocales.add(locale);
+		}
+	}
+
+	errors.push(`Missing locales: ${[...missingLocales].join(", ")}`);
+	errors.push(
+		"Add translations manually with [TODO:xx] placeholder, then translate."
+	);
+
+	return errors;
+}
+
 export async function runContentLocalesCheck(): Promise<CheckResult> {
 	const result = await checkContentLocales();
 	printCheck("Content locales", result.passed);
 
 	if (!result.passed) {
-		const errors: string[] = [];
+		const todoResult = generateTodoErrors(result.issues);
+		const missingErrors = generateMissingLocaleErrors(result.issues);
 
-		// Check for TODO placeholders
-		const filesWithTodos = [...result.issues.entries()].filter(
-			([, issue]) => issue.todoPlaceholders.length > 0
-		);
-
-		if (filesWithTodos.length > 0) {
-			// Collect unique locales that need translation
-			const localesNeeded = new Set<string>();
-			for (const [, issue] of filesWithTodos) {
-				for (const todo of issue.todoPlaceholders) {
-					localesNeeded.add(todo.locale);
-				}
-			}
-
-			const fileNames = filesWithTodos
-				.map(([file]) => file.replace("src/content/", ""))
-				.join(", ");
-			const localesList = [...localesNeeded].join(", ");
-
-			errors.push(
-				`${filesWithTodos.length} file(s) need translation for: ${localesList}`
-			);
-			errors.push(`  ${fileNames}`);
+		const errors = [...todoResult.errors];
+		if (errors.length > 0 && missingErrors.length > 0) {
 			errors.push("");
-			errors.push(`Search: [TODO:${[...localesNeeded][0]}]`);
 		}
-
-		// Check for missing locales
-		const filesWithMissing = [...result.issues.entries()].filter(
-			([, issue]) => issue.missingLocales.length > 0
-		);
-
-		if (filesWithMissing.length > 0) {
-			if (errors.length > 0) {
-				errors.push("");
-			}
-			const missingLocales = new Set<string>();
-			for (const [, issue] of filesWithMissing) {
-				for (const locale of issue.missingLocales) {
-					missingLocales.add(locale);
-				}
-			}
-
-			errors.push(`Missing locales: ${[...missingLocales].join(", ")}`);
-			errors.push(
-				"Add translations manually with [TODO:xx] placeholder, then translate."
-			);
-		}
+		errors.push(...missingErrors);
 
 		return { passed: false, errors };
 	}

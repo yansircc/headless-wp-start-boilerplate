@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { type CheckResult, printCheck } from "./types";
 
 const ROOT_DIR = join(import.meta.dir, "../..");
+const ORPHANED_PATTERN = /Orphaned translations found: ([a-z, ]+)/;
 
 function checkI18nConfig(): {
 	passed: boolean;
@@ -41,9 +42,7 @@ export function runI18nCheck(): CheckResult {
 		const output = result.output;
 
 		// Check for orphaned translations
-		const orphanedMatch = output.match(
-			/Orphaned translations found: ([a-z, ]+)/
-		);
+		const orphanedMatch = output.match(ORPHANED_PATTERN);
 		if (orphanedMatch) {
 			const locales = orphanedMatch[1];
 			return {
