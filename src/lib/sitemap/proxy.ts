@@ -13,6 +13,7 @@
  */
 
 import { env } from "@/env";
+import { supportedLocales } from "@/lib/i18n/language";
 
 function getWpBaseUrl(): string {
 	if (env.WP_URL) {
@@ -26,18 +27,8 @@ function getWpBaseUrl(): string {
 // URL Pattern Constants
 // ============================================
 
-const LOCALE_CODES = new Set([
-	"en",
-	"ja",
-	"zh",
-	"ko",
-	"fr",
-	"de",
-	"es",
-	"pt",
-	"it",
-	"ru",
-]);
+// Dynamically derived from WordPress Polylang via GraphQL LanguageCodeEnum
+const LOCALE_CODES: Set<string> = new Set(supportedLocales);
 
 const STATIC_PAGES = new Set([
 	"blog",
