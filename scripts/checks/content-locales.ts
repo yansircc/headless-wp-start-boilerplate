@@ -141,13 +141,22 @@ function generateTodoErrors(issues: Map<string, FileIssue>): {
 		.map(([file]) => file.replace("src/content/", ""))
 		.join(", ");
 	const localesList = [...localesNeeded].join(", ");
+	const firstLocale = [...localesNeeded][0];
 
 	errors.push(
-		`${filesWithTodos.length} file(s) need translation for: ${localesList}`
+		`${filesWithTodos.length} 个文件包含未翻译的 [TODO:${firstLocale}] 占位符`
 	);
-	errors.push(`  ${fileNames}`);
+	errors.push(`  文件: ${fileNames}`);
 	errors.push("");
-	errors.push(`Search: [TODO:${[...localesNeeded][0]}]`);
+	errors.push("Why: checkall 会阻止构建，直到所有 [TODO:xx] 占位符被翻译");
+	errors.push("     这确保生产环境不会出现未翻译的内容");
+	errors.push("");
+	errors.push("How: 在以下文件中搜索并翻译:");
+	errors.push(`  1. 在 IDE 中搜索: [TODO:${firstLocale}]`);
+	errors.push("  2. 将占位符替换为对应语言的翻译");
+	errors.push(
+		`  3. 如果语言已移除，运行: bun i18n:archive ${localesList.replace(/, /g, " ")}`
+	);
 
 	return { errors, localesNeeded };
 }
@@ -172,10 +181,19 @@ function generateMissingLocaleErrors(issues: Map<string, FileIssue>): string[] {
 		}
 	}
 
-	errors.push(`Missing locales: ${[...missingLocales].join(", ")}`);
+	const localesList = [...missingLocales].join(", ");
+	const firstLocale = [...missingLocales][0];
+	errors.push(`缺少以下语言的翻译键: ${localesList}`);
+	errors.push("");
+	errors.push("Why: 部分 t() 调用没有包含所有配置的语言");
+	errors.push("     这会导致运行时使用 fallback 语言，影响用户体验");
+	errors.push("");
+	errors.push("How: 为每个 t() 调用添加缺失的语言:");
+	errors.push(`  1. 搜索不包含 "${firstLocale}:" 的 t() 调用`);
 	errors.push(
-		"Add translations manually with [TODO:xx] placeholder, then translate."
+		`  2. 添加: ${firstLocale}: "[TODO:${firstLocale}] English text"`
 	);
+	errors.push("  3. 翻译所有 [TODO:xx] 占位符");
 
 	return errors;
 }

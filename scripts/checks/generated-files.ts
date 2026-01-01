@@ -99,9 +99,16 @@ export async function runGeneratedFilesNotModifiedCheck(): Promise<CheckResult> 
 		return {
 			passed: false,
 			errors: [
-				"Modified generated files:",
-				...result.modified.map((f) => `  \u2022 ${f}`),
-				"Fix: Revert changes and run `bun sync` instead",
+				"检测到自动生成的文件被手动修改:",
+				...result.modified.map((f) => `  • ${f}`),
+				"",
+				"Why: 这些文件由 `bun sync` 自动生成，手动修改会在下次同步时被覆盖",
+				"     正确做法是修改源文件（src/acf/definitions/），然后运行同步",
+				"",
+				"How: 执行以下步骤修复:",
+				"  1. 撤销对生成文件的修改: git checkout -- <file>",
+				"  2. 如需修改字段，编辑 src/acf/definitions/ 下的源文件",
+				"  3. 运行 `bun sync` 重新生成",
 			],
 		};
 	}
@@ -116,9 +123,12 @@ export function runGeneratedFilesExistCheck(): CheckResult {
 		return {
 			passed: false,
 			errors: [
-				"Missing files:",
-				...result.missing.map((f) => `  \u2022 ${f}`),
-				"Fix: Run `bun sync`",
+				"缺少必需的生成文件:",
+				...result.missing.map((f) => `  • ${f}`),
+				"",
+				"Why: 这些文件是构建所必需的，通常在首次设置或 git clone 后缺失",
+				"",
+				"How: 运行 `bun sync` 生成所有必需文件",
 			],
 		};
 	}

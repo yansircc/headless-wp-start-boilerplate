@@ -195,7 +195,12 @@ async function syncFonts(): Promise<void> {
 
 			console.log(`  \x1b[32m✓\x1b[0m ${font.family} synced`);
 		} catch (error) {
-			console.error(`  \x1b[31m✗\x1b[0m Error syncing ${font.family}:`, error);
+			console.error(`  \x1b[31m✗\x1b[0m ${font.family} 同步失败`);
+			console.error(`    \x1b[2m错误: ${error}\x1b[0m`);
+			console.error("    \x1b[2mWhy: 可能是网络问题或字体名称不存在\x1b[0m");
+			console.error(
+				`    \x1b[2mHow: 检查字体名称 "${font.family}" 是否正确\x1b[0m`
+			);
 			hasErrors = true;
 		}
 	}
@@ -205,7 +210,22 @@ async function syncFonts(): Promise<void> {
 	console.log(`\nGenerated: ${fontConfig.cssOutput}`);
 
 	if (hasErrors) {
-		console.log("\n\x1b[33m⚠ Some fonts failed to sync\x1b[0m\n");
+		console.log("\n\x1b[31m❌ 部分字体同步失败\x1b[0m");
+		console.log("");
+		console.log("\x1b[2mWhy: 网络问题或字体配置错误\x1b[0m");
+		console.log("");
+		console.log("\x1b[33mHow: 检查以下常见问题:\x1b[0m");
+		console.log(
+			"\x1b[2m  1. 网络连接是否正常（需要访问 fonts.googleapis.com）\x1b[0m"
+		);
+		console.log(
+			"\x1b[2m  2. 字体名称拼写是否正确（检查 src/lib/fonts/config.ts）\x1b[0m"
+		);
+		console.log(
+			"\x1b[2m  3. 访问 https://fonts.google.com 确认字体存在\x1b[0m"
+		);
+		console.log("");
+		console.log("\x1b[36m  修复后重试: bun fonts:sync\x1b[0m\n");
 		process.exit(1);
 	}
 
@@ -214,6 +234,11 @@ async function syncFonts(): Promise<void> {
 
 // Run
 syncFonts().catch((error) => {
-	console.error("Font sync error:", error);
+	console.error("\n\x1b[31m❌ 字体同步意外错误:\x1b[0m", error);
+	console.log("");
+	console.log("\x1b[33mHow: 如果问题持续，请尝试:\x1b[0m");
+	console.log("\x1b[2m  1. 检查 src/lib/fonts/config.ts 配置是否正确\x1b[0m");
+	console.log("\x1b[2m  2. 确保 public/fonts/ 目录存在且可写\x1b[0m");
+	console.log("\x1b[2m  3. 尝试删除 public/fonts/ 后重试\x1b[0m");
 	process.exit(1);
 });

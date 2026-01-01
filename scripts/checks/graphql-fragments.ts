@@ -12,6 +12,9 @@ import { type CheckResult, printCheck } from "./types";
 
 const ROOT_DIR = join(import.meta.dir, "../..");
 
+// Regex patterns (top-level for performance)
+const ACF_GROUP_SUFFIX_PATTERN = /AcfGroup$/;
+
 function checkFragmentUsage(): {
 	passed: boolean;
 	warnings: string[];
@@ -31,8 +34,23 @@ function checkFragmentUsage(): {
 		for (const match of content.matchAll(acfGroupPattern)) {
 			const block = match[0];
 			if (!block.includes("...")) {
+				const groupName = match[1];
+				const fragmentName = groupName.replace(
+					ACF_GROUP_SUFFIX_PATTERN,
+					"AcfFields"
+				);
 				warnings.push(
-					`${file}: Consider using auto-generated fragment instead of inline fields in ${match[1]}`
+					`${file}: 检测到 ${groupName} 使用内联字段`,
+					"",
+					"Why: 内联字段不会随 ACF 定义变更自动更新，容易导致数据缺失或类型不匹配",
+					"",
+					"How: 将内联字段替换为自动生成的 Fragment:",
+					`     ${groupName} {`,
+					`       ...${fragmentName}  ← 使用这个`,
+					"     }",
+					"",
+					"     Fragment 位置: src/graphql/_generated/ 或 src/acf/definitions/*/_generated/",
+					""
 				);
 			}
 		}

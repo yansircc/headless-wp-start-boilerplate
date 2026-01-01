@@ -170,11 +170,21 @@ function checkContentTypeRoutes(
 		const archive = typeSeo?.archive;
 
 		if (!archive) {
+			const typeName = CONTENT_TYPE_NAMES[contentType] || contentType;
 			results.contentTypeErrors.push(
-				`Frontend has ${route} route but WordPress "${contentType}" has no archive settings`
+				`前端有 ${route} 路由，但 WordPress "${contentType}" 没有 archive 设置`
+			);
+			results.contentTypeErrors.push("");
+			results.contentTypeErrors.push(
+				"Why: 没有 archive 设置会导致该页面缺少 SEO meta 标签"
+			);
+			results.contentTypeErrors.push("");
+			results.contentTypeErrors.push("How: 在 WordPress 后台配置:");
+			results.contentTypeErrors.push(
+				`  UI: Yoast SEO → Content types → ${typeName} → Archive`
 			);
 			results.contentTypeErrors.push(
-				`  \u2192 Configure: Yoast SEO \u2192 Content types \u2192 ${CONTENT_TYPE_NAMES[contentType] || contentType}`
+				`  或用 GraphQL 检查: query { seo { contentTypes { ${contentType} { archive { title } } } } }`
 			);
 			continue;
 		}
@@ -296,21 +306,31 @@ function checkGlobalSeoConfig(
 
 	// Check default OG image
 	if (!seo.openGraph?.defaultImage?.sourceUrl) {
+		results.globalWarnings.push("默认 OG 图片未设置 - 社交分享时将没有预览图");
+		results.globalWarnings.push("");
 		results.globalWarnings.push(
-			"Default OG image not set - social shares will have no image"
+			"Why: 没有默认图片时，Facebook/Twitter 分享会显示空白或随机图片"
 		);
+		results.globalWarnings.push("");
+		results.globalWarnings.push("How: 在 WordPress 后台设置:");
+		results.globalWarnings.push("  UI: Yoast SEO → Site basics → Site image");
 		results.globalWarnings.push(
-			"  \u2192 Configure: Yoast SEO \u2192 Site basics \u2192 Site image"
+			"  或用 GraphQL 检查: query { seo { openGraph { defaultImage { sourceUrl } } } }"
 		);
 	}
 
 	// Check schema settings
 	if (!seo.schema?.siteName?.trim()) {
+		results.globalWarnings.push("Schema 站点名称未设置 - 结构化数据可能不完整");
+		results.globalWarnings.push("");
 		results.globalWarnings.push(
-			"Schema site name not set - structured data may be incomplete"
+			"Why: 搜索引擎使用 Schema 数据展示富文本结果（如站点链接）"
 		);
+		results.globalWarnings.push("");
+		results.globalWarnings.push("How: 在 WordPress 后台设置:");
+		results.globalWarnings.push("  UI: Yoast SEO → Site basics → Site name");
 		results.globalWarnings.push(
-			"  \u2192 Configure: Yoast SEO \u2192 Site basics \u2192 Site name"
+			"  或用 GraphQL 检查: query { seo { schema { siteName } } }"
 		);
 	}
 }
