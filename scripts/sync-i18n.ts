@@ -302,6 +302,47 @@ function outputVerbose(result: SyncResult): void {
 	log(`\n${c.green}✅ i18n sync complete!${c.reset}\n`);
 }
 
+/**
+ * Run check mode validation
+ * Returns true if check passed, exits with code 1 on failure
+ */
+async function runCheckMode(
+	newConfig: string,
+	orphaned: string[],
+	restorable: string[],
+	isQuiet: boolean
+): Promise<boolean> {
+	const isUpToDate = await checkConfigUpToDate(newConfig);
+
+	if (orphaned.length > 0) {
+		log(`  ✗ Orphaned translations found: ${orphaned.join(", ")}`, "red");
+		log(`\n  Run: bun i18n:archive ${orphaned.join(" ")}`, "cyan");
+		process.exit(1);
+	}
+
+	if (restorable.length > 0) {
+		log(
+			`  ✗ Unrestored archived translations: ${restorable.join(", ")}`,
+			"red"
+		);
+		log(`\n  Run: bun i18n:restore ${restorable.join(" ")}`, "cyan");
+		process.exit(1);
+	}
+
+	if (isUpToDate) {
+		if (!isQuiet) {
+			log("  ✓ intlayer.config.ts is up to date", "green");
+		}
+		return true;
+	}
+
+	log(
+		"  ✗ intlayer.config.ts is out of sync. Run `bun sync` to update.",
+		"red"
+	);
+	process.exit(1);
+}
+
 async function main() {
 	const isCheck = process.argv.includes("--check");
 	const isQuiet = process.argv.includes("--quiet");
@@ -350,26 +391,8 @@ async function main() {
 
 		// Step 7: Check mode
 		if (isCheck) {
-			const isUpToDate = await checkConfigUpToDate(newConfig);
-
-			if (orphaned.length > 0) {
-				log(`  ✗ Orphaned translations found: ${orphaned.join(", ")}`, "red");
-				log(`\n  Run: bun i18n:archive ${orphaned.join(" ")}`, "cyan");
-				process.exit(1);
-			}
-
-			if (isUpToDate) {
-				if (!isQuiet) {
-					log("  ✓ intlayer.config.ts is up to date", "green");
-				}
-				return;
-			}
-
-			log(
-				"  ✗ intlayer.config.ts is out of sync. Run `bun sync` to update.",
-				"red"
-			);
-			process.exit(1);
+			await runCheckMode(newConfig, orphaned, restorable, isQuiet);
+			return;
 		}
 
 		// Step 8: Write the config

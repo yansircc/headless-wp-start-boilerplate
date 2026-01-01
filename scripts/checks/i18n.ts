@@ -10,6 +10,7 @@ import { type CheckResult, printCheck } from "./types";
 
 const ROOT_DIR = join(import.meta.dir, "../..");
 const ORPHANED_PATTERN = /Orphaned translations found: ([a-z, ]+)/;
+const UNRESTORED_PATTERN = /Unrestored archived translations: ([a-z, ]+)/;
 
 function checkI18nConfig(): {
 	passed: boolean;
@@ -50,6 +51,19 @@ export function runI18nCheck(): CheckResult {
 				errors: [
 					`Orphaned translations: ${locales}`,
 					`Fix: Run \`bun i18n:archive ${locales.replace(/, /g, " ")}\``,
+				],
+			};
+		}
+
+		// Check for unrestored archived translations
+		const unrestoredMatch = output.match(UNRESTORED_PATTERN);
+		if (unrestoredMatch) {
+			const locales = unrestoredMatch[1];
+			return {
+				passed: false,
+				errors: [
+					`Unrestored translations: ${locales}`,
+					`Fix: Run \`bun i18n:restore ${locales.replace(/, /g, " ")}\``,
 				],
 			};
 		}
