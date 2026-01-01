@@ -16,6 +16,7 @@
 
 import {
 	type CheckResult,
+	runContentLocalesCheck,
 	runFontsValidationCheck,
 	runFragmentUsageCheck,
 	runGeneratedFilesExistCheck,
@@ -40,6 +41,7 @@ async function main() {
 	results.push(runGeneratedFilesExistCheck());
 	results.push(runFragmentUsageCheck());
 	results.push(runI18nCheck());
+	results.push(await runContentLocalesCheck());
 
 	// Run fonts validation check
 	results.push(runFontsValidationCheck());

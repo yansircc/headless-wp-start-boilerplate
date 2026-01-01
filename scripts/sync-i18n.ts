@@ -147,9 +147,6 @@ const config: IntlayerConfig = {
 ${localesFormatted}
 		],
 		defaultLocale: ${defaultLocale},
-		// Only require defaultLocale translations; other locales fallback to it
-		requiredLocales: [${defaultLocale}],
-		strictMode: "loose",
 	},
 	content: {
 		contentDir: ["./src/content"],

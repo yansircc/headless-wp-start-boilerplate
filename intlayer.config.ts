@@ -19,9 +19,6 @@ const config: IntlayerConfig = {
 			Locales.CHINESE,
 		],
 		defaultLocale: Locales.ENGLISH,
-		// Only require defaultLocale translations; other locales fallback to it
-		requiredLocales: [Locales.ENGLISH],
-		strictMode: "loose",
 	},
 	content: {
 		contentDir: ["./src/content"],

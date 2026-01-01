@@ -4,6 +4,8 @@
  * Exports all available checks for checkall.ts
  */
 
+// Content locales check
+export { runContentLocalesCheck } from "./content-locales";
 // Fonts validation check
 export { runFontsValidationCheck } from "./fonts-validation";
 // Generated files checks

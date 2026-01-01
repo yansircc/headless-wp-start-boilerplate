@@ -12,6 +12,7 @@ const commonContent = {
 				fr: "Accueil",
 				de: "Startseite",
 				es: "Inicio",
+				pt: "Início",
 			}),
 			posts: t({
 				en: "Posts",
@@ -21,6 +22,7 @@ const commonContent = {
 				fr: "Articles",
 				de: "Beiträge",
 				es: "Publicaciones",
+				pt: "Publicações",
 			}),
 			products: t({
 				en: "Products",
@@ -30,6 +32,7 @@ const commonContent = {
 				fr: "Produits",
 				de: "Produkte",
 				es: "Productos",
+				pt: "Produtos",
 			}),
 		},
 		actions: {
@@ -41,6 +44,7 @@ const commonContent = {
 				fr: "Voir tout",
 				de: "Alle anzeigen",
 				es: "Ver todo",
+				pt: "Ver tudo",
 			}),
 			readMore: t({
 				en: "Read More",
@@ -50,6 +54,7 @@ const commonContent = {
 				fr: "Lire la suite",
 				de: "Mehr lesen",
 				es: "Leer más",
+				pt: "Ler mais",
 			}),
 			readPosts: t({
 				en: "Read Posts",
@@ -59,6 +64,7 @@ const commonContent = {
 				fr: "Lire les articles",
 				de: "Beiträge lesen",
 				es: "Leer publicaciones",
+				pt: "Ler publicações",
 			}),
 			viewProducts: t({
 				en: "View Products",
@@ -68,6 +74,7 @@ const commonContent = {
 				fr: "Voir les produits",
 				de: "Produkte ansehen",
 				es: "Ver productos",
+				pt: "Ver produtos",
 			}),
 		},
 		language: {
@@ -79,6 +86,7 @@ const commonContent = {
 				fr: "Langue",
 				de: "Sprache",
 				es: "Idioma",
+				pt: "Idioma",
 			}),
 		},
 		// Homepage
@@ -91,6 +99,7 @@ const commonContent = {
 				fr: "Nouvelle expérience",
 				de: "Neue Erfahrung",
 				es: "Nueva experiencia",
+				pt: "Nova experiência",
 			}),
 			title: t({
 				en: "Modern Headless CMS.",
@@ -100,6 +109,7 @@ const commonContent = {
 				fr: "CMS Headless Moderne.",
 				de: "Modernes Headless CMS.",
 				es: "CMS Headless Moderno.",
+				pt: "CMS Headless Moderno.",
 			}),
 			subtitle: t({
 				en: "Explore the latest insights and products delivered through a cutting-edge headless WordPress architecture.",
@@ -109,6 +119,7 @@ const commonContent = {
 				fr: "Découvrez les dernières informations et produits fournis via une architecture WordPress headless de pointe.",
 				de: "Entdecken Sie die neuesten Einblicke und Produkte, bereitgestellt durch eine hochmoderne Headless-WordPress-Architektur.",
 				es: "Explore las últimas perspectivas y productos entregados a través de una arquitectura WordPress headless de vanguardia.",
+				pt: "Explore as últimas perspectivas e produtos entregues através de uma arquitetura WordPress headless de ponta.",
 			}),
 		},
 		// Sections
@@ -122,6 +133,7 @@ const commonContent = {
 					fr: "Articles",
 					de: "Artikel",
 					es: "Artículos",
+					pt: "Artigos",
 				}),
 				subtitle: t({
 					en: "Latest news and deep insights",
@@ -131,6 +143,7 @@ const commonContent = {
 					fr: "Dernières nouvelles et analyses approfondies",
 					de: "Neueste Nachrichten und tiefe Einblicke",
 					es: "Últimas noticias y perspectivas profundas",
+					pt: "Últimas notícias e perspectivas profundas",
 				}),
 				badge: t({
 					en: "Insights",
@@ -140,6 +153,7 @@ const commonContent = {
 					fr: "Perspectives",
 					de: "Einblicke",
 					es: "Perspectivas",
+					pt: "Perspectivas",
 				}),
 				pageSubtitle: t({
 					en: "Discover ideas and insights, explore our latest published articles.",
@@ -149,6 +163,7 @@ const commonContent = {
 					fr: "Découvrez des idées et des perspectives, explorez nos derniers articles publiés.",
 					de: "Entdecken Sie Ideen und Einblicke, erkunden Sie unsere neuesten veröffentlichten Artikel.",
 					es: "Descubre ideas y perspectivas, explora nuestros últimos artículos publicados.",
+					pt: "Descubra ideias e perspectivas, explore nossos últimos artigos publicados.",
 				}),
 				empty: t({
 					en: "No articles found",
@@ -158,6 +173,7 @@ const commonContent = {
 					fr: "Aucun article trouvé",
 					de: "Keine Artikel gefunden",
 					es: "No se encontraron artículos",
+					pt: "Nenhum artigo encontrado",
 				}),
 			},
 			products: {
@@ -169,6 +185,7 @@ const commonContent = {
 					fr: "Produits",
 					de: "Produkte",
 					es: "Productos",
+					pt: "Produtos",
 				}),
 				subtitle: t({
 					en: "Curated selection of quality items",
@@ -178,6 +195,7 @@ const commonContent = {
 					fr: "Sélection de produits de qualité",
 					de: "Kuratierte Auswahl hochwertiger Artikel",
 					es: "Selección curada de artículos de calidad",
+					pt: "Seleção curada de itens de qualidade",
 				}),
 				badge: t({
 					en: "Store",
@@ -187,6 +205,7 @@ const commonContent = {
 					fr: "Boutique",
 					de: "Laden",
 					es: "Tienda",
+					pt: "Loja",
 				}),
 				pageSubtitle: t({
 					en: "Curated selection of high-quality items to meet your diverse needs.",
@@ -196,6 +215,7 @@ const commonContent = {
 					fr: "Sélection de produits de haute qualité pour répondre à vos besoins variés.",
 					de: "Kuratierte Auswahl hochwertiger Artikel für Ihre vielfältigen Bedürfnisse.",
 					es: "Selección curada de artículos de alta calidad para satisfacer sus diversas necesidades.",
+					pt: "Seleção curada de itens de alta qualidade para atender às suas diversas necessidades.",
 				}),
 				empty: t({
 					en: "No products found",
@@ -205,6 +225,7 @@ const commonContent = {
 					fr: "Aucun produit trouvé",
 					de: "Keine Produkte gefunden",
 					es: "No se encontraron productos",
+					pt: "Nenhum produto encontrado",
 				}),
 			},
 		},
@@ -218,6 +239,7 @@ const commonContent = {
 				fr: "Échec du chargement",
 				de: "Laden fehlgeschlagen",
 				es: "Error al cargar",
+				pt: "Falha ao carregar",
 			}),
 			tryAgain: t({
 				en: "Please refresh the page to try again",
@@ -227,6 +249,7 @@ const commonContent = {
 				fr: "Veuillez actualiser la page pour réessayer",
 				de: "Bitte aktualisieren Sie die Seite, um es erneut zu versuchen",
 				es: "Por favor actualice la página para intentar de nuevo",
+				pt: "Por favor atualize a página para tentar novamente",
 			}),
 			notFound: {
 				title: t({
@@ -237,6 +260,7 @@ const commonContent = {
 					fr: "Page non trouvée",
 					de: "Seite nicht gefunden",
 					es: "Página no encontrada",
+					pt: "Página não encontrada",
 				}),
 				message: t({
 					en: "The page you're looking for doesn't exist or has been moved.",
@@ -246,6 +270,7 @@ const commonContent = {
 					fr: "La page que vous recherchez n'existe pas ou a été déplacée.",
 					de: "Die gesuchte Seite existiert nicht oder wurde verschoben.",
 					es: "La página que busca no existe o ha sido movida.",
+					pt: "A página que você procura não existe ou foi movida.",
 				}),
 				backToHome: t({
 					en: "Back to Home",
@@ -255,6 +280,7 @@ const commonContent = {
 					fr: "Retour à l'accueil",
 					de: "Zurück zur Startseite",
 					es: "Volver al inicio",
+					pt: "Voltar ao início",
 				}),
 				browseArticles: t({
 					en: "Browse Articles",
@@ -264,6 +290,7 @@ const commonContent = {
 					fr: "Parcourir les articles",
 					de: "Artikel durchsuchen",
 					es: "Explorar artículos",
+					pt: "Explorar artigos",
 				}),
 			},
 		},
